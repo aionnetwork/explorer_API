@@ -1,16 +1,8 @@
 package com.aion.dashboard.utility;
 
-import com.aion.dashboard.entities.Block;
-import com.aion.dashboard.entities.ParserState;
-import com.aion.dashboard.repository.BlockJpaRepository;
-import com.aion.dashboard.repository.ParserStateJpaRepository;
-import com.aion.dashboard.repository.TokenJpaRepository;
-import com.aion.dashboard.types.ParserStateType;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

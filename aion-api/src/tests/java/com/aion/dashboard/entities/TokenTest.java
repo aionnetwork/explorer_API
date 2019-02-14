@@ -1,12 +1,10 @@
 package com.aion.dashboard.entities;
 
-import com.aion.dashboard.repository.TokenJpaRepository;
+import com.aion.dashboard.repositories.TokenJpaRepository;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 public class TokenTest {
 
@@ -17,7 +15,7 @@ public class TokenTest {
 
     @BeforeAll
     void getToken() {
-//        token = tokenJpaRepository.findAllTokens(new PageRequest(0, 100, new Sort()));
+//        token = tokenJpaRepository.findAllTokens(PageRequest.of(0, 100, new Sort()));
     }
 
     @Test

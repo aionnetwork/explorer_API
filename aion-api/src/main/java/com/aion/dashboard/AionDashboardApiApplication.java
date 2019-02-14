@@ -30,7 +30,7 @@ public class AionDashboardApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AionDashboardApiApplication.class, args);
 	}
-	
+
 	@Bean
 	public FilterRegistrationBean corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -49,7 +49,7 @@ public class AionDashboardApiApplication {
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2)
 				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.aion.dashboard.controller"))
+				.apis(RequestHandlerSelectors.basePackage("com.aion.dashboard.controllers"))
 				.paths(PathSelectors.any())
 				.build();
 	}

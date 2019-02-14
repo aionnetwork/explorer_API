@@ -1,5 +1,5 @@
 #!/bin/bash
-pid=$(lsof -i:8080 -t);
+pid=$(lsof -i:8080 -sTCP:LISTEN -t);
 API_DIR=/home/aion/deployment/api2
 
 if [ -n "$pid" ]; then
@@ -14,4 +14,4 @@ fi
 
 
 #API_DIR=/home/aion/deployment/api2
-sudo su aion && source /home/aion/deployment/.env && /home/aion/deployment/api2/mvnw spring-boot:run >> /home/aion/deployment/api2/logs/api.log &
+sudo su aion && source /home/aion/deployment/.env && /home/aion/deployment/api2/mvnw spring-boot:run &>> /home/aion/deployment/api2/logs/api.log &

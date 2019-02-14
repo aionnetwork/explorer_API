@@ -6,7 +6,13 @@
             <Pattern>%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable</Pattern>
         </encoder>
     </appender>
-     
+    <appender name="Async_Console" level="info" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <maxFlushTime>30000</maxFlushTime>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="Console" />
+    </appender>
     <appender name="Tomcat" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/tomcat-errors.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -35,5 +41,9 @@
     <!-- LOG "org.apache.tomcat" at ERROR level -->
     <logger name="org.apache.tomcat" level="ERROR" additivity="false">
         <appender-ref ref="Tomcat" />
+    </logger>
+    
+    <logger name="general" level="TRACE" additivity="false">
+        <appender-ref ref="Async_Console"/>
     </logger>
 </configuration>

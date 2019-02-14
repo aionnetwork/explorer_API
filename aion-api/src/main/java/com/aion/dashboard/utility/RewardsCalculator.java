@@ -19,8 +19,7 @@ public class RewardsCalculator {
      * Pre-calculate the desired increment
      */
 	static {
-		long delta = MONTHLY_BLOCK_COUNT - 0;
-		m = AFTER_MONTH_ONE_BLOCK_REWARD.subtract(BLOCK_ONE_BLOCK_REWARD).divide(BigInteger.valueOf(delta));
+		m = AFTER_MONTH_ONE_BLOCK_REWARD.subtract(BLOCK_ONE_BLOCK_REWARD).divide(BigInteger.valueOf(MONTHLY_BLOCK_COUNT));
 	}
 
 	/**
@@ -28,11 +27,11 @@ public class RewardsCalculator {
 	 */
 	public static BigInteger calculateReward(long number) {
 		if(number < 1) return BigInteger.ZERO;
-		if(number <= MONTHLY_BLOCK_COUNT) return BigInteger.valueOf(number - 1).multiply(m).add(BLOCK_ONE_BLOCK_REWARD);
+		if(number <= MONTHLY_BLOCK_COUNT) return BigInteger.valueOf(number).multiply(m).add(BLOCK_ONE_BLOCK_REWARD);
 		if(number <= YEARLY_BLOCK_COUNT)  return AFTER_MONTH_ONE_BLOCK_REWARD;
 		else {
             long NoYP = number / YEARLY_BLOCK_COUNT;                        // Calculate the Number of Years Passed (NoYP)
-            BigDecimal result = new BigDecimal(AFTER_MONTH_ONE_BLOCK_REWARD.doubleValue());
+            BigDecimal result = new BigDecimal(AFTER_MONTH_ONE_BLOCK_REWARD);
             for(int i = 0; i < NoYP; i++) result = result.multiply(YEARLY_INFLATION_RATE);
 		    return BigInteger.valueOf(result.longValue());
 		}
