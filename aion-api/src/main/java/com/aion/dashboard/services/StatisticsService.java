@@ -233,7 +233,11 @@ public class StatisticsService {
 
         Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
-        List<Object> txnsList = txnRepo.findAvgsAndCountForToAddressByTimestampRange(oneDayAgo, currTime);
+
+
+        var zdtStart = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currTime), ZoneId.of("UTC"));
+        var zdtEnd = ZonedDateTime.ofInstant(Instant.ofEpochSecond(oneDayAgo), ZoneId.of("UTC"));
+        List<Object> txnsList = txnRepo.findAvgsAndCountForToAddressByTimestampRange(oneDayAgo, currTime, zdtStart.getYear(), zdtStart.getMonthValue(), zdtEnd.getYear(), zdtEnd.getMonthValue());
 
         if(!txnsList.isEmpty()) {
 
@@ -267,7 +271,9 @@ public class StatisticsService {
 
         Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
-        List<Object> txnsList = txnRepo.findAvgsAndCountForFromAddressByTimestampRange(oneDayAgo, currTime);
+        var zdtStart = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currTime), ZoneId.of("UTC"));
+        var zdtEnd = ZonedDateTime.ofInstant(Instant.ofEpochSecond(oneDayAgo), ZoneId.of("UTC"));
+        List<Object> txnsList = txnRepo.findAvgsAndCountForFromAddressByTimestampRange(oneDayAgo, currTime, zdtStart.getYear(), zdtStart.getMonthValue(), zdtEnd.getYear(), zdtEnd.getMonthValue());
 
         if(!txnsList.isEmpty()) {
 
