@@ -155,15 +155,13 @@ public class AccountService {
         if (tokenHoldersList != null && !tokenHoldersList.isEmpty()) {
             for (TokenHolders tokenHolders : tokenHoldersList) {
                 Token token = tknRepo.findByContractAddr(tokenHolders.getContractAddr());
-                JSONObject result = new JSONObject(ow.writeValueAsString(token));
-                tokenArray.put(result);
+                if (token != null) {
+                    JSONObject result = new JSONObject(ow.writeValueAsString(token));
+                    tokenArray.put(result);
+                }
             }
         }
 
-        // If the ResultSet is Null
-        if(tokenArray.length() == 0) {
-            tokenArray = new JSONArray();
-        }
         return tokenArray.toString();
     }
 }

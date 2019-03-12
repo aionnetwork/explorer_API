@@ -111,7 +111,7 @@ public class BlockService {
             PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sortDesc());
             ZonedDateTime startZDT = Instant.ofEpochSecond(start).atZone(ZoneId.of("UTC"));
             ZonedDateTime endZDT = Instant.ofEpochSecond(end).atZone(ZoneId.of("UTC"));
-            Utility.validatePeriod(startZDT, endZDT);
+            
 
             traceLogStartAndEnd(startZDT, startZDT, "Call to getBlocksMinedByAddress");
 

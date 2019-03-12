@@ -220,7 +220,7 @@ public class TransactionService {
 		if(Utility.isValidAddress(address)) {
 			var dateStart = Instant.ofEpochSecond(timeStampStart).atZone(ZoneId.of("UTC"));
 			var dateEnd = Instant.ofEpochSecond(timeStampEnd).atZone(ZoneId.of("UTC"));
-            Utility.validatePeriod(dateStart, dateEnd);
+
             Logging.traceLogStartAndEnd(dateStart,dateEnd, "Call to getTransactionsByAddressForNative");
 
 			var page = txnRepo.findAll(TransactionSpec.hasAddr(address).and(TransactionSpec.checkTime(dateStart, dateEnd)), PageRequest.of(pageNumber, pageSize, sortDesc1()));
