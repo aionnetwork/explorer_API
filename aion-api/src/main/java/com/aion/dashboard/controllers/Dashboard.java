@@ -1,5 +1,6 @@
 package com.aion.dashboard.controllers;
 
+import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Statistics;
 import com.aion.dashboard.services.*;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.Cacheable;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -523,6 +525,13 @@ public class Dashboard {
             return getJsonString(MESSAGE,INVALID_REQUEST);
 
         }
+    }
+
+
+    @Cacheable(CacheConfig.BLOCK_NUMBER)
+    @GetMapping(value = "/getBlockNumber")
+    public String getBlockNumber(){
+        return blockService.getBlockNumber();
     }
 
 

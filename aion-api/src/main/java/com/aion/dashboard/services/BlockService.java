@@ -6,6 +6,7 @@ import com.aion.dashboard.entities.Block;
 import com.aion.dashboard.entities.Transaction;
 import com.aion.dashboard.repositories.AccountJpaRepository;
 import com.aion.dashboard.repositories.BlockJpaRepository;
+import com.aion.dashboard.repositories.ParserStateJpaRepository;
 import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.specification.BlockSpec;
 import com.aion.dashboard.utility.RewardsCalculator;
@@ -232,5 +233,30 @@ public class BlockService {
 		}
 
 		throw new Exception();
+	}
+
+	@Autowired
+    private	ParserStateJpaRepository psRepo;
+
+	public String getBlockNumber() {
+
+		JSONObject output = new JSONObject();
+		final String errorKey = "error";
+		final String dataKey = "data";
+		try {
+			var state = psRepo.findById(1);
+
+
+			if (state.isPresent()) {
+				output.put(dataKey, state.get().getBlockNumber());
+				output.put(errorKey, false);
+			} else {
+				output.put(errorKey, true);
+			}
+			return output.toString();
+		}catch (Exception e){
+			return 	output.put(errorKey, true).toString();
+
+		}
 	}
 }
