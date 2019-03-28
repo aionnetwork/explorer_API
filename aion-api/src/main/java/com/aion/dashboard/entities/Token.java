@@ -1,5 +1,9 @@
 package com.aion.dashboard.entities;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Transient;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -39,15 +43,29 @@ public class Token {
     public String getCreatorAddress() {
         return creatorAddress;
     }
+    @JsonIgnore
     public BigDecimal getGranularity() {
         return granularity;
     }
+    @JsonIgnore
     public BigDecimal getTotalSupply() {
         return totalSupply;
     }
+    @JsonIgnore
     public BigDecimal getLiquidSupply() {
         return liquidSupply;
     }
+
+    @JsonGetter("granularity")
+    @Transient
+    public String getPlainStringGranularity(){return granularity.toPlainString();}
+    @JsonGetter("totalSupply")
+    @Transient
+    public String getPlainStringTotalSupply(){return totalSupply.toPlainString();}
+    @JsonGetter("liquidSupply")
+    @Transient
+    public String getPlainStringLiquidSupply(){return liquidSupply.toPlainString();}
+
     public Long getCreationTimestamp() {
         return creationTimestamp;
     }

@@ -1,6 +1,10 @@
 package com.aion.dashboard.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Transient;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -91,9 +95,18 @@ public class Transaction {
     public String getData() {
         return data;
     }
+    @JsonIgnore
     public BigDecimal getValue() {
         return value;
     }
+
+    @Transient
+    @JsonGetter("value")
+    public String getPlainStringValue(){
+        return value.toPlainString();
+    }
+
+
     @Column(name = "block_number")
     public void setBlockNumber(Long blockNumber) {
         this.blockNumber = blockNumber;
