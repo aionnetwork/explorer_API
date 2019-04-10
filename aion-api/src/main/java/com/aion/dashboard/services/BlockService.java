@@ -171,7 +171,7 @@ public class BlockService {
 							txn.getTransactionHash() + "," +
 							txn.getFromAddr() + "," +
 							txn.getToAddr() + "," +
-							Utility.toAion(txn.getValue()).doubleValue() + "," +
+							Utility.toAion(txn.getValue()) + "," +
 							txn.getBlockTimestamp() + "," +
 							txn.getBlockNumber() +
 							"]";
@@ -209,7 +209,7 @@ public class BlockService {
 							txn.getTransactionHash() + "," +
 							txn.getFromAddr() + "," +
 							txn.getToAddr() + "," +
-							Utility.toAion(txn.getValue()).doubleValue() + "," +
+							Utility.toAion(txn.getValue()) + "," +
 							txn.getBlockTimestamp() + "," +
 							txn.getBlockNumber() +
 							"]";
