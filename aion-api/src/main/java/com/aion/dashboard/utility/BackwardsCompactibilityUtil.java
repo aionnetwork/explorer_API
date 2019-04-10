@@ -2,7 +2,9 @@ package com.aion.dashboard.utility;
 
 import com.aion.dashboard.entities.Metrics;
 import org.json.JSONObject;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

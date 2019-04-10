@@ -280,8 +280,7 @@ fi
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
 DATA_DOG=""
-API_OPTS='-Dserver.port=8080 -DDATADOG_ENABLE=true -Dcom.sun.management.jmxremote.port=7092 -Dcom.sun.management.jmxremote.rmit=7092 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false'
-#API_OPTS='-Dserver.port=8087 -DDATADOG_ENABLE=false '
+API_OPTS=""
 exec "$JAVACMD" \
   $MAVEN_OPTS \
   $DATA_DOG \

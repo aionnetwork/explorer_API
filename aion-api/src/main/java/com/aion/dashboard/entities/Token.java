@@ -1,6 +1,8 @@
 package com.aion.dashboard.entities;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Transient;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,47 +19,106 @@ public class Token {
     private String symbol;
     private String transactionHash;
     private String creatorAddress;
-//    private String specialAddress;
     private BigDecimal granularity;
-    private Long totalSupply;
-    private Long liquidSupply;
+    private BigDecimal totalSupply;
+    private BigDecimal liquidSupply;
     private Long creationTimestamp;
+    private Integer tokenDecimal;
+    private Integer year;
+    private Integer month;
+    private Integer day;
 
-    public String getContractAddr()    { return contractAddr;      }
-    public String getName()            { return name;              }
-    public String getSymbol()          { return symbol;            }
-    public String getTransactionHash() { return transactionHash;   }
-    public String getCreatorAddress()  { return creatorAddress;    }
-//    public String getSpecialAddress()  { return specialAddress;    }
-    public BigDecimal getGranularity() { return granularity;       }
-    public Long getTotalSupply()       { return totalSupply;       }
-    public Long getLiquidSupply()      { return liquidSupply;      }
-    public Long getCreationTimestamp() { return creationTimestamp; }
+    public String getContractAddr() {
+        return contractAddr;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getSymbol() {
+        return symbol;
+    }
+    public String getTransactionHash() {
+        return transactionHash;
+    }
+    public String getCreatorAddress() {
+        return creatorAddress;
+    }
+    @JsonIgnore
+    public BigDecimal getGranularity() {
+        return granularity;
+    }
+    @JsonIgnore
+    public BigDecimal getTotalSupply() {
+        return totalSupply;
+    }
+    @JsonIgnore
+    public BigDecimal getLiquidSupply() {
+        return liquidSupply;
+    }
 
-    public void setContractAddr(String contractAddr)         { this.contractAddr      = contractAddr;      }
-    public void setName(String name)                         { this.name              = name;              }
-    public void setSymbol(String symbol)                     { this.symbol            = symbol;            }
-    public void setTransactionHash(String transactionHash)   { this.transactionHash   = transactionHash;   }
-    public void setCreatorAddress(String creatorAddress)     { this.creatorAddress    = creatorAddress;    }
-//    public void setSpecialAddress(String specialAddress)     { this.specialAddress    = specialAddress;    }
-    public void setGranularity(BigDecimal granularity)       { this.granularity       = granularity;       }
-    public void setTotalSupply(Long totalSupply)             { this.totalSupply       = totalSupply;       }
-    public void setLiquidSupply(Long liquidSupply)           { this.liquidSupply      = liquidSupply;      }
-    public void setCreationTimestamp(Long creationTimestamp) { this.creationTimestamp = creationTimestamp; }
+    @JsonGetter("granularity")
+    @Transient
+    public String getPlainStringGranularity(){return granularity.toPlainString();}
+    @JsonGetter("totalSupply")
+    @Transient
+    public String getPlainStringTotalSupply(){return totalSupply.toPlainString();}
+    @JsonGetter("liquidSupply")
+    @Transient
+    public String getPlainStringLiquidSupply(){return liquidSupply.toPlainString();}
 
-    public static Token toObject(JSONObject jsonObject) {
-        Token token = new Token();
+    public Long getCreationTimestamp() {
+        return creationTimestamp;
+    }
+    public Integer getTokenDecimal() {
+        return tokenDecimal;
+    }
+    public Integer getYear() {
+        return year;
+    }
+    public Integer getMonth() {
+        return month;
+    }
+    public Integer getDay() {
+        return day;
+    }
 
-        token.setName(jsonObject.getString("name"));
-        token.setSymbol(jsonObject.getString("symbol"));
-        token.setTotalSupply(jsonObject.getLong("totalSupply"));
-        token.setLiquidSupply(jsonObject.getLong("liquidSupply"));
-        token.setGranularity(new BigDecimal(jsonObject.getLong("granularity")));
-        token.setContractAddr(jsonObject.getString("contractAddr"));
-        token.setCreatorAddress(jsonObject.getString("creatorAddress"));
-        token.setTransactionHash(jsonObject.getString("transactionHash"));
-        token.setCreationTimestamp(jsonObject.getLong("creationTimestamp"));
-
-        return token;
+    public void setContractAddr(String contractAddr) {
+        this.contractAddr = contractAddr;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+    public void setTransactionHash(String transactionHash) {
+        this.transactionHash = transactionHash;
+    }
+    public void setCreatorAddress(String creatorAddress) {
+        this.creatorAddress = creatorAddress;
+    }
+    public void setGranularity(BigDecimal granularity) {
+        this.granularity = granularity;
+    }
+    public void setTotalSupply(BigDecimal totalSupply) {
+        this.totalSupply = totalSupply;
+    }
+    public void setLiquidSupply(BigDecimal liquidSupply) {
+        this.liquidSupply = liquidSupply;
+    }
+    public void setCreationTimestamp(Long creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+    public void setTokenDecimal(Integer tokenDecimal) {
+        this.tokenDecimal = tokenDecimal;
+    }
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+    public void setMonth(Integer month) {
+        this.month = month;
+    }
+    public void setDay(Integer day) {
+        this.day = day;
     }
 }
