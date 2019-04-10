@@ -95,17 +95,9 @@ public class Transaction {
     public String getData() {
         return data;
     }
-    @JsonIgnore
     public BigDecimal getValue() {
         return value;
     }
-
-    @Transient
-    @JsonGetter("value")
-    public String getPlainStringValue(){
-        return value.toPlainString();
-    }
-
 
     @Column(name = "block_number")
     public void setBlockNumber(Long blockNumber) {
