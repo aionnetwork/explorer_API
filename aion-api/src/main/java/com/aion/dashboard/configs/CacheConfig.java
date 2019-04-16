@@ -74,6 +74,7 @@ public class CacheConfig {
    // Third Party API
    public static final String COUNT_OPERATIONS = "countOperations";
    public static final String CIRCULATING_SUPPLY = "circulatingSupply";
+   public static final String BLOCK_NUMBER ="BlockNumber";
 
    @Bean
    public CacheManager cacheManager() {
@@ -132,7 +133,8 @@ public class CacheConfig {
 
               // Third Party API
               buildExpireAfterWriteCache(COUNT_OPERATIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(CIRCULATING_SUPPLY, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable)
+              buildExpireAfterWriteCache(CIRCULATING_SUPPLY, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+              buildExpireAfterWriteCache(BLOCK_NUMBER, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable)
       ));
       return cacheManager;
    }
