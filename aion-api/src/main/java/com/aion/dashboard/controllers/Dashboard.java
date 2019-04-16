@@ -19,35 +19,38 @@ import springfox.documentation.annotations.Cacheable;
 @RequestMapping("/dashboard")
 public class Dashboard {
 
-    @Autowired
+    private static final String MESSAGE = "message";
+    private static final String INVALID_REQUEST = "Error: Invalid Request";
+    private static final String MISSING_SEARCH_PARAM = "Missing Search Param";
+    private static final String RESULT = "result";
+    private static final String SEARCH_TYPE = "searchType";
     private BlockService blockService;
-
-    @Autowired
     private TokenService tokenService;
-
-    @Autowired
     private AccountService accountService;
-
-    @Autowired
     private GraphingService graphingService;
-
-    @Autowired
     private ContractService contractService;
-
-    @Autowired
     private ThirdPartyService thirdPartyService;
-
-    @Autowired
     private TransactionService transactionService;
-
-    @Autowired
     private SimpMessagingTemplate brokerMessagingTemplate;
+    @Autowired
+    Dashboard(BlockService blockService,
+              TokenService tokenService,
+              AccountService accountService,
+              GraphingService graphingService,
+              ContractService contractService,
+              ThirdPartyService thirdPartyService,
+              TransactionService transactionService,
+              SimpMessagingTemplate brokerMessagingTemplate) {
+        this.blockService = blockService;
+        this.tokenService = tokenService;
+        this.accountService = accountService;
+        this.graphingService = graphingService;
+        this.contractService = contractService;
+        this.thirdPartyService = thirdPartyService;
+        this.transactionService = transactionService;
+        this.brokerMessagingTemplate = brokerMessagingTemplate;
+    }
 
-    private static  final String MESSAGE="message";
-    private static  final String  INVALID_REQUEST="Error: Invalid Request";
-    private static  final String MISSING_SEARCH_PARAM="Missing Search Param";
-    private static final String RESULT="result";
-    private static final String SEARCH_TYPE="searchType";
     // Tokens
     @GetMapping(value = "/getTokenList")
     public String getTokenList(@RequestParam(value = "page", required = false) String page,
@@ -62,9 +65,9 @@ public class Dashboard {
             long end = Utility.parseDefaultEnd(timestampEnd);
 
             return tokenService.getTokenList(start, end, pageNumber, pageSize);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
 
         }
     }
@@ -75,25 +78,25 @@ public class Dashboard {
                                                        @RequestParam(value = "size", required = false) String size) {
 
         try {
-            if(searchParam != null && !searchParam.trim().isEmpty()) {
+            if (searchParam != null && !searchParam.trim().isEmpty()) {
                 int pageNumber = Utility.parseRequestedPage(page);
                 int pageSize = Utility.parseRequestedSize(size);
 
                 String result = tokenService.getTokenListByTokenName(searchParam, pageNumber, pageSize);
-                if(result.equals("{\"content\":[]}"))
+                if (result.equals("{\"content\":[]}"))
                     return tokenService.getTokenListByTokenSymbol(searchParam, pageNumber, pageSize);
                 else return result;
             }
 
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
 
         } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
 
-    
+
     @GetMapping(value = "/getTokenDetailsTransfersAndHoldersByContractAddress")
     public String getTokenDetailsTransfersAndHoldersByContractAddress(@RequestParam(value = "searchParam", required = false) String searchParam,
                                                                       @RequestParam(value = "contractAddress", required = false) String contractAddress,
@@ -104,9 +107,10 @@ public class Dashboard {
                                                                       @RequestParam(value = "timestampStart", required = false) String timestampStart,
                                                                       @RequestParam(value = "timestampEnd", required = false) String timestampEnd) {
         try {
-            if(contractAddress == null && searchParam != null && !searchParam.trim().isEmpty()) contractAddress = searchParam;
+            if (contractAddress == null && searchParam != null && !searchParam.trim().isEmpty())
+                contractAddress = searchParam;
 
-            if(contractAddress != null && !contractAddress.trim().isEmpty()) {
+            if (contractAddress != null && !contractAddress.trim().isEmpty()) {
                 int holdersPageNumber = Utility.parseRequestedPage(holdersPage);
                 int holdersPageSize = Utility.parseRequestedSize(holdersSize);
 
@@ -118,16 +122,13 @@ public class Dashboard {
 
                 return tokenService.getTokenDetailsTransfersAndHoldersByContractAddress(start, end, holdersPageNumber, holdersPageSize, transfersPageNumber, transfersPageSize, contractAddress);
             }
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
 
         } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
-
-
-
 
 
     // Contracts
@@ -144,9 +145,9 @@ public class Dashboard {
             long end = Utility.parseDefaultEnd(timestampEnd);
 
             return contractService.getContractList(start, end, pageNumber, pageSize);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
 
@@ -158,9 +159,10 @@ public class Dashboard {
                                                       @RequestParam(value = "transactionsPage", required = false) String transactionsPage,
                                                       @RequestParam(value = "transactionsSize", required = false) String transactionsSize) {
         try {
-            if(contractAddress == null && searchParam != null && !searchParam.trim().isEmpty()) contractAddress = searchParam;
+            if (contractAddress == null && searchParam != null && !searchParam.trim().isEmpty())
+                contractAddress = searchParam;
 
-            if(contractAddress != null && !contractAddress.trim().isEmpty()) {
+            if (contractAddress != null && !contractAddress.trim().isEmpty()) {
                 int transactionsPageNumber = Utility.parseRequestedPage(transactionsPage);
                 int transactionsPageSize = Utility.parseRequestedSize(transactionsSize);
 
@@ -169,15 +171,12 @@ public class Dashboard {
 
                 return contractService.getContractDetailsByContractAddress(contractAddress, eventsPageNumber, eventsPageSize, transactionsPageNumber, transactionsPageSize);
             }
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
-        } catch(Exception e) {
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
-
-
-
 
 
     // blocks
@@ -193,9 +192,9 @@ public class Dashboard {
             long start = Utility.optionalStartBlks(timestampStart);
             long end = Utility.parseDefaultEnd(timestampEnd);
             return blockService.getBlockList(start, end, pageNumber, pageSize);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
 
@@ -207,19 +206,20 @@ public class Dashboard {
                                           @RequestParam(value = "timestampStart", required = false) String timestampStart,
                                           @RequestParam(value = "timestampEnd", required = false) String timestampEnd) {
         try {
-            if(accountAddress == null && searchParam != null && !searchParam.trim().isEmpty()) accountAddress = searchParam;
+            if (accountAddress == null && searchParam != null && !searchParam.trim().isEmpty())
+                accountAddress = searchParam;
 
-            if(accountAddress == null) return new JSONObject().put(RESULT, MISSING_SEARCH_PARAM).toString();
+            if (accountAddress == null) return new JSONObject().put(RESULT, MISSING_SEARCH_PARAM).toString();
             int pageNumber = Utility.parseRequestedPage(page);
             int pageSize = Utility.parseRequestedSize(size);
 
             long start = Utility.parseDefaultStartMonth(timestampStart);
             long end = Utility.parseDefaultEnd(timestampEnd);
 
-            return  blockService.getBlocksMinedByAddress(start, end, pageNumber, pageSize, accountAddress);
-        } catch(Exception e) {
+            return blockService.getBlocksMinedByAddress(start, end, pageNumber, pageSize, accountAddress);
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
 
     }
@@ -227,16 +227,14 @@ public class Dashboard {
     @GetMapping(value = "/getBlockAndTransactionDetailsFromBlockNumberOrBlockHash")
     public String getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(@RequestParam(value = "searchParam", required = false) String searchParam) {
         try {
-            if(searchParam != null && !searchParam.trim().isEmpty()) return blockService.getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(searchParam);
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
-        }catch(Exception e) {
+            if (searchParam != null && !searchParam.trim().isEmpty())
+                return blockService.getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(searchParam);
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
-
-
-
 
 
     // transactions
@@ -245,7 +243,7 @@ public class Dashboard {
                                      @RequestParam(value = "size", required = false) String size,
                                      @RequestParam(value = "timestampStart", required = false) String timestampStart,
                                      @RequestParam(value = "timestampEnd", required = false) String timestampEnd) {
-        try{
+        try {
             int pageNumber = Utility.parseRequestedPage(page);
             int pageSize = Utility.parseRequestedSize(size);
 
@@ -253,9 +251,9 @@ public class Dashboard {
             long end = Utility.parseDefaultEnd(timestampEnd);
 
             return transactionService.getTransactionList(pageNumber, pageSize, start, end);
-        }catch (Exception e){
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
 
 
@@ -270,7 +268,8 @@ public class Dashboard {
                                            @RequestParam(value = "timestampStart", required = false) String timestampStart,
                                            @RequestParam(value = "timestampEnd", required = false) String timestampEnd) {
         try {
-            if(accountAddress == null && searchParam != null && !searchParam.trim().isEmpty()) accountAddress = searchParam;
+            if (accountAddress == null && searchParam != null && !searchParam.trim().isEmpty())
+                accountAddress = searchParam;
 
             int pageNumber = Utility.parseRequestedPage(page);
             int pageSize = Utility.parseRequestedSize(size);
@@ -278,7 +277,7 @@ public class Dashboard {
             long end = Utility.parseDefaultEnd(timestampEnd);
 
             if (accountAddress == null || accountAddress.trim().isEmpty()) {
-                return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+                return getJsonString(RESULT, MISSING_SEARCH_PARAM);
             } else if (tokenAddress != null) {
                 long start = Utility.parseDefaultStartYear(timestampStart);
                 return transactionService.getTransactionsByAddressForToken(pageNumber, pageSize, start, end, accountAddress, tokenAddress);
@@ -287,9 +286,9 @@ public class Dashboard {
                 return transactionService.getTransactionsByAddressForNative(pageNumber, pageSize, start, end, accountAddress);
             }
 
-        } catch (Exception e){
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
 
     }
@@ -299,7 +298,7 @@ public class Dashboard {
                                                 @RequestParam(value = "page", required = false) String page,
                                                 @RequestParam(value = "size", required = false) String size,
                                                 @RequestParam(value = "timestampStart", required = false) String timestampStart,
-                                                @RequestParam(value = "timestampEnd", required = false) String timestampEnd){
+                                                @RequestParam(value = "timestampEnd", required = false) String timestampEnd) {
 
         try {
             long start = Utility.parseDefaultStartYear(timestampStart);
@@ -308,13 +307,13 @@ public class Dashboard {
             int pageNumber = Utility.parseRequestedPage(page);
             int pageSize = Utility.parseRequestedSize(size);
             if (accountAddress == null || accountAddress.trim().isEmpty()) {
-                return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+                return getJsonString(RESULT, MISSING_SEARCH_PARAM);
             } else {
                 return transactionService.getInternalTransfersByAddress(pageNumber, pageSize, start, end, accountAddress);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
 
     }
@@ -330,13 +329,13 @@ public class Dashboard {
             int pageSize = Utility.parseRequestedSize(size);
 
             if (transactionHash == null || transactionHash.trim().isEmpty()) {
-                return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+                return getJsonString(RESULT, MISSING_SEARCH_PARAM);
             } else {
                 return transactionService.getInternalTransfersByTransactionHash(pageNumber, pageSize, transactionHash);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
 
     }
@@ -347,23 +346,21 @@ public class Dashboard {
                                                          @RequestParam(value = "page", required = false) String page,
                                                          @RequestParam(value = "size", required = false) String size) {
         try {
-            if(transactionHash == null && searchParam != null && !searchParam.trim().isEmpty()) transactionHash = searchParam;
+            if (transactionHash == null && searchParam != null && !searchParam.trim().isEmpty())
+                transactionHash = searchParam;
 
-            if(transactionHash != null && !transactionHash.trim().isEmpty()) {
+            if (transactionHash != null && !transactionHash.trim().isEmpty()) {
                 int pageNumber = Utility.parseRequestedPage(page);
                 int pageSize = Utility.parseRequestedSize(size);
 
                 return transactionService.getTransactionDetailsByTransactionHash(transactionHash, pageNumber, pageSize);
             }
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
-        } catch(Exception e) {
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
-
-
-
 
 
     // Accounts
@@ -371,18 +368,19 @@ public class Dashboard {
     public String getDailyAccountStatistics() {
         try {
             return Statistics.getInstance().getDailyAccountStatistics();
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
 
     @GetMapping(value = "/getRichList")
     public String getRichList() {
-        try { return accountService.getAccountRichList(); }
-        catch(Exception e) {
+        try {
+            return accountService.getAccountRichList();
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
 
@@ -390,17 +388,14 @@ public class Dashboard {
     public String getAccountDetails(@RequestParam(value = "accountAddress", required = false) String accountAddress,
                                     @RequestParam(value = "tokenAddress", required = false) String tokenAddress) {
         try {
-            if(accountAddress != null && !accountAddress.trim().isEmpty()) return accountService.getAccountDetails(accountAddress, tokenAddress);
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
-        } catch(Exception e) {
+            if (accountAddress != null && !accountAddress.trim().isEmpty())
+                return accountService.getAccountDetails(accountAddress, tokenAddress);
+            return getJsonString(RESULT, MISSING_SEARCH_PARAM);
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
         }
     }
-
-
-
-
 
     // Home
     @GetMapping(value = "/search")
@@ -453,7 +448,7 @@ public class Dashboard {
                 result = transactionService.getTransactionDetailsByTransactionHash(searchParam, 0, 25);
                 if (result != null && !result.equals("{\"content\":[]}")) {
 
-                   return getJsonString(SEARCH_TYPE, "transaction");
+                    return getJsonString(SEARCH_TYPE, "transaction");
 
                 }
             } catch (Exception ignored) {
@@ -467,13 +462,14 @@ public class Dashboard {
         return getJsonString(RESULT,MISSING_SEARCH_PARAM);
     }
 
+
     @GetMapping(value = "/view")
     public String viewDashboard() {
         try {
             return Statistics.getInstance().getDashboardJSON();
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
 
         }
     }
@@ -482,28 +478,23 @@ public class Dashboard {
     public void newBlockDashboard() {
         try {
             this.brokerMessagingTemplate.convertAndSend("/dashboard/view", Statistics.getInstance().getDashboardJSON());
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
         }
     }
-
-
-
 
 
     // Third Party APIs
     @GetMapping(value = "/getCirculatingSupply")
     public String getCirculatingSupply() {
-        try { return thirdPartyService.getCirculatingSupply(); }
-        catch(Exception e) {
+        try {
+            return thirdPartyService.getCirculatingSupply();
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
 
         }
     }
-
-
-
 
 
     // Miscellaneous
@@ -511,7 +502,7 @@ public class Dashboard {
     public BackwardsCompactibilityUtil.oldMetrics getRTMetrics() {
         try {
             return BackwardsCompactibilityUtil.oldMetrics.toObject(Statistics.getInstance().getRTMetrics());
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
             return null;
         }
@@ -520,12 +511,14 @@ public class Dashboard {
     @GetMapping(value = "/getGraphingInfo")
     public String getGraphingInfo(@RequestParam(value = "type", required = false) String type) {
         try {
-            if(type != null && !type.trim().isEmpty() && Utility.validInt(type)) return graphingService.getGraphingInfo(Integer.parseInt(type));
-            return getJsonString(RESULT,MISSING_SEARCH_PARAM);
+            if (type != null && !type.trim().isEmpty() && Utility.validInt(type))
+                return graphingService.getGraphingInfo(Integer.parseInt(type));
+            else
+                return getJsonString(RESULT, MISSING_SEARCH_PARAM);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logging.traceException(e);
-            return getJsonString(MESSAGE,INVALID_REQUEST);
+            return getJsonString(MESSAGE, INVALID_REQUEST);
 
         }
     }
@@ -533,12 +526,13 @@ public class Dashboard {
 
     @Cacheable(CacheConfig.BLOCK_NUMBER)
     @GetMapping(value = "/getBlockNumber")
-    public String getBlockNumber(){
+    public String getBlockNumber() {
         return blockService.getBlockNumber();
     }
 
 
-    private String getJsonString(String key,String message) {
+
+    private String getJsonString(String key, String message) {
         JSONObject result = new JSONObject();
         result.put(key, message);
         return result.toString();
