@@ -9,6 +9,7 @@ import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
 import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.specification.BlockSpec;
+import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.RewardsCalculator;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -244,7 +245,7 @@ public class BlockService {
 		final String errorKey = "error";
 		final String dataKey = "data";
 		try {
-			var state = psRepo.findById(1);
+			var state = psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
 
 
 			if (state.isPresent()) {
