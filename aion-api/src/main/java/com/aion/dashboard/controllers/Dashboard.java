@@ -12,6 +12,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.Cacheable;
 
+/**
+ * This controller is used to maintain legacy support for dashboard v1.0
+ */
 @RestController
 @RequestMapping("/dashboard")
 public class Dashboard {
