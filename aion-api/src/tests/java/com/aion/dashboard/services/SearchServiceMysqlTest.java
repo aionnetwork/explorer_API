@@ -83,6 +83,9 @@ public class SearchServiceMysqlTest {
                 && (rs.type.equals("account") || rs.type.equals("contract") || rs.type.equals("token"))
         ));
 
+        var tokenByNameSearch= serviceMysql.search("SantaCoin");
+
+        assertFalse(tokenByNameSearch.getSearchResults().isEmpty());
 
     }
 

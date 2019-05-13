@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchServiceMysql implements SearchService {
@@ -141,7 +142,10 @@ public class SearchServiceMysql implements SearchService {
         else {// check if the contract can be found by name or symbol
             var tokens = tknRepo.findAllByNameOrSymbol(key,key);
             return tokens.isEmpty() ? EMPTY_RESULT :
-                    SearchResult.of("token", (String[]) tokens.stream().map(Token::getContractAddr).toArray());
+                    SearchResult.of("token", (String[]) tokens.stream()
+                            .map(Token::getContractAddr)
+                            .collect(Collectors.toList())
+                            .toArray(new String[]{}));
         }
     }
 
