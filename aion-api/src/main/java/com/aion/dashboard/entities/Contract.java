@@ -1,8 +1,7 @@
 package com.aion.dashboard.entities;
 
 
-import org.springframework.data.annotation.Transient;
-
+import javax.persistence.Transient;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;

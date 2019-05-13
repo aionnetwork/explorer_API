@@ -3,7 +3,7 @@ package com.aion.dashboard.entities;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Transient;
+import javax.persistence.Transient;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
