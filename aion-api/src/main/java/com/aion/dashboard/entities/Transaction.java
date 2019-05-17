@@ -20,7 +20,6 @@ public class Transaction {
     private String blockHash;
     @Column(name = "block_number")
     private Long blockNumber;
-//    @Column(name = "block_timestamp")
     private Long blockTimestamp;
     private Long transactionIndex;
     private Long nrgConsumed;
@@ -38,11 +37,9 @@ public class Transaction {
     private String txError;
     private String contractAddr;
     private BigDecimal value;
-    @Transient
-    private String type="AVM";
+    private String type;
 
 
-    @Column(name = "block_number")
     public Long getBlockNumber() {
         return blockNumber;
     }
@@ -100,7 +97,7 @@ public class Transaction {
     public BigDecimal getValue() {
         return value;
     }
-    @Transient
+
     public String getType() {
         return type;
     }
@@ -163,7 +160,7 @@ public class Transaction {
     public void setValue(BigDecimal value) {
         this.value = value;
     }
-    @Transient
+
     public void setType(String type){
         this.type = type;
     }
