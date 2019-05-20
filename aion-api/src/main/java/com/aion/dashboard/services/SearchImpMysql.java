@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
-public class SearchServiceMysql implements SearchService {
+public class SearchImpMysql implements SearchService {
     private static final SearchResult EMPTY_RESULT;
     static {
         EMPTY_RESULT = new SearchResult(List.of());
@@ -31,12 +31,12 @@ public class SearchServiceMysql implements SearchService {
 
 
     @Autowired
-    SearchServiceMysql(TokenJpaRepository tknRepo,
-                       AccountJpaRepository acctRepo,
-                       ParserStateJpaRepository pSRepo,
-                       BlockJpaRepository blkRepo,
-                       TransactionJpaRepository txRepo,
-                       ContractJpaRepository contractRepo ) {
+    SearchImpMysql(TokenJpaRepository tknRepo,
+                   AccountJpaRepository acctRepo,
+                   ParserStateJpaRepository pSRepo,
+                   BlockJpaRepository blkRepo,
+                   TransactionJpaRepository txRepo,
+                   ContractJpaRepository contractRepo ) {
 
         this.tknRepo = tknRepo;
         this.acctRepo = acctRepo;

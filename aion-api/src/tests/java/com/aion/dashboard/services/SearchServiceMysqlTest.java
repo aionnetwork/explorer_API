@@ -1,13 +1,8 @@
 package com.aion.dashboard.services;
 
 import com.aion.dashboard.AionDashboardApiApplication;
-import com.aion.dashboard.entities.Block;
-import com.aion.dashboard.entities.ParserState;
-import com.aion.dashboard.repositories.*;
 import com.aion.dashboard.view.SearchResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +19,7 @@ public class SearchServiceMysqlTest {
 
 
     @Autowired
-    public SearchServiceMysql serviceMysql;
+    public SearchImpMysql serviceMysql;
 
 
 

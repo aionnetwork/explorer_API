@@ -1,6 +1,9 @@
 package com.aion.dashboard.controllers;
 
 
+import com.aion.dashboard.services.SearchService;
+import com.aion.dashboard.view.ResultInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +25,15 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequestMapping("/v2/dashboard")
 public class DashboardV2 {
+
+    private SearchService searchService;
+
+
+
+    @Autowired
+    DashboardV2(SearchService searchService){
+        this.searchService=searchService;
+    }
 
     /**
      *
@@ -153,7 +165,7 @@ public class DashboardV2 {
     @GetMapping("/contracts")
     public ResponseEntity contracts(@RequestParam(value = "ownerAddress", required = false) String ownerAddress,
                                     @RequestParam(value = "startTime", required = false) String startTime,
-                                    @RequestParam(value = "endTime") String endTime,
+                                    @RequestParam(value = "endTime", required = false) String endTime,
                                     @RequestParam(value = "page", defaultValue = "0") String page,
                                     @RequestParam(value = "size", defaultValue = "25") String size
     ){
@@ -180,7 +192,7 @@ public class DashboardV2 {
 
 
     /**
-     * @param unit this is used to specify the granularity of the data. Available values are day or hour
+     * @param unit this is used to specify the granularity of the data. Available values are day, hour or ten minute intervals
      * @param startTime Used to determine the time range
      * @param endTime Used to determine the time range
      * @return the points to be used to plot graphs.
@@ -293,6 +305,13 @@ public class DashboardV2 {
         //To be used to create custom headers
 
         return new ResponseEntity<>(body, OK);
+    }
+
+
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<ResultInterface> search(@RequestParam(value = "searchParam", required = false) String searchParam) {
+        return packageResponse(searchService.search(searchParam));
     }
 
 
