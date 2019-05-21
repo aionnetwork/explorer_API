@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -25,310 +26,45 @@ import java.util.List;
 
 import static java.lang.Math.min;
 
-@Component
-public class TokenService {
 
-    @Autowired
-    private TokenJpaRepository tknRepo;
-
-    @Autowired
-    private TokenTransfersJpaRepository txfRepo;
-
-    @Autowired
-    private TokenHoldersJpaRepository tknHolRepo;
-
-
-    private static final  String TOTAL_ELEMENTS="totalElements";
-    private static final String TOTAL_PAGES="totalPages";
-    private static final String NUMBER="number";
-    private static final String CONTENT="content";
+public interface TokenService {
 
     @Cacheable(CacheConfig.TOKEN_LIST)
     public String getTokenList(long start,
                                long end,
                                int pageNumber,
-                               int pageSize) throws Exception {
-        JSONArray tknArray = new JSONArray();
-        JSONObject tknObject = new JSONObject();
-
-        var startInstant = Instant.ofEpochSecond(start).atZone(ZoneId.of("UTC"));
-        var endInstant = Instant.ofEpochSecond(end).atZone(ZoneId.of("UTC"));
-
-        Page<Token> tknPage = startInstant.getYear() == endInstant.getYear() ?
-                tknRepo.findByYearAndMonthBetweenAndCreationTimestampBetween(
-                        startInstant.getYear(),
-                        startInstant.getMonthValue(),
-                        endInstant.getMonthValue(),
-                        start,
-                        end,
-                        PageRequest.of(pageNumber, pageSize))
-                : tknRepo.findByYearBetweenAndCreationTimestampBetween(
-                        startInstant.getYear(),
-                        endInstant.getYear(),
-                        start,
-                        end,
-                PageRequest.of(pageNumber, pageSize));
-
-        List<Token> tknList = tknPage.getContent();
-        if(tknList != null && !tknList.isEmpty()) {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            for(Token tkn: tknList) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(tkn));
-                tknArray.put(result);
-            }
-
-            JSONObject pageObject = new JSONObject();
-            pageObject.put(TOTAL_ELEMENTS, tknPage.getTotalElements());
-            pageObject.put(TOTAL_PAGES, tknPage.getTotalPages());
-            pageObject.put(NUMBER, pageNumber);
-            pageObject.put("size", pageSize);
-            pageObject.put("start", start);
-            pageObject.put("end", end);
-
-            tknObject.put(CONTENT, tknArray);
-            tknObject.put("page", pageObject);
-        }
-
-        // If the ResultSet is Null
-        if (tknArray.length() == 0) {
-            tknArray = new JSONArray();
-            tknObject.put(CONTENT, tknArray);
-        }
-
-        return tknObject.toString();
-    }
+                               int pageSize) throws Exception;
 
     @Cacheable(CacheConfig.TOKEN_LIST_BY_TOKEN_NAME)
-    public String getTokenListByTokenName(String tokenName,
-                                          int pageNumber,
-                                          int pageSize) throws Exception {
-        JSONArray tokenArray = new JSONArray();
-        JSONObject tokenObject = new JSONObject();
-
-        Page<Token> tokenPage = tknRepo.findByName(tokenName, PageRequest.of(pageNumber, pageSize));                                   // Getting the Token Details by Token Name
-        List<Token> tokenList = tokenPage.getContent();
-
-        // Writing the Page/List of Tokens to a JSON Object
-        if(!tokenList.isEmpty()) {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            for (Token token : tokenList) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(token));
-                result.put("totalHolders", getTotalTokenHolders(token.getContractAddr()));
-                result.put("totalTransfers", getTotalTokenTransfers(token.getContractAddr()));
-                tokenArray.put(result);
-            }
-
-            JSONObject pageObject = new JSONObject();
-            pageObject.put(TOTAL_ELEMENTS, tokenPage.getTotalElements());
-            pageObject.put(TOTAL_PAGES, tokenPage.getTotalPages());
-            pageObject.put(NUMBER, tokenPage.getNumber());
-            pageObject.put("size", tokenPage.getSize());
-
-            tokenObject.put(CONTENT, tokenArray);
-            tokenObject.put("page", pageObject);
-        }
-
-        // If the ResultSet is Null
-        if(tokenArray.length() == 0) {
-            tokenArray = new JSONArray();
-            tokenObject.put(CONTENT, tokenArray);
-        }
-
-        return tokenObject.toString();
-    }
-
+    String getTokenListByTokenName(String tokenName,
+                                   int pageNumber,
+                                   int pageSize) throws Exception;
 
     @Cacheable(CacheConfig.TOKEN_LIST_BY_TOKEN_SYMBOL)
-    public String getTokenListByTokenSymbol(String tokenSymbol,
-                                            int pageNumber,
-                                            int pageSize) throws Exception {
-        JSONArray tokenArray = new JSONArray();
-        JSONObject tokenObject = new JSONObject();
-
-        Page<Token> tokenPage = tknRepo.findBySymbol(tokenSymbol, PageRequest.of(pageNumber, pageSize));                                            // Getting the Token Details by Token Symbol
-        List<Token> tokenList = tokenPage.getContent();
-
-        // Writing the Page/List of Tokens to a JSON Object
-        if(!tokenList.isEmpty()) {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            for (Token token : tokenList) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(token));
-                result.put("totalHolders", getTotalTokenHolders(token.getContractAddr()));
-                result.put("totalTransfers", getTotalTokenTransfers(token.getContractAddr()));
-                tokenArray.put(result);
-            }
-
-            JSONObject pageObject = new JSONObject();
-            pageObject.put(TOTAL_ELEMENTS, tokenPage.getTotalElements());
-            pageObject.put(TOTAL_PAGES, tokenPage.getTotalPages());
-            pageObject.put(NUMBER, pageNumber);
-            pageObject.put("size", pageSize);
-
-            tokenObject.put(CONTENT, tokenArray);
-            tokenObject.put("page", pageObject);
-        }
-
-        // If the ResultSet is Null
-        if(tokenArray.length() == 0) {
-            tokenArray = new JSONArray();
-            tokenObject.put(CONTENT, tokenArray);
-        }
-
-        return tokenObject.toString();
-    }
+    String getTokenListByTokenSymbol(String tokenSymbol,
+                                     int pageNumber,
+                                     int pageSize) throws Exception;
 
     @Cacheable(CacheConfig.TOKEN_DETAILS_TRANSFERS_AND_HOLDERS_BY_CONTRACT_ADDRESS)
-    public String getTokenDetailsTransfersAndHoldersByContractAddress(long start,
-                                                                      long end,
-                                                                      int holderPageNumber,
-                                                                      int holderPageSize,
-                                                                      int transferPageNumber,
-                                                                      int transferPageSize,
-                                                                      String contractAddr) throws Exception {
-        if(contractAddr.startsWith("0x")) contractAddr = contractAddr.replace("0x", "");
+    String getTokenDetailsTransfersAndHoldersByContractAddress(long start,
+                                                               long end,
+                                                               int holderPageNumber,
+                                                               int holderPageSize,
+                                                               int transferPageNumber,
+                                                               int transferPageSize,
+                                                               String contractAddr) throws Exception;
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        JSONArray tokenArray = new JSONArray();
+    Page<Token> findByYearAndMonthBetweenAndCreationTimestampBetween(int year, int startMonth, int endMonth, long start, long end, Pageable pageable);
 
-        if(Utility.isValidAddress(contractAddr)) {
-            Token token = tknRepo.findByContractAddr(contractAddr);                                      // Getting the Token Details by Contract Address
-            if (token != null) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(token));
-                result.put("holders", new JSONObject(getTokenHoldersByContractAddress(
-                        token.getContractAddr(),
-                        holderPageNumber,
-                        holderPageSize
-                )));
-                result.put("transfers", new JSONObject(getTokenTransfersByContractAddress(
-                        start,
-                        end,
-                        transferPageNumber,
-                        transferPageSize,
-                        token.getContractAddr()
-                )));
-                tokenArray.put(result);
-            }
+    Page<Token> findByYearBetweenAndCreationTimestampBetween(int startYear, int endYear, long start, long end, Pageable pageable);
 
-            // If the ResultSet is Null
-            if(tokenArray.length() == 0) {
-                tokenArray = new JSONArray();
-            }
+    Page<Token> findBySymbol(String symbol, Pageable pageable);
 
-            return new JSONObject().put(CONTENT, tokenArray).toString();
-        }
+    Page<Token> findByName(String name, Pageable pageable);
 
-        throw new Exception();
-    }
+    Token findByContractAddr(String contractAddr);
 
-    // Internal Methods to the Service
-    @Cacheable(CacheConfig.TOKEN_HOLDERS_TOTAL)
-    private Long getTotalTokenHolders(String contractAddr) { return tknHolRepo.countByContractAddr(contractAddr); }
+    List<Token> findAllByNameOrSymbol(String name, String symbol);
 
-    @Cacheable(CacheConfig.TOKEN_TRANSFERS_TOTAL)
-    private Long getTotalTokenTransfers(String contractAddr) { return txfRepo.countByContractAddr(contractAddr); }
-
-    @Cacheable(CacheConfig.TOKEN_HOLDERS_BY_CONTRACT_ADDRESS)
-    private String getTokenHoldersByContractAddress(String contractAddress,
-                                                    int holderPageNumber,
-                                                    int holderPageSize) throws Exception {
-        Page<TokenHolders> tknHolsPage = tknHolRepo.findAllByContractAddr(contractAddress, PageRequest.of(holderPageNumber, min(holderPageSize, 10000), new Sort(Sort.Direction.DESC, "tknBalance")));
-        List<TokenHolders> tknHolsList = tknHolsPage.getContent();
-
-        JSONObject holdersObject = new JSONObject();
-        JSONArray holdersArray = new JSONArray();
-
-        if(Utility.validHex(contractAddress)) {
-
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-
-        // Writing the Page/List of Tokens to a JSON Object
-        if (tknHolsList != null && !tknHolsList.isEmpty()) {
-            for (TokenHolders tokenHolders : tknHolsList) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(tokenHolders));
-                holdersArray.put(result);
-            }
-
-            JSONObject pageObject = new JSONObject();
-            pageObject.put(TOTAL_ELEMENTS, tknHolsPage.getTotalElements());
-            pageObject.put(TOTAL_PAGES, tknHolsPage.getTotalPages());
-            pageObject.put(NUMBER, holderPageNumber);
-            pageObject.put("size", holderPageSize);
-
-            holdersObject.put(CONTENT, holdersArray);
-            holdersObject.put("page", pageObject);
-        }
-
-        // If the ResultSet is Null
-        if (holdersArray.length() == 0) {
-            holdersArray = new JSONArray();
-            holdersObject.put(CONTENT, holdersArray);
-        }
-
-        return holdersObject.toString();
-    }
-
-        throw new Exception();
-    }
-
-    @Cacheable(CacheConfig.TOKEN_TRANSFERS_BY_CONTRACT_ADDRESS)
-    private String getTokenTransfersByContractAddress(long start,
-                                                      long end,
-                                                      int pageNumber,
-                                                      int pageSize,
-                                                      String contractAddress) throws Exception {
-        if (Utility.validHex(contractAddress)) {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        JSONObject transfersObject = new JSONObject();
-        JSONArray transfersArray = new JSONArray();
-
-        var startInstant = Instant.ofEpochSecond(start).atZone(ZoneId.of("UTC"));
-        var endInstant = Instant.ofEpochSecond(end).atZone(ZoneId.of("UTC"));
-
-        Page<TokenTransfers> txfsPage = startInstant.getYear() == endInstant.getYear() ?
-                txfRepo.findByYearAndMonthBetweenAndTransferTimestampBetweenAndContractAddr(
-                        startInstant.getYear(),
-                        startInstant.getMonthValue(),
-                        endInstant.getMonthValue(),
-                        start,
-                        end,
-                        contractAddress,
-                        PageRequest.of(pageNumber, pageSize))
-                : txfRepo.findByYearBetweenAndTransferTimestampBetweenAndContractAddr(
-                        startInstant.getYear(),
-                        endInstant.getYear(),
-                        start,
-                        end,
-                        contractAddress,
-                PageRequest.of(pageNumber, pageSize));
-
-        List<TokenTransfers> txfsList = txfsPage.getContent();
-        if (txfsList != null && !txfsList.isEmpty()) {
-            for (TokenTransfers tokenTransfers : txfsList) {
-                JSONObject result = new JSONObject(ow.writeValueAsString(tokenTransfers));
-                transfersArray.put(result);
-            }
-
-            JSONObject pageObject = new JSONObject();
-            pageObject.put(TOTAL_ELEMENTS, txfsPage.getTotalElements());
-            pageObject.put(TOTAL_PAGES, txfsPage.getTotalPages());
-            pageObject.put(NUMBER, pageNumber);
-            pageObject.put("size", pageSize);
-            pageObject.put("start", start);
-            pageObject.put("end", end);
-
-            transfersObject.put(CONTENT, transfersArray);
-            transfersObject.put("page", pageObject);
-        }
-
-        // If the ResultSet is Null
-        if (transfersArray.length() == 0) {
-            transfersArray = new JSONArray();
-            transfersObject.put(CONTENT, transfersArray);
-        }
-
-            return transfersObject.toString();
-        }
-
-        throw new Exception();
-    }
+    boolean existsByContractAddr(String contractAddr);
 }

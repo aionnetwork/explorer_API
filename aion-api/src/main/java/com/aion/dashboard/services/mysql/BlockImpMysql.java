@@ -1,13 +1,13 @@
-package com.aion.dashboard.services;
+package com.aion.dashboard.services.mysql;
 
-import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.Block;
 import com.aion.dashboard.entities.Transaction;
-import com.aion.dashboard.repositories.AccountJpaRepository;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
-import com.aion.dashboard.repositories.TransactionJpaRepository;
+import com.aion.dashboard.services.AccountService;
+import com.aion.dashboard.services.BlockService;
+import com.aion.dashboard.services.TransactionService;
 import com.aion.dashboard.specification.BlockSpec;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.RewardsCalculator;
@@ -17,9 +17,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -34,13 +35,13 @@ import static com.aion.dashboard.utility.Logging.traceLogStartAndEnd;
 public class BlockImpMysql implements BlockService {
 
 	@Autowired
-	private TransactionJpaRepository txnRepo;
+	private TransactionService transactionService;
 
 	@Autowired
-	private AccountJpaRepository acctRepo;
+	private AccountService accountService;
 
 	@Autowired
-	private BlockJpaRepository blkRepo;
+	private BlockJpaRepository blockJpaRepository;
 
 	private static  final String CONTENT="content";
 	private static final String TRANSACTION_HASH="transactionHashes";
@@ -65,7 +66,7 @@ public class BlockImpMysql implements BlockService {
 
 		Utility.validateBlkListPeriod(zdtStart, zdtEnd);
 
-		Page<Block> blksPage = blkRepo.findAll(BlockSpec.checkTime(zdtStart, zdtEnd), PageRequest.of(pageNumber,pageSize, sortDesc()));
+		Page<Block> blksPage = blockJpaRepository.findAll(BlockSpec.checkTime(zdtStart, zdtEnd), PageRequest.of(pageNumber,pageSize, sortDesc()));
 
 
 		List<Block> blksList = blksPage.getContent();
@@ -97,7 +98,6 @@ public class BlockImpMysql implements BlockService {
 	}
 
 	@Override
-	@Cacheable(CacheConfig.BLOCKS_MINED_BY_ADDRESS)
 	public String getBlocksMinedByAddress(long start,
 										  long end,
 										  int pageNumber,
@@ -120,11 +120,11 @@ public class BlockImpMysql implements BlockService {
             traceLogStartAndEnd(startZDT, startZDT, "Call to getBlocksMinedByAddress");
 
             // blocks mined
-            Account account = acctRepo.findByAddress(accountAddress);
+            Account account = accountService.findByAddress(accountAddress);
             if (account != null) {
 
                 Page<Block> blksPage;
-                blksPage = blkRepo.findAll(BlockSpec.checkTime(startZDT, endZDT).and(BlockSpec.isMiner(accountAddress)), pageRequest);
+                blksPage = blockJpaRepository.findAll(BlockSpec.checkTime(startZDT, endZDT).and(BlockSpec.isMiner(accountAddress)), pageRequest);
                 List<Block> blksList = blksPage.getContent();
                 for (Block aBlksList : blksList) {
                     JSONObject result = new JSONObject(ow.writeValueAsString(aBlksList));
@@ -154,7 +154,6 @@ public class BlockImpMysql implements BlockService {
 	}
 
 	@Override
-	@Cacheable(CacheConfig.BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER)
 	public String getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(String searchParam) throws Exception {
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		JSONArray blockArray = new JSONArray();
@@ -164,14 +163,14 @@ public class BlockImpMysql implements BlockService {
 
 		if(Utility.validHex(searchParam)) {
 			// block master
-			Block block = blkRepo.findByBlockHash(searchParam);
+			Block block = blockJpaRepository.findByBlockHash(searchParam);
 			if(block != null) {
 				JSONObject result = new JSONObject(ow.writeValueAsString(block));
 
 				JSONArray txnHashes = new JSONArray(result.getString(TRANSACTION_HASH));
 				JSONArray txnList = new JSONArray();
 				for(int i = 0; i < txnHashes.length(); i++) {
-					Transaction txn = txnRepo.findByTransactionHash(txnHashes.getString(i));
+					Transaction txn = transactionService.findByTransactionHash(txnHashes.getString(i));
 					String txnString = "[" +
 							txn.getTransactionHash() + "," +
 							txn.getFromAddr() + "," +
@@ -201,7 +200,7 @@ public class BlockImpMysql implements BlockService {
 		// find by block number
 		else if(Utility.validLong(searchParam)) {
 			// block master
-			Block block = blkRepo.findByBlockNumber(Long.parseLong(searchParam));
+			Block block = blockJpaRepository.findByBlockNumber(Long.parseLong(searchParam));
 			blockArray = new JSONArray();
 			if(block != null) {
 				JSONObject result = new JSONObject(ow.writeValueAsString(block));
@@ -209,7 +208,7 @@ public class BlockImpMysql implements BlockService {
 				JSONArray txnHashes = new JSONArray(result.getString(TRANSACTION_HASH));
 				JSONArray txnList = new JSONArray();
 				for(int i = 0; i < txnHashes.length(); i++) {
-					Transaction txn = txnRepo.findByTransactionHash(txnHashes.getString(i));
+					Transaction txn = transactionService.findByTransactionHash(txnHashes.getString(i));
 					String txnString = "[" +
 							txn.getTransactionHash() + "," +
 							txn.getFromAddr() + "," +
@@ -264,4 +263,31 @@ public class BlockImpMysql implements BlockService {
 
 		}
 	}
+
+	@Override
+	public Page<Block> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable) {
+		return blockJpaRepository.findByDayAndMonthAndYear(day,month,year, pageable);
+	}
+
+	@Override
+	public Block findByBlockNumber(Long blockNumber) {
+		return blockJpaRepository.findByBlockNumber(blockNumber);
+	}
+
+	@Override
+	public Block findByBlockHash(String blockHash) {
+		return blockJpaRepository.findByBlockHash(blockHash);
+	}
+
+	@Override
+	public long countByBlockTimestampBetween(long start, long end) {
+		return blockJpaRepository.countByBlockTimestampBetween(start,end);
+	}
+
+	@Override
+	public List<Object> findAvgAndCountForAddressBetweenTimestamp(long start, long end) {
+		return blockJpaRepository.findAvgAndCountForAddressBetweenTimestamp(start,end);
+	}
+
+
 }

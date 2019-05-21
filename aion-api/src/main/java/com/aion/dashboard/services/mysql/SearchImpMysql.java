@@ -1,12 +1,14 @@
-package com.aion.dashboard.services;
+package com.aion.dashboard.services.mysql;
 
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Token;
 import com.aion.dashboard.exception.MissingArgumentException;
 import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.services.*;
 import com.aion.dashboard.utility.Utility;
 import com.aion.dashboard.view.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,28 +17,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class SearchImpMysql implements SearchService {
     private static final SearchResult EMPTY_RESULT;
     static {
         EMPTY_RESULT = new SearchResult(List.of());
     }
     private final ExecutorService dbExecutor;
-    private TokenJpaRepository tknRepo;
-    private AccountJpaRepository acctRepo;
-    private ParserStateJpaRepository pSRepo;
-    private BlockJpaRepository blkRepo;
-    private TransactionJpaRepository txRepo;
-    private ContractJpaRepository contractRepo;
+    private TokenService tknRepo;
+    private AccountService acctRepo;
+    private ParserStateService pSRepo;
+    private BlockService blkRepo;
+    private TransactionService txRepo;
+    private ContractService contractRepo;
 
 
     @Autowired
-    SearchImpMysql(TokenJpaRepository tknRepo,
-                   AccountJpaRepository acctRepo,
-                   ParserStateJpaRepository pSRepo,
-                   BlockJpaRepository blkRepo,
-                   TransactionJpaRepository txRepo,
-                   ContractJpaRepository contractRepo ) {
+    SearchImpMysql(TokenService tknRepo,
+                   AccountService acctRepo,
+                   ParserStateService pSRepo,
+                   BlockService blkRepo,
+                   TransactionService txRepo,
+                   ContractService contractRepo ) {
 
         this.tknRepo = tknRepo;
         this.acctRepo = acctRepo;

@@ -1,6 +1,7 @@
 package com.aion.dashboard.services;
 
 import com.aion.dashboard.AionDashboardApiApplication;
+import com.aion.dashboard.services.mysql.SearchImpMysql;
 import com.aion.dashboard.view.SearchResult;
 import org.junit.After;
 import org.junit.Before;

@@ -8,6 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ParserStateJpaRepository extends PagingAndSortingRepository<ParserState, Integer> {
-	@Override
-	Optional<ParserState> findById(Integer id);
+
 }

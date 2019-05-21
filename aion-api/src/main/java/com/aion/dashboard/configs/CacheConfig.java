@@ -59,13 +59,7 @@ public class CacheConfig {
    public static final String ACCOUNT_TOKEN_LIST = "accountTokenList";
 
    // Statistics
-   public static final String STATISTICS_SB_METRICS = "statisticsStableMetrics";
-   public static final String STATISTICS_RT_METRICS = "statisticsRealtimeMetrics";
-   public static final String STATISTICS_BLOCKS = "statisticsStableBlocks";
-   public static final String STATISTICS_MINED_BLOCKS = "statisticsMinedBlocks";
-   public static final String STATISTICS_TRANSACTIONS = "statisticsStableTransactions";
-   public static final String STATISTICS_INBOUND_TRANSACTIONS = "statisticsMinedBlocks";
-   public static final String STATISTICS_OUTBOUND_TRANSACTIONS = "statisticsMinedBlocks";
+
 
    // Miscellaneous
    public static final String SEND_FEEDBACK = "sendFeedback";
@@ -119,13 +113,7 @@ public class CacheConfig {
               buildExpireAfterWriteCache(ACCOUNT_TOKEN_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
 
               // Statistics
-              buildExpireAfterWriteCache(STATISTICS_BLOCKS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_SB_METRICS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_RT_METRICS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_MINED_BLOCKS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_INBOUND_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_OUTBOUND_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+
 
               // Miscellaneous
               buildExpireAfterWriteCache(SEND_FEEDBACK, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),

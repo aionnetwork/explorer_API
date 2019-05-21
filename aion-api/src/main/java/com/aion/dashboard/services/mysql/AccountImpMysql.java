@@ -1,11 +1,12 @@
-package com.aion.dashboard.services;
+package com.aion.dashboard.services.mysql;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Token;
 import com.aion.dashboard.entities.TokenHolders;
-import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.repositories.AccountJpaRepository;
+import com.aion.dashboard.services.*;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,23 +26,23 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class AccountImpMysql implements AccountService{
+@Component
+public class AccountImpMysql implements AccountService {
 
     @Autowired
-    private InternalTransferJpaRepository internalTransferJpaRepository;
+    private InternalTransferService internalTransferService;
 
     @Autowired
-    private TokenJpaRepository tknRepo;
+    private TokenService tokenService;
 
     @Autowired
-    private AccountJpaRepository acctRepo;
+    private AccountJpaRepository accountJpaRepository;
 
     @Autowired
-    private ParserStateJpaRepository pSRepo;
+    private ParserStateService parserStateService;
 
     @Autowired
-    private TokenHoldersJpaRepository tknBalRepo;
+    private TokenHoldersService tokenHoldersService;
 
 
     private static final   String CONTENT="content";
@@ -53,13 +54,13 @@ public class AccountImpMysql implements AccountService{
                                     String tokenAddress) throws Exception {
         if (accountAddress.startsWith("0x")) accountAddress = accountAddress.replace("0x", "");
 
-        Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
+        Optional<ParserState> parserState = parserStateService.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         JSONObject accountObject = new JSONObject();
         JSONArray accountArray = new JSONArray();
 
         if (Utility.isValidAddress(accountAddress) && parserState.isPresent()) {
-            Account account = acctRepo.findByAddress(accountAddress);
+            Account account = accountJpaRepository.findByAddress(accountAddress);
             if (account != null) {
                 JSONObject result = new JSONObject(ow.writeValueAsString(account));
 
@@ -74,7 +75,7 @@ public class AccountImpMysql implements AccountService{
                 result.put("tokens", tokensArray);
 
 
-                var internalTransferRecord = internalTransferJpaRepository.findTopByToAddrOrFromAddr(accountAddress, accountAddress);// find only one
+                var internalTransferRecord = internalTransferService.findTopByToAddrOrFromAddr(accountAddress, accountAddress);// find only one
                 result.put("hasInternalTransfer", internalTransferRecord != null);
 
                 // Getting the LastBlockNumber from the Parser State
@@ -83,10 +84,10 @@ public class AccountImpMysql implements AccountService{
                 // Getting Token Information if Entered and Found
                 if (tokenAddress != null) {
                     if(tokenAddress.startsWith("0x")) tokenAddress = tokenAddress.replace("0x", "");
-                    TokenHolders tokenHolders = tknBalRepo.findByContractAddrAndHolderAddr(tokenAddress, accountAddress);
+                    TokenHolders tokenHolders = tokenHoldersService.findByContractAddrAndHolderAddr(tokenAddress, accountAddress);
                     if (tokenHolders != null) {
                         result.put(BALANCE, tokenHolders.getRawBalance());
-                        Token token = tknRepo.findByContractAddr(tokenAddress);
+                        Token token = tokenService.findByContractAddr(tokenAddress);
                         if (token != null) {
                             result.put("tokenName", token.getName());
                             result.put("tokenSymbol", token.getSymbol());
@@ -116,7 +117,7 @@ public class AccountImpMysql implements AccountService{
         JSONObject accountObj = new JSONObject();
         JSONArray accountArr = new JSONArray();
 
-        Page<Account> accountPage = acctRepo.getRichList(PageRequest.of(0, 25, new Sort(Sort.Direction.DESC, BALANCE)));
+        Page<Account> accountPage = accountJpaRepository.getRichList(PageRequest.of(0, 25, new Sort(Sort.Direction.DESC, BALANCE)));
         List<Account> accountList = accountPage.getContent();
         if(!accountList.isEmpty()) {
             for(Account account : accountList) {
@@ -152,13 +153,13 @@ public class AccountImpMysql implements AccountService{
     // Internal Methods
     @Cacheable(CacheConfig.ACCOUNT_TOKEN_LIST)
     private String getAccountTokenList(String holderAddress) throws Exception {
-        List<TokenHolders> tokenHoldersList = tknBalRepo.findByHolderAddr(holderAddress);
+        List<TokenHolders> tokenHoldersList = tokenHoldersService.findByHolderAddr(holderAddress);
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
         JSONArray tokenArray = new JSONArray();
         if (tokenHoldersList != null && !tokenHoldersList.isEmpty()) {
             for (TokenHolders tokenHolders : tokenHoldersList) {
-                Token token = tknRepo.findByContractAddr(tokenHolders.getContractAddr());
+                Token token = tokenService.findByContractAddr(tokenHolders.getContractAddr());
                 if (token != null) {
                     JSONObject result = new JSONObject(ow.writeValueAsString(token));
                     tokenArray.put(result);
@@ -170,11 +171,11 @@ public class AccountImpMysql implements AccountService{
     }
     @Override
     public Account findByAddress(String address){
-        return acctRepo.findByAddress(address);
+        return accountJpaRepository.findByAddress(address);
 }
 
     @Override
     public Page<Account> getRichList(Pageable pageable){
-        return acctRepo.getRichList(pageable);
+        return accountJpaRepository.getRichList(pageable);
     }
 }

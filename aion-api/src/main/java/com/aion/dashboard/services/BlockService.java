@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -49,4 +50,14 @@ public interface BlockService {
 	String getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(String searchParam) throws Exception;
 
 	String getBlockNumber();
+
+	Page<Block> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable);
+
+	Block findByBlockNumber(Long blockNumber);
+	Block findByBlockHash(String blockHash);
+	long countByBlockTimestampBetween(long start, long end);
+	List<Object> findAvgAndCountForAddressBetweenTimestamp(long start, long end);
+
+
+
 }

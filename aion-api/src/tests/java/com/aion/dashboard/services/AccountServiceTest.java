@@ -25,13 +25,14 @@ public class AccountServiceTest {
 
     @Test
     public void whenSearchingForAddress(){
-        Account account= accountService.findByAddress("a0eeaeabdbc92953b072afbd21f3e3fd8a4a4f5e6a6e22200db746ab75e9a99a");
+        Account account= accountService.findByAddress("a08091ab0325e384ac45e560d2f85e4b741363aa98881d52d54233a02b33fcaa");
         assertTrue(Optional.ofNullable(account).isPresent());
     }
 
     @Test
-    public void whichTheTopsAccounts(){
+    public void whenSearchinTheTopsAccounts(){
         Page<Account> account= accountService.getRichList(PageRequest.of(0, 25, new Sort(Sort.Direction.DESC, "balance")));
         assertTrue(account.getTotalPages()>0);
+        assertTrue(Optional.of( account.getContent().get(0)).isPresent());
     }
 }
