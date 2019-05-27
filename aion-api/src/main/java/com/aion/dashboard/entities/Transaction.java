@@ -38,8 +38,7 @@ public class Transaction {
     private String txError;
     private String contractAddr;
     private BigDecimal value;
-    @Transient
-    private String type="AVM";
+    private String type;
 
 
     @Column(name = "block_number")
@@ -100,7 +99,6 @@ public class Transaction {
     public BigDecimal getValue() {
         return value;
     }
-    @Transient
     public String getType() {
         return type;
     }
@@ -163,7 +161,6 @@ public class Transaction {
     public void setValue(BigDecimal value) {
         this.value = value;
     }
-    @Transient
     public void setType(String type){
         this.type = type;
     }

@@ -1,7 +1,6 @@
 package com.aion.dashboard.entities;
 
 
-import javax.persistence.Transient;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -20,8 +19,7 @@ public class Contract {
     private Integer year;
     private Integer month;
     private Integer day;
-    @Transient
-    private String type="FVM";
+    private String type;
 
     public String getContractAddr() {
         return contractAddr;
@@ -50,7 +48,6 @@ public class Contract {
     public Integer getDay() {
         return day;
     }
-    @Transient
     public String getType() {
         return type;
     }
@@ -82,7 +79,6 @@ public class Contract {
     public void setDay(Integer day) {
         this.day = day;
     }
-    @Transient
     public Contract setType(String type) {
         this.type = type;
         return this;
