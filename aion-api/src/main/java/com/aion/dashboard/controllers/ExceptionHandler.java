@@ -24,4 +24,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ResultInterface> handleMissingArgument(MissingArgumentException e, WebRequest request){
         return packageError(ErrorResults.MISSING_ARGUMENT);
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {UnsupportedOperationException.class})
+    protected ResponseEntity<ResultInterface> handleUnsupportedOperation(UnsupportedOperationException e, WebRequest request){
+        return packageError(ErrorResults.NOT_FOUND);
+    }
 }

@@ -52,7 +52,7 @@ public class Dashboardv2 {
                                 @RequestParam(value = "blockHash", required = false) String blockHash){
 
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/block");
     }
 
     /**
@@ -72,7 +72,7 @@ public class Dashboardv2 {
                                  @RequestParam(value = "minerAddress", required = false) String minerAddress){
 
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/blocks");
     }
 
 
@@ -87,7 +87,7 @@ public class Dashboardv2 {
                                       @RequestParam(value = "address", required = false) String address){
 
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/transaction");
     }
 
     /**
@@ -110,7 +110,7 @@ public class Dashboardv2 {
                                         @RequestParam(value = "size", defaultValue = "25", required = false) String size,
                                         @RequestParam(value = "page", defaultValue = "0", required = false) String page
     ){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/transactions");
     }
 
     /**
@@ -121,7 +121,7 @@ public class Dashboardv2 {
     @GetMapping("/account")
     public ResponseEntity account(@RequestParam(value = "address", required = false) String address){
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/account");
     }
 
     /**
@@ -135,7 +135,7 @@ public class Dashboardv2 {
                                    @RequestParam(value = "size", defaultValue = "25") String size,
                                    @RequestParam(value = "sort", defaultValue = "desc") String sort){
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/accounts");
     }
 
 
@@ -149,7 +149,7 @@ public class Dashboardv2 {
     public ResponseEntity contract(@RequestParam(value = "address", required = false) String address,
                                    @RequestParam(value = "transactionHash", required = false) String transactionHash){
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/contract");
     }
 
 
@@ -167,7 +167,7 @@ public class Dashboardv2 {
                                     @RequestParam(value = "size", defaultValue = "25") String size
     ){
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/contracts");
     }
 
 
@@ -184,7 +184,7 @@ public class Dashboardv2 {
                                  @RequestParam(value = "page", defaultValue = "0") String page,
                                  @RequestParam(value = "size", defaultValue = "25") String size){
 
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/events");
     }
 
 
@@ -198,7 +198,7 @@ public class Dashboardv2 {
     public ResponseEntity graph(@RequestParam(value = "unit", defaultValue = "day") String unit,
                                 @RequestParam(value = "startTime", required = false) String startTime,
                                 @RequestParam(value = "endTime", required = false) String endTime){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/graph");
     }
 
 
@@ -216,7 +216,7 @@ public class Dashboardv2 {
                                            @RequestParam(value = "participantAddress", required = false) String participantAddress,
                                            @RequestParam(value = "page", defaultValue = "0") String page,
                                            @RequestParam(value = "size", defaultValue = "25") String size){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/internalTansfers");
     }
 
     /**
@@ -226,7 +226,7 @@ public class Dashboardv2 {
      */
     @GetMapping("/metrics")
     public ResponseEntity metrics(@RequestParam(value = "type", defaultValue = "rt")String type){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/metrics");
     }
 
 
@@ -237,7 +237,7 @@ public class Dashboardv2 {
      */
     @GetMapping("token")
     public ResponseEntity token(@RequestParam(value = "contractAddress", required = false) String contractAddress){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/token");
     }
 
 
@@ -252,7 +252,7 @@ public class Dashboardv2 {
     public ResponseEntity tokens(@RequestParam(value = "creatorAddress", required = false) String creatorAddress,
                                  @RequestParam(value = "page", defaultValue = "0") String page,
                                  @RequestParam(value = "size", defaultValue = "25") String size){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/tokens");
     }
 
 
@@ -271,7 +271,7 @@ public class Dashboardv2 {
                                          @RequestParam(value = "transactionHash", required = false) String transactionHash,
                                          @RequestParam(value = "page", defaultValue = "0") String page,
                                          @RequestParam(value = "size", defaultValue = "25") String size){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/tokenTransfers");
     }
 
 
@@ -286,7 +286,7 @@ public class Dashboardv2 {
     public ResponseEntity tokenTransfer(@RequestParam(value = "contractAddress", required = false) String contractAddress,
                                         @RequestParam(value = "participantAddress", required = false) String participantAddress,
                                         @RequestParam(value = "transactionHash", required = false) String transactionHash){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/tokenTransfer");
     }
 
 
@@ -295,7 +295,7 @@ public class Dashboardv2 {
      */
     @GetMapping("/health")
     public ResponseEntity health(){
-        return new ResponseEntity(OK);
+        throw new UnsupportedOperationException("/health");
     }
 
     private <T> ResponseEntity<T> packageResponse(T body){
