@@ -82,8 +82,8 @@ public class Utility {
         else return true;
     }
 
-    public static BigDecimal toAion(BigDecimal bigDecimal) {
-        return bigDecimal.divide(WeiRate);
+    public static String toAion(BigDecimal bigDecimal) {
+        return bigDecimal.scaleByPowerOfTen(-18).toPlainString();
     }
     public static BigDecimal toWei(BigDecimal bigDecimal){
         return bigDecimal.multiply(WeiRate);

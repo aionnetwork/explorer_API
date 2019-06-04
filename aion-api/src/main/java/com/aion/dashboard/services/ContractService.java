@@ -139,9 +139,8 @@ public class ContractService {
                 result.put("events", new JSONObject(getContractEventsByContractAddress(contract.getContractAddr(), eventPageNumber, eventPageSize)));
                 result.put("transactions", new JSONObject(getContractTransactionsByContractAddress(contract.getContractAddr(), transactionPageNumber, transactionPageSize)));
 
-                BigDecimal balance = Utility.toAion(acctRepo.findByAddress(searchParam).getBalance());
 
-                result.put("balance", balance.toPlainString() );
+                result.put("balance", Utility.toAion(acctRepo.findByAddress(searchParam).getBalance()) );
                 contractArray.put(result);
             }
 

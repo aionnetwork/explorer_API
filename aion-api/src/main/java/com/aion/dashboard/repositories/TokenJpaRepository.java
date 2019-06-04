@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
+
 @Repository
 public interface TokenJpaRepository extends PagingAndSortingRepository<Token, Long> {
     Page<Token> findByYearAndMonthBetweenAndCreationTimestampBetween(int year, int startMonth, int endMonth, long start, long end, Pageable pageable);
@@ -15,4 +17,7 @@ public interface TokenJpaRepository extends PagingAndSortingRepository<Token, Lo
     Page<Token> findBySymbol(String symbol, Pageable pageable);
     Page<Token> findByName(String name, Pageable pageable);
     Token findByContractAddr(String contractAddr);
+    List<Token> findAllByNameOrSymbol(String name, String symbol);
+
+    boolean existsByContractAddr(String contractAddr);
 }
