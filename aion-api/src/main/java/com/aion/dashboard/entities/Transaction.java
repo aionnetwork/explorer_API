@@ -3,7 +3,7 @@ package com.aion.dashboard.entities;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Transient;
+import javax.persistence.Transient;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,6 +38,7 @@ public class Transaction {
     private String txError;
     private String contractAddr;
     private BigDecimal value;
+    private String type;
 
 
     @Column(name = "block_number")
@@ -95,17 +96,12 @@ public class Transaction {
     public String getData() {
         return data;
     }
-    @JsonIgnore
     public BigDecimal getValue() {
         return value;
     }
-
-    @Transient
-    @JsonGetter("value")
-    public String getPlainStringValue(){
-        return value.toPlainString();
+    public String getType() {
+        return type;
     }
-
 
     @Column(name = "block_number")
     public void setBlockNumber(Long blockNumber) {
@@ -164,5 +160,8 @@ public class Transaction {
     }
     public void setValue(BigDecimal value) {
         this.value = value;
+    }
+    public void setType(String type){
+        this.type = type;
     }
 }

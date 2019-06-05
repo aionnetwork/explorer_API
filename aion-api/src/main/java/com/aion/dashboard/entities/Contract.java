@@ -19,6 +19,7 @@ public class Contract {
     private Integer year;
     private Integer month;
     private Integer day;
+    private String type;
 
     public String getContractAddr() {
         return contractAddr;
@@ -47,6 +48,9 @@ public class Contract {
     public Integer getDay() {
         return day;
     }
+    public String getType() {
+        return type;
+    }
 
     public void setContractAddr(String contractAddr) {
         this.contractAddr = contractAddr;
@@ -74,5 +78,9 @@ public class Contract {
     }
     public void setDay(Integer day) {
         this.day = day;
+    }
+    public Contract setType(String type) {
+        this.type = type;
+        return this;
     }
 }

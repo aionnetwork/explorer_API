@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContractJpaRepository extends PagingAndSortingRepository<Contract, Long> {
     Contract findByContractAddr(String contractAddr);
+    boolean existsByContractAddr(String addr);
 
     Page<Contract> findByYearAndMonthBetweenAndDeployTimestampBetween(int year,int startMonth, int endMonth, long start, long end, Pageable pageable);
     Page<Contract> findByYearBetweenAndDeployTimestampBetween(int startYear, int endYear, long start, long end, Pageable pageable);
