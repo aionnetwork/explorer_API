@@ -3,7 +3,7 @@ package com.aion.dashboard.utility;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.stream.LongStream;
-
+@Deprecated
 public class RewardsCalculator {
 	private static BigInteger m;
 

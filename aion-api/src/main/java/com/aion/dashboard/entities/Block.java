@@ -2,12 +2,12 @@ package com.aion.dashboard.entities;
 
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Entity
 @Table(name="Block")
 public class Block {
-
 
     @Id
     private Long blockNumber;
@@ -21,6 +21,7 @@ public class Block {
     private Long nrgReward;
     private Long difficulty;
     private Long totalDifficulty;
+    private BigDecimal blockReward;
     private Integer year;
     private Integer month;
     private Integer day;
@@ -37,12 +38,11 @@ public class Block {
     private String transactionHash;
     private String transactionHashes;
 
-    @Transient
-    private BigInteger blockReward;
+
 
     public Block(){}
 
-    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigInteger blockReward) {
+    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -225,10 +225,10 @@ public class Block {
 
 
 
-    public BigInteger getBlockReward() {
+    public BigDecimal getBlockReward() {
         return blockReward;
     }
-    public void setBlockReward(BigInteger blockReward) {
+    public void setBlockReward(BigDecimal blockReward) {
         this.blockReward = blockReward;
     }
 }

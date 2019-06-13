@@ -100,7 +100,6 @@ public class StatisticsService {
             rtMetricsState = metrics.get();
             rtMetricsState.setTargetBlockTime(10L);
             rtMetricsState.setCurrentBlockchainHead(parserState.get().getBlockNumber());
-            rtMetricsState.setLastBlockReward();
             rtMetricsState.setBlockWindow();
         }
 
@@ -122,8 +121,6 @@ public class StatisticsService {
             sbMetricsState.setCurrentBlockchainHead(0L);
             Optional<ParserState> lastBlockRead = pSRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
             lastBlockRead.ifPresent(parserState1 -> sbMetricsState.setCurrentBlockchainHead(parserState1.getBlockNumber()));
-
-            sbMetricsState.setLastBlockReward();
             sbMetricsState.setBlockWindow();
         }
 
@@ -150,7 +147,6 @@ public class StatisticsService {
             if (!blksList.isEmpty()) {
                 JSONArray blocksArray = new JSONArray();
                 for (Block block : blksList) {
-                    block.setBlockReward(RewardsCalculator.calculateReward(block.getBlockNumber()));
                     blocksArray.put(new JSONObject(ow.writeValueAsString(block)));
                 }
 

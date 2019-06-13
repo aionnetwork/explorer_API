@@ -181,7 +181,6 @@ public class BlockService {
 					JSONArray txnArray = new JSONArray(txnString);
 					txnList.put(txnArray);
 				}
-				result.put("blockReward", RewardsCalculator.calculateReward(block.getBlockNumber()));
 				result.put("transactionList", txnList);
 				result.remove(TRANSACTION_HASH);
 
@@ -219,7 +218,6 @@ public class BlockService {
 					JSONArray txnArray = new JSONArray(txnString);
 					txnList.put(txnArray);
 				}
-				result.put("blockReward", RewardsCalculator.calculateReward(block.getBlockNumber()));
 				result.put("transactionList", txnList);
 				result.remove(TRANSACTION_HASH);
 
