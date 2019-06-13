@@ -2,6 +2,7 @@ package com.aion.dashboard.entities;
 
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @Entity
@@ -20,6 +21,7 @@ public class Block {
     private Long nrgReward;
     private Long difficulty;
     private Long totalDifficulty;
+    private BigDecimal blockReward;
     private Integer year;
     private Integer month;
     private Integer day;
@@ -35,9 +37,6 @@ public class Block {
     private String solution;
     private String transactionHash;
     private String transactionHashes;
-
-    @Transient
-    private BigInteger blockReward;
 
     public Long getBlockNumber() {
         return blockNumber;
@@ -193,10 +192,10 @@ public class Block {
 
 
 
-    public BigInteger getBlockReward() {
+    public BigDecimal getBlockReward() {
         return blockReward;
     }
-    public void setBlockReward(BigInteger blockReward) {
+    public void setBlockReward(BigDecimal blockReward) {
         this.blockReward = blockReward;
     }
 }

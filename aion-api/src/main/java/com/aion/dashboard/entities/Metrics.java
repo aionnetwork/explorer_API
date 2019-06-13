@@ -1,8 +1,5 @@
 package com.aion.dashboard.entities;
 
-import com.aion.dashboard.utility.RewardsCalculator;
-import org.json.JSONObject;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -29,10 +26,13 @@ public class Metrics {
     private Long startTimestamp;
     private BigDecimal averagedHashPower;
 
+    private BigDecimal lastBlockReward;
     @Transient
-    private BigInteger lastBlockReward;
+    private Long blockWindow;
     @Transient
-    private Long blockWindow, targetBlockTime = 10L, currentBlockchainHead;
+    private Long targetBlockTime = 10L;
+    @Transient
+    private Long currentBlockchainHead;
 
     public Integer getId() {
         return id;
@@ -120,7 +120,7 @@ public class Metrics {
         return blockWindow;
     }
     public BigInteger getLastBlockReward() {
-        return lastBlockReward;
+        return lastBlockReward.toBigInteger();
     }
     public Long getTargetBlockTime() {
         return targetBlockTime;
@@ -135,37 +135,11 @@ public class Metrics {
     public void setTargetBlockTime(Long targetBlockTime) {
         this.targetBlockTime = targetBlockTime;
     }
-    public void setLastBlockReward() {
-        lastBlockReward = RewardsCalculator.calculateReward(getEndBlock().longValueExact());
+    public void setLastBlockReward(BigDecimal blockReward) {
+        lastBlockReward = blockReward;
     }
     public void setCurrentBlockchainHead(Long currentBlockchainHead) {
         this.currentBlockchainHead = currentBlockchainHead;
     }
 
-    public static Metrics toObject(JSONObject jsonObject) {
-        Metrics metrics = new Metrics();
-
-        metrics.setId(jsonObject.getInt("id"));
-        metrics.setAveragedHashPower(BigDecimal.valueOf(jsonObject.getDouble("averagedHashPower")));
-        metrics.setAveragedBlockTime(BigDecimal.valueOf(jsonObject.getDouble("averagedBlockTime")));
-        metrics.setAverageDifficulty(BigDecimal.valueOf(jsonObject.getDouble("averageDifficulty")));
-        metrics.setEndBlock(BigInteger.valueOf(jsonObject.getLong("endBlock")));
-        metrics.setStartBlock(BigInteger.valueOf(jsonObject.getLong("startBlock")));
-        metrics.setEndTimestamp(jsonObject.getLong("endTimestamp"));
-        metrics.setStartTimestamp(jsonObject.getLong("startTimestamp"));
-        metrics.setTransactionsPerSecond(BigDecimal.valueOf(jsonObject.getDouble("transactionsPerSecond")));
-        metrics.setAverageNrgLimit(BigDecimal.valueOf(jsonObject.getDouble("averageNrgLimit")));
-        metrics.setAverageNrgConsumedPerBlock(BigDecimal.valueOf(jsonObject.getDouble("averageNrgConsumed")));
-        metrics.setPeakTransactionsPerBlock(jsonObject.getInt("peakTransactionsPerBlock"));
-        metrics.setTotalTransaction(BigInteger.valueOf(jsonObject.getLong("totalTransaction")));
-
-
-        // Transient as they are Static
-        metrics.setBlockWindow();
-        metrics.setLastBlockReward();
-        metrics.setTargetBlockTime(jsonObject.getLong("targetBlockTime"));
-        metrics.setCurrentBlockchainHead(jsonObject.getLong("currentBlockchainHead"));
-
-        return metrics;
-    }
 }
