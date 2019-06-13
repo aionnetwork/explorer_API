@@ -85,14 +85,22 @@ public class TransactionService {
 
 				// Correcting the Transaction Details with TokenTransfers information if related to a TokenTransfers
 				if(!txn.getTransactionLog().equals("[]")) {
-					List<TokenTransfers> tknTxfsList = tknTxfRepo.findByContractAddr(txn.getToAddr());
-					for(TokenTransfers tknTxf: tknTxfsList) {
-						Token tkn = tknRepo.findByContractAddr(tknTxf.getContractAddr());
-						if (tkn != null) {
-							result.put(VALUE, tknTxf.getRawValue());
-							result.put("tokenName", tkn.getName());
-							result.put("tokenSymbol", tkn.getSymbol());
+					List<TokenTransfers> tknTxfsList = tknTxfRepo.findByTransactionHash(txn.getTransactionHash());
+					if (!tknTxfsList.isEmpty()) {
+						Token tkn = tknRepo.findByContractAddr(txn.getContractAddr());
+						JSONArray transfersArray = new JSONArray();
+						for (TokenTransfers tknTxf : tknTxfsList) {
+							JSONObject object = new JSONObject();
+
+							object.put("tokenName", tkn.getName());
+							object.put("tokenSymbol", tkn.getSymbol());
+							object.put(VALUE, tknTxf.getRawValue());
+							object.put("to", tknTxf.getToAddr());
+							object.put("from", tknTxf.getFromAddr());
 						}
+
+						result.put("tokenTransfers", transfersArray);
+
 					}
 				}
 
