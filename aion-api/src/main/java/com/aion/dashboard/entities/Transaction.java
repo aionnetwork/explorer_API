@@ -41,6 +41,7 @@ public class Transaction {
     private String type;
 
 
+
     @Column(name = "block_number")
     public Long getBlockNumber() {
         return blockNumber;
@@ -164,4 +165,6 @@ public class Transaction {
     public void setType(String type){
         this.type = type;
     }
+
+
 }

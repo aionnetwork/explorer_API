@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BlockJpaRepository extends PagingAndSortingRepository<Block, Long>, JpaSpecificationExecutor<Block> {
@@ -21,6 +22,6 @@ public interface BlockJpaRepository extends PagingAndSortingRepository<Block, Lo
 
 	Page<Block> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable);
 
-	Block findByBlockNumber(Long blockNumber);
+	Optional<Block> findByBlockNumber(Long blockNumber);
     Block findByBlockHash(String blockHash);
 }

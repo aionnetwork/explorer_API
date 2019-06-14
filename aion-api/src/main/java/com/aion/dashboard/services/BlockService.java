@@ -4,6 +4,7 @@ import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.Block;
 import com.aion.dashboard.entities.Transaction;
+import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.repositories.AccountJpaRepository;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
@@ -113,7 +114,7 @@ public class BlockService {
             PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sortDesc());
             ZonedDateTime startZDT = Instant.ofEpochSecond(start).atZone(ZoneId.of("UTC"));
             ZonedDateTime endZDT = Instant.ofEpochSecond(end).atZone(ZoneId.of("UTC"));
-            
+
 
             traceLogStartAndEnd(startZDT, startZDT, "Call to getBlocksMinedByAddress");
 
@@ -198,7 +199,7 @@ public class BlockService {
 		// find by block number
 		else if(Utility.validLong(searchParam)) {
 			// block master
-			Block block = blkRepo.findByBlockNumber(Long.parseLong(searchParam));
+			Block block = blkRepo.findByBlockNumber(Long.parseLong(searchParam)).get();
 			blockArray = new JSONArray();
 			if(block != null) {
 				JSONObject result = new JSONObject(ow.writeValueAsString(block));
@@ -260,4 +261,21 @@ public class BlockService {
 
 		}
 	}
+
+
+	public Block findByBlockNumber(Long blockNumber)throws EntityNotFoundException{
+        var block =blkRepo.findByBlockNumber(blockNumber);
+        if(block.isPresent())
+		    return blkRepo.findByBlockNumber(blockNumber).get();
+        else throw new EntityNotFoundException("Block number not found ");
+	}
+
+    public Block getHeightBlock() throws EntityNotFoundException{
+        var state = psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
+        if (state.isPresent())
+            return findByBlockNumber(state.get().getBlockNumber());
+        else throw new EntityNotFoundException("Not able to retrieve the block height");
+
+    }
+
 }

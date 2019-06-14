@@ -8,6 +8,7 @@ import java.math.BigInteger;
 @Table(name="Block")
 public class Block {
 
+
     @Id
     private Long blockNumber;
     private Long nrgConsumed;
