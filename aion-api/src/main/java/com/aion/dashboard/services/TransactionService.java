@@ -87,7 +87,7 @@ public class TransactionService {
 				if(!txn.getTransactionLog().equals("[]")) {
 					List<TokenTransfers> tknTxfsList = tknTxfRepo.findByTransactionHash(txn.getTransactionHash());
 					if (!tknTxfsList.isEmpty()) {
-						Token tkn = tknRepo.findByContractAddr(txn.getContractAddr());
+						Token tkn = tknRepo.findByContractAddr(txn.getToAddr());
 						JSONArray transfersArray = new JSONArray();
 						for (TokenTransfers tknTxf : tknTxfsList) {
 							JSONObject object = new JSONObject();
