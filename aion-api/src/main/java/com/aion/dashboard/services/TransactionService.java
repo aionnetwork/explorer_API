@@ -97,6 +97,7 @@ public class TransactionService {
 							object.put(VALUE, tknTxf.getRawValue());
 							object.put("to", tknTxf.getToAddr());
 							object.put("from", tknTxf.getFromAddr());
+							transfersArray.put(object);
 						}
 
 						result.put("tokenTransfers", transfersArray);
