@@ -1,19 +1,15 @@
-package com.aion.dashboard.entities;
+package com.aion.dashboard.datatransferobject;
 
-
-import javax.persistence.*;
 import java.math.BigInteger;
 
-@Entity
-@Table(name="Block")
-public class Block {
+public class BlockDTO {
 
 
-    @Id
+
+
     private Long blockNumber;
     private Long nrgConsumed;
     private Long nrgLimit;
-    @Column(name = "block_size")
     private Long size;
     private Long blockTimestamp;
     private Long numTransactions;
@@ -37,12 +33,12 @@ public class Block {
     private String transactionHash;
     private String transactionHashes;
 
-    @Transient
+
     private BigInteger blockReward;
 
-    public Block(){}
+    public BlockDTO(){}
 
-    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigInteger blockReward) {
+    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigInteger blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -231,4 +227,173 @@ public class Block {
     public void setBlockReward(BigInteger blockReward) {
         this.blockReward = blockReward;
     }
+
+
+    public static BlockDTOBuilder newBuilder()
+    {
+        return new BlockDTOBuilder();
+    }
+
+
+    public static class BlockDTOBuilder{
+        private Long blockNumber;
+        private Long nrgConsumed;
+        private Long nrgLimit;
+        private Long size;
+        private Long blockTimestamp;
+        private Long numTransactions;
+        private Long blockTime;
+        private Long nrgReward;
+        private Long difficulty;
+        private Long totalDifficulty;
+        private Integer year;
+        private Integer month;
+        private Integer day;
+        private String blockHash;
+        private String minerAddress;
+        private String parentHash;
+        private String receiptTxRoot;
+        private String stateRoot;
+        private String txTrieRoot;
+        private String extraData;
+        private String nonce;
+        private String bloom;
+        private String solution;
+        private String transactionHash;
+        private String transactionHashes;
+        private BigInteger blockReward;
+
+        public BlockDTOBuilder setBlockNumber(Long blockNumber) {
+            this.blockNumber = blockNumber;
+            return this;
+        }
+
+        public BlockDTOBuilder setNrgConsumed(Long nrgConsumed) {
+            this.nrgConsumed = nrgConsumed;
+            return this;
+        }
+
+        public BlockDTOBuilder setNrgLimit(Long nrgLimit) {
+            this.nrgLimit = nrgLimit;
+            return this;
+        }
+
+        public BlockDTOBuilder setSize(Long size) {
+            this.size = size;
+            return this;
+        }
+
+        public BlockDTOBuilder setBlockTimestamp(Long blockTimestamp) {
+            this.blockTimestamp = blockTimestamp;
+            return this;
+        }
+
+        public BlockDTOBuilder setNumTransactions(Long numTransactions) {
+            this.numTransactions = numTransactions;
+            return this;
+        }
+
+        public BlockDTOBuilder setBlockTime(Long blockTime) {
+            this.blockTime = blockTime;
+            return this;
+        }
+
+        public BlockDTOBuilder setNrgReward(Long nrgReward) {
+            this.nrgReward = nrgReward;
+            return this;
+        }
+
+        public BlockDTOBuilder setDifficulty(Long difficulty) {
+            this.difficulty = difficulty;
+            return this;
+        }
+
+        public BlockDTOBuilder setTotalDifficulty(Long totalDifficulty) {
+            this.totalDifficulty = totalDifficulty;
+            return this;
+        }
+
+        public BlockDTOBuilder setYear(Integer year) {
+            this.year = year;
+            return this;
+        }
+
+        public BlockDTOBuilder setMonth(Integer month) {
+            this.month = month;
+            return this;
+        }
+
+        public BlockDTOBuilder setDay(Integer day) {
+            this.day = day;
+            return this;
+        }
+
+        public BlockDTOBuilder setBlockHash(String blockHash) {
+            this.blockHash = blockHash;
+            return this;
+        }
+
+        public BlockDTOBuilder setMinerAddress(String minerAddress) {
+            this.minerAddress = minerAddress;
+            return this;
+        }
+
+        public BlockDTOBuilder setParentHash(String parentHash) {
+            this.parentHash = parentHash;
+            return this;
+        }
+
+        public BlockDTOBuilder setReceiptTxRoot(String receiptTxRoot) {
+            this.receiptTxRoot = receiptTxRoot;
+            return this;
+        }
+
+        public BlockDTOBuilder setStateRoot(String stateRoot) {
+            this.stateRoot = stateRoot;
+            return this;
+        }
+
+        public BlockDTOBuilder setTxTrieRoot(String txTrieRoot) {
+            this.txTrieRoot = txTrieRoot;
+            return this;
+        }
+
+        public BlockDTOBuilder setExtraData(String extraData) {
+            this.extraData = extraData;
+            return this;
+        }
+
+        public BlockDTOBuilder setNonce(String nonce) {
+            this.nonce = nonce;
+            return this;
+        }
+
+        public BlockDTOBuilder setBloom(String bloom) {
+            this.bloom = bloom;
+            return this;
+        }
+
+        public BlockDTOBuilder setSolution(String solution) {
+            this.solution = solution;
+            return this;
+        }
+
+        public BlockDTOBuilder setTransactionHash(String transactionHash) {
+            this.transactionHash = transactionHash;
+            return this;
+        }
+
+        public BlockDTOBuilder setTransactionHashes(String transactionHashes) {
+            this.transactionHashes = transactionHashes;
+            return this;
+        }
+
+        public BlockDTOBuilder setBlockReward(BigInteger blockReward) {
+            this.blockReward = blockReward;
+            return this;
+        }
+
+        public BlockDTO createBlockDTO() {
+            return new BlockDTO(blockNumber, nrgConsumed, nrgLimit, size, blockTimestamp, numTransactions, blockTime, nrgReward, difficulty, totalDifficulty, year, month, day, blockHash, minerAddress, parentHash, receiptTxRoot, stateRoot, txTrieRoot, extraData, nonce, bloom, solution, transactionHash, transactionHashes, blockReward);
+        }    }
 }

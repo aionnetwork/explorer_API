@@ -23,5 +23,5 @@ public interface BlockJpaRepository extends PagingAndSortingRepository<Block, Lo
 	Page<Block> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable);
 
 	Optional<Block> findByBlockNumber(Long blockNumber);
-    Block findByBlockHash(String blockHash);
+	Optional<Block> findByBlockHash(String blockHash);
 }

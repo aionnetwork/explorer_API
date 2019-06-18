@@ -87,7 +87,7 @@ public class SearchServiceMysql implements SearchService {
         else if (Utility.validHex(key)){//check if the key is a block hash
             var block = blkRepo.findByBlockHash(key);
 
-            return block != null? SearchResult.of("block", block.getBlockNumber().toString()) : EMPTY_RESULT;
+            return block != null? SearchResult.of("block", block.get().getBlockNumber().toString()) : EMPTY_RESULT;
         }
         else  {
             return EMPTY_RESULT; // else return the default

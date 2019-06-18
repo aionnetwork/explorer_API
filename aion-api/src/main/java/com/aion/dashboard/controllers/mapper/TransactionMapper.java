@@ -2,20 +2,19 @@ package com.aion.dashboard.controllers.mapper;
 
 import com.aion.dashboard.datatransferobject.TransactionDTO;
 import com.aion.dashboard.entities.Transaction;
+import com.aion.dashboard.view.Result;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.jaxb.SpringDataJaxb;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class TransactionMapper {
 
 
-
+    /**
+     * @param transaction transaction object
+     * @return A  Data Transfer Object of transaction
+     */
     public static TransactionDTO makeTransactionDTO(Transaction transaction)
     {
         TransactionDTO.TransactionDTOBuilder transactionDTOBuilder = TransactionDTO.newBuilder().
@@ -44,11 +43,17 @@ public class TransactionMapper {
     }
 
 
-    public static Page<TransactionDTO> makeTransactionDTOList(Page<Transaction> transaction)
+    /**
+     * @param transaction transaction in a Page object
+     * @return A  List of Data Transfer Object of transaction
+     */
+    public static Result<TransactionDTO> makeTransactionDTOList(Page<Transaction> transaction)
     {
-        return new PageImpl<TransactionDTO>( transaction.getContent().stream()
+
+        return Result.from(transaction.getContent().stream()
                 .map(TransactionMapper::makeTransactionDTO)
-                .collect(Collectors.toList()),transaction.getPageable(),transaction.getTotalElements());
+                .collect(Collectors.toList()), transaction);
+
     }
 
 

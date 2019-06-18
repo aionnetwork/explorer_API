@@ -162,7 +162,7 @@ public class BlockService {
 
 		if(Utility.validHex(searchParam)) {
 			// block master
-			Block block = blkRepo.findByBlockHash(searchParam);
+			Block block = blkRepo.findByBlockHash(searchParam).get();
 			if(block != null) {
 				JSONObject result = new JSONObject(ow.writeValueAsString(block));
 
@@ -263,15 +263,28 @@ public class BlockService {
 	}
 
 
-	public Block findByBlockNumber(Long blockNumber)throws EntityNotFoundException{
+	public Block findByBlockNumber(Long blockNumber){
         var block =blkRepo.findByBlockNumber(blockNumber);
-        if(block.isPresent())
-		    return blkRepo.findByBlockNumber(blockNumber).get();
-        else throw new EntityNotFoundException("Block number not found ");
+		return block.orElseThrow(EntityNotFoundException::new);
+
 	}
+
+
+	public Block findByBlockHash(String blockHash){
+
+
+		if(blockHash.startsWith("0x"))
+			blockHash= blockHash.replace("0x", "");
+		var block =blkRepo.findByBlockHash(blockHash);
+
+		return block.orElseThrow(EntityNotFoundException::new);
+
+	}
+
 
     public Block getHeightBlock() throws EntityNotFoundException{
         var state = psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
+
         if (state.isPresent())
             return findByBlockNumber(state.get().getBlockNumber());
         else throw new EntityNotFoundException("Not able to retrieve the block height");

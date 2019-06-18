@@ -2,6 +2,7 @@ package com.aion.dashboard.services;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.*;
+import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.repositories.*;
 import com.aion.dashboard.specification.TransactionSpec;
 import com.aion.dashboard.specification.TransferSpec;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -43,6 +45,8 @@ public class TransactionService {
 	@Autowired
 	private InternalTransferJpaRepository internalTransferJpaRepository;
 
+	@Autowired
+	private BlockService blockService;
 
 
 	private static final String VALUE="value";
@@ -409,7 +413,35 @@ public class TransactionService {
 
 
 	public Page<Transaction> findByBlockNumber(long blockNumber, int page,int size){
+
 		return txnRepo.findByBlockNumber(blockNumber,PageRequest.of(page,size));
+
+	}
+
+	public Page<Transaction> findByBlockHash(String blockHash, int page,int size){
+
+		return txnRepo.findByBlockHash(blockHash,PageRequest.of(page,size));
+
+	}
+
+    /**
+     * Return all transactions in a specified time range.
+     * @param startTime used to construct the time ranged
+     * @param endTime used to construct the time range
+     * @param pageSize the
+     * @param pageNumber
+     * @return List of peggable transaction
+     */
+	public Page<Transaction>  findByTime(int pageNumber,
+									 int pageSize,
+									 long startTime,
+									 long endTime) {
+		var ldtStart = Instant.ofEpochSecond(startTime).atZone(ZoneId.of("UTC"));
+		var ldtEnd = Instant.ofEpochSecond(endTime).atZone(ZoneId.of("UTC"));
+		Logging.traceLogStartAndEnd(ldtStart,ldtEnd, "Call to getTransactionByTime");
+		try{Utility.validateTxListPeriod(ldtStart, ldtEnd);}catch (Exception e){e.printStackTrace();}
+		return txnRepo.findAll(TransactionSpec.checkTime(ldtStart, ldtEnd), PageRequest.of(pageNumber, pageSize, sortDesc1()));
+
 
 	}
 }

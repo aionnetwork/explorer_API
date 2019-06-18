@@ -26,4 +26,6 @@ public interface TransactionJpaRepository extends PagingAndSortingRepository<Tra
 
 	Page<Transaction> findByBlockNumber(long blockNumber, Pageable pageable);
 
+	Page<Transaction> findByBlockHash(String blockHash, Pageable pageable);
+
 }

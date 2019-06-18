@@ -1,10 +1,12 @@
 package com.aion.dashboard.datatransferobject;
 
 
+import org.springframework.hateoas.ResourceSupport;
+
 import java.math.BigDecimal;
 
 
-public class TransactionDTO {
+public class TransactionDTO  {
 
 
 
