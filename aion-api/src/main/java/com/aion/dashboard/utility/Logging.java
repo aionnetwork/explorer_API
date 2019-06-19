@@ -1,5 +1,6 @@
 package com.aion.dashboard.utility;
 
+import com.aion.dashboard.configs.BuildVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,15 @@ public class Logging {
         }
     }
 
+
+    public static void infoPrintVersion(){
+        if(logger.isInfoEnabled()) {
+            logger.info(LOG_DELIMITER);
+            logger.info("{}-{}", BuildVersion.MAVEN_NAME, BuildVersion.VERSION.replaceAll("-[0-9]{4}(-[0-9]{1,2}){2}-20[0-9]{2}", ""));
+            logger.info(String.format("Built on: %s", BuildVersion.BUILD_DATE));
+            logger.info(LOG_DELIMITER);
+        }
+    }
 
     public static void traceException(Exception e){
         traceException(e, "");
