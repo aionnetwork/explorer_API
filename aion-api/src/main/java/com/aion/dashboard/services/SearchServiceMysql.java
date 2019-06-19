@@ -53,7 +53,7 @@ public class SearchServiceMysql implements SearchService {
         if (key == null || key.isEmpty() || key.isBlank()) {
             throw new MissingArgumentException();// thrown if no argument is supplied
         } else {
-            final String searchKey = key.strip().replaceFirst("0x","");
+            final String searchKey = key.strip().replaceFirst("0x","").toLowerCase();
             //Fork and run all task asynchronously
             CompletableFuture<SearchResult> blockFuture = CompletableFuture.supplyAsync(() -> searchBlock(searchKey), dbExecutor);
             CompletableFuture<SearchResult> transactionFuture = CompletableFuture.supplyAsync(() -> searchTransaction(searchKey), dbExecutor);
@@ -87,7 +87,7 @@ public class SearchServiceMysql implements SearchService {
         else if (Utility.validHex(key)){//check if the key is a block hash
             var block = blkRepo.findByBlockHash(key);
 
-            return block != null? SearchResult.of("block", block.get().getBlockNumber().toString()) : EMPTY_RESULT;
+            return block.map(value -> SearchResult.of("block", value.getBlockNumber().toString())).orElse(EMPTY_RESULT);
         }
         else  {
             return EMPTY_RESULT; // else return the default
