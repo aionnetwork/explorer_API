@@ -1,5 +1,6 @@
 package com.aion.dashboard.datatransferobject;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class BlockDTO {
@@ -34,11 +35,11 @@ public class BlockDTO {
     private String transactionHashes;
 
 
-    private BigInteger blockReward;
+    private BigDecimal blockReward;
 
     public BlockDTO(){}
 
-    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigInteger blockReward) {
+    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -221,10 +222,10 @@ public class BlockDTO {
 
 
 
-    public BigInteger getBlockReward() {
+    public BigDecimal getBlockReward() {
         return blockReward;
     }
-    public void setBlockReward(BigInteger blockReward) {
+    public void setBlockReward(BigDecimal blockReward) {
         this.blockReward = blockReward;
     }
 
@@ -261,7 +262,7 @@ public class BlockDTO {
         private String solution;
         private String transactionHash;
         private String transactionHashes;
-        private BigInteger blockReward;
+        private BigDecimal blockReward;
 
         public BlockDTOBuilder setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
@@ -388,7 +389,7 @@ public class BlockDTO {
             return this;
         }
 
-        public BlockDTOBuilder setBlockReward(BigInteger blockReward) {
+        public BlockDTOBuilder setBlockReward(BigDecimal blockReward) {
             this.blockReward = blockReward;
             return this;
         }

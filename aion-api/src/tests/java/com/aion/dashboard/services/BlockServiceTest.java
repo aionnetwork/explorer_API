@@ -2,6 +2,7 @@ package com.aion.dashboard.services;
 
 
 import com.aion.dashboard.AionDashboardApiApplication;
+import com.aion.dashboard.controllers.mapper.BlockMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.utility.Utility;
@@ -34,5 +35,39 @@ public class BlockServiceTest {
     public void getHeightBlock()throws Exception {
         assertNotNull(blockService.getHeightBlock());
         assertTrue(blockService.getHeightBlock().getBlockNumber()>0);
+    }
+
+
+    @Test
+    public void given_blockDOValidateWhitMapper()throws Exception {
+        var b=blockService.getHeightBlock();
+        assertNotNull(b);
+        assertTrue(b.getBlockNumber()>0);
+
+
+
+        assertNotNull(BlockMapper.makeBlockDTO(b).getBlockReward());
+        assertTrue(BlockMapper.makeBlockDTO(b).getBlockReward()==b.getBlockReward());
+        assertTrue(BlockMapper.makeBlockDTO(b).getBlockHash().equals(b.getBlockHash()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getBlockNumber()==b.getBlockNumber());
+        assertTrue(BlockMapper.makeBlockDTO(b).getBlockTime()==b.getBlockTime());
+        assertTrue(BlockMapper.makeBlockDTO(b).getBlockTimestamp()==b.getBlockTimestamp());
+        assertTrue(BlockMapper.makeBlockDTO(b).getBloom().equals(b.getBloom()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getDay()==b.getDay());
+        assertTrue(BlockMapper.makeBlockDTO(b).getDifficulty()==b.getDifficulty());
+        assertTrue(BlockMapper.makeBlockDTO(b).getExtraData().equals(b.getExtraData()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getMinerAddress().equals(b.getMinerAddress()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getMonth()==b.getMonth());
+        assertTrue(BlockMapper.makeBlockDTO(b).getNrgConsumed()==b.getNrgConsumed());
+        assertTrue(BlockMapper.makeBlockDTO(b).getNonce().equals(b.getNonce()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getNrgLimit()==b.getNrgLimit());
+        assertTrue(BlockMapper.makeBlockDTO(b).getNrgReward()==b.getNrgReward());
+        assertTrue(BlockMapper.makeBlockDTO(b).getNumTransactions()==b.getNumTransactions());
+        assertTrue(BlockMapper.makeBlockDTO(b).getParentHash().equals(b.getParentHash()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getReceiptTxRoot().equals(b.getReceiptTxRoot()));
+        assertTrue(BlockMapper.makeBlockDTO(b).getSize()==b.getSize());
+        assertTrue(BlockMapper.makeBlockDTO(b).getSolution().equals(b.getSolution()));
+
+
     }
 }

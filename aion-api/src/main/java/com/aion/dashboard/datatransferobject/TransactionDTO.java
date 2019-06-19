@@ -211,6 +211,7 @@ public class TransactionDTO  {
         private BigDecimal value;
         private String type;
 
+
         public TransactionDTOBuilder setTransactionHash(String transactionHash) {
             this.transactionHash = transactionHash;
             return this;
