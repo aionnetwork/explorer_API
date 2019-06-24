@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AionDashboardApiApplication.class)
 class StatisticsServiceTest {
