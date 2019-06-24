@@ -1,18 +1,22 @@
 package com.aion.dashboard.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.aion.dashboard.AionDashboardApiApplication;
 import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.datatransferobject.MetricsDTO;
 import com.aion.dashboard.entities.Metrics;
 import com.aion.dashboard.view.Result;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AionDashboardApiApplication.class)
@@ -38,5 +42,29 @@ class StatisticsServiceTest {
 
         assertNotNull(metricsDTOResult);
         assertFalse(metricsDTOResult.getContent().isEmpty());
+    }
+
+    @org.junit.Test
+    public void createHealthDTO(){
+        var res0 = StatisticsService.createHealthFrom(1,1, System.currentTimeMillis()/1000);
+        var res1 = StatisticsService.createHealthFrom(1,6, System.currentTimeMillis()/1000);
+        var res2 = StatisticsService.createHealthFrom(1,1, System.currentTimeMillis()/1000 - 10*60);
+
+        assertEquals("OK", res0.getStatus());
+        assertEquals("SYNCING", res1.getStatus());
+        assertEquals("STALLED", res2.getStatus());
+
+
+
+        assertEquals(res0.getDbBlockHead(), 1);
+        assertEquals(res0.getBlockchainHead(), 1);
+        assertEquals(res1.getDbBlockHead(), 1);
+        assertEquals(res1.getBlockchainHead(), 6);
+        assertEquals(res2.getDbBlockHead(), 1);
+        assertEquals(res2.getBlockchainHead(),1);
+
+        var currStatus = assertDoesNotThrow(()-> service.health());
+        assertNotNull(currStatus);
+        assertTrue(List.of("OK", "STALLED", "SYNCING").contains(currStatus.getStatus()));
     }
 }

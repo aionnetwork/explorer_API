@@ -1,28 +1,32 @@
 package com.aion.dashboard.controllers;
 
 
+import static org.springframework.http.HttpStatus.OK;
+
 import com.aion.dashboard.controllers.mapper.BlockMapper;
 import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
 import com.aion.dashboard.datatransferobject.BlockDTO;
+import com.aion.dashboard.datatransferobject.HealthDTO;
 import com.aion.dashboard.datatransferobject.MetricsDTO;
 import com.aion.dashboard.datatransferobject.TransactionDTO;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
-import com.aion.dashboard.services.*;
+import com.aion.dashboard.services.BlockService;
+import com.aion.dashboard.services.SearchService;
+import com.aion.dashboard.services.StatisticsService;
+import com.aion.dashboard.services.ThirdPartyService;
+import com.aion.dashboard.services.TransactionService;
 import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.SearchResult;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
-
-import static org.springframework.http.HttpStatus.OK;
 
 
 /**
@@ -340,8 +344,8 @@ public class Dashboardv2 {
      * @return the current health of this API.
      */
     @GetMapping("/health")
-    public ResponseEntity health(){
-        throw new UnsupportedOperationException("/health");
+    public ResponseEntity<Result<HealthDTO>> health(){
+        return packageResponse(Result.from(statisticsService.health()));
     }
 
     private <T> ResponseEntity<T> packageResponse(T body){
