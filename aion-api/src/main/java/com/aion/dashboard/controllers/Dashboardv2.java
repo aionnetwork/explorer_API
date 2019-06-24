@@ -5,10 +5,7 @@ import com.aion.dashboard.controllers.mapper.BlockMapper;
 import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
 import com.aion.dashboard.controllers.mapper.TxLogMapper;
-import com.aion.dashboard.datatransferobject.BlockDTO;
-import com.aion.dashboard.datatransferobject.MetricsDTO;
-import com.aion.dashboard.datatransferobject.TransactionDTO;
-import com.aion.dashboard.datatransferobject.TxLogDTO;
+import com.aion.dashboard.datatransferobject.*;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
@@ -344,8 +341,8 @@ public class Dashboardv2 {
      * @return the current health of this API.
      */
     @GetMapping("/health")
-    public ResponseEntity health(){
-        throw new UnsupportedOperationException("/health");
+    public ResponseEntity<Result<HealthDTO>> health(){
+        return packageResponse(Result.from(statisticsService.health()));
     }
 
     private <T> ResponseEntity<T> packageResponse(T body){
