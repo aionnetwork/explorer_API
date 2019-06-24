@@ -2,6 +2,7 @@ package com.aion.dashboard.services;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.Dashboard;
+import com.aion.dashboard.datatransferobject.HealthDTO;
 import com.aion.dashboard.entities.*;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.MetricsJpaRepository;
@@ -34,20 +35,26 @@ import java.util.Optional;
 @Component
 public class StatisticsService {
 
-    @Autowired
     private Dashboard dashboard;
 
-    @Autowired
     private BlockJpaRepository blkRepo;
 
-    @Autowired
     private MetricsJpaRepository metRepo;
 
-    @Autowired
     private TransactionJpaRepository txnRepo;
 
-    @Autowired
+
     private ParserStateJpaRepository pSRepo;
+
+    @Autowired
+    public StatisticsService(Dashboard dashboard, BlockJpaRepository blkRepo, MetricsJpaRepository metRepo, TransactionJpaRepository txnRepo, ParserStateJpaRepository pSRepo) {
+        this.dashboard = dashboard;
+        this.blkRepo = blkRepo;
+        this.metRepo = metRepo;
+        this.txnRepo = txnRepo;
+        this.pSRepo = pSRepo;
+
+    }
 
     private static final int SB_METRICS = 1;
     private static final int RT_METRICS = 2;
@@ -295,6 +302,34 @@ public class StatisticsService {
         }
     }
 
+
+
+    public HealthDTO health(){
+        final long dbHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).orElseThrow().getBlockNumber();
+        final long blockchainHead = pSRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId()).orElseThrow().getBlockNumber();
+        final long timeStamp = blkRepo.findByBlockNumber(dbHead).orElseThrow().getBlockTimestamp();
+
+        return createHealthFrom(dbHead, blockchainHead, timeStamp);
+    }
+
+    static HealthDTO createHealthFrom(long dbHead, long blockchainHead, long timeStamp) {
+        final String status;
+        if (dbHead == blockchainHead){
+
+            if ((System.currentTimeMillis()/1000 - 60*5) > timeStamp){
+                status = "STALLED";
+            }
+            else {
+                status = "OK";
+            }
+        }
+        else {
+
+            status = "SYNCING";
+        }
+
+        return new HealthDTO(dbHead, blockchainHead, timeStamp, status);
+    }
 
     public Metrics getSbMetrics(){
         return metRepo.findById(1).orElseThrow();
