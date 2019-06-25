@@ -7,3 +7,6 @@ jmx.access
 jmx.password
 out/
 docs/
+build/
+.gradle/
+gradle/
