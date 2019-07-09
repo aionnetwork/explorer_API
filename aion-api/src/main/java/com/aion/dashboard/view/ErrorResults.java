@@ -12,5 +12,6 @@ public class ErrorResults {
     public static final ResultInterface SERVER_ERROR = Result.from(500,"Error: Server Error");
     public static final ResultInterface NOT_FOUND = Result.from(404, "Error: Resource not found");
     public static final ResultInterface MISSING_ARGUMENT=Result.from(400, "Error: Missing argument");
+    public static final ResultInterface ARGUMENT_PARSING_ERROR = Result.from(400, "Error: Could not parse argument.");
 
 }

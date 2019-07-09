@@ -289,4 +289,9 @@ public class BlockService {
 
     }
 
+
+    public Long blockNumber(){
+		return psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId()).orElseThrow().getBlockNumber();
+	}
+
 }
