@@ -22,7 +22,7 @@ plugins {
 }
 
 apply plugin: 'org.ajoberstar.grgit'
-mainClassName = "com.aion.dashboard.AionDashboardApiApplication"
+mainClassName = "com.aion.dashboard.downloads.Application"
 
 
 group = 'aion-exporter'
