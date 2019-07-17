@@ -16,6 +16,6 @@ public interface TokenTransfersJpaRepository extends PagingAndSortingRepository<
     Page<TokenTransfers> findByYearAndMonthBetweenAndTransferTimestampBetweenAndContractAddr(int year, int startMonth, int endMonth, long start, long end, String contractAddr, Pageable pageable);
     Page<TokenTransfers> findByYearBetweenAndTransferTimestampBetweenAndContractAddr(int startYear, int endYear, long start, long end, String contractAddr, Pageable pageable);
     List<TokenTransfers> findByContractAddr(String contractAddr);
+    List<TokenTransfers> findByTransactionHash(String transactionHash);
     Long countByContractAddr(String contractAddr);
-
 }

@@ -100,7 +100,6 @@ public class StatisticsService {
             rtMetricsState = metrics.get();
             rtMetricsState.setTargetBlockTime(10L);
             rtMetricsState.setCurrentBlockchainHead(parserState.get().getBlockNumber());
-            rtMetricsState.setLastBlockReward();
             rtMetricsState.setBlockWindow();
         }
 
@@ -122,8 +121,6 @@ public class StatisticsService {
             sbMetricsState.setCurrentBlockchainHead(0L);
             Optional<ParserState> lastBlockRead = pSRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
             lastBlockRead.ifPresent(parserState1 -> sbMetricsState.setCurrentBlockchainHead(parserState1.getBlockNumber()));
-
-            sbMetricsState.setLastBlockReward();
             sbMetricsState.setBlockWindow();
         }
 
@@ -140,7 +137,7 @@ public class StatisticsService {
 
         if(parserState.isPresent()) {
 
-            Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).getBlockTimestamp());
+            Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).get().getBlockTimestamp());
             int d = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getDayOfMonth();
             int m = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getMonthValue();
             int y = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getYear();
@@ -150,7 +147,6 @@ public class StatisticsService {
             if (!blksList.isEmpty()) {
                 JSONArray blocksArray = new JSONArray();
                 for (Block block : blksList) {
-                    block.setBlockReward(RewardsCalculator.calculateReward(block.getBlockNumber()));
                     blocksArray.put(new JSONObject(ow.writeValueAsString(block)));
                 }
 
@@ -169,7 +165,7 @@ public class StatisticsService {
         if(!parserState.isPresent())
             throw new NullPointerException("ParserState is null");
 
-        Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).getBlockTimestamp());
+        Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).get().getBlockTimestamp());
 
         int d = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getDayOfMonth();
         int m = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getMonthValue();
@@ -195,7 +191,7 @@ public class StatisticsService {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
-        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).getBlockTimestamp();
+        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
         List<Object> blksList = blkRepo.findAvgAndCountForAddressBetweenTimestamp(oneDayAgo, currTime);
         long numBlocks = blkRepo.countByBlockTimestampBetween(oneDayAgo, currTime);
@@ -231,7 +227,7 @@ public class StatisticsService {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
 
-        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).getBlockTimestamp();
+        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
 
 
@@ -269,7 +265,7 @@ public class StatisticsService {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
 
-        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).getBlockTimestamp();
+        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
         var zdtStart = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currTime), ZoneId.of("UTC"));
         var zdtEnd = ZonedDateTime.ofInstant(Instant.ofEpochSecond(oneDayAgo), ZoneId.of("UTC"));

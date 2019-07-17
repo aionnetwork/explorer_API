@@ -1,5 +1,6 @@
 package com.aion.dashboard.downloads;
 
+import com.aion.dashboard.downloads.configs.BuildVersion;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -22,6 +23,9 @@ import org.springframework.web.filter.CorsFilter;
 @EnableSwagger2
 public class Application {
     public static void main(String[] args) {
+        System.out.println("===========================================");
+        System.out.println("aion-exporter-" + BuildVersion.VERSION.replaceAll("-[0-9]{4}(-[0-9]{1,2}){2}-20[0-9]{2}", ""));
+        System.out.println("===========================================");
         SpringApplication.run(Application.class, args);
     }
 

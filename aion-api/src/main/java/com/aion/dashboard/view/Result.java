@@ -11,7 +11,7 @@ public class Result<T> implements ResultInterface {
 
     public static final Result<?> EMPTY_RESULT = new Result<>(Collections.emptyList(), null, null);
     private final List<T> content;
-    private final Pageable page;
+    private final ResultPageable page;
     private final Integer code;
 
     Result(List<T> content, ResultPageable page, Integer code) {
@@ -28,8 +28,8 @@ public class Result<T> implements ResultInterface {
         return new Result<>(List.of(content), null, null);
     }
 
-    public static <T> Result<T> from(List<T> content, ResultPageable page) {
-        return new Result<>(content, page, null);
+    public static <T> Result<T> from(List<T> content,Page page) {
+        return new Result<>(content, ResultPageable.from(page), null);
     }
 
     public static <T> Result<T> from(Page<T> page){
@@ -44,7 +44,7 @@ public class Result<T> implements ResultInterface {
         return content;
     }
 
-    public Pageable getPage() {
+    public ResultPageable getPage() {
         return page;
     }
 
@@ -52,18 +52,41 @@ public class Result<T> implements ResultInterface {
         return code;
     }
 
-    private interface Pageable{}
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class ResultPageable implements Pageable{
+    public static class ResultPageable{
         final Integer page;
         final Integer size;
         final Integer totalPages;
-        final Integer totalElements;
+        final long totalElements;
         final Long start;
         final Long end;
 
-        private ResultPageable(Integer page, Integer size, Integer totalPages, Integer totalElements, Long start, Long end) {
+        public Integer getPage() {
+            return page;
+        }
+
+        public Integer getSize() {
+            return size;
+        }
+
+        public Integer getTotalPages() {
+            return totalPages;
+        }
+
+        public long getTotalElements() {
+            return totalElements;
+        }
+
+        public Long getStart() {
+            return start;
+        }
+
+        public Long getEnd() {
+            return end;
+        }
+
+        private ResultPageable(Integer page, Integer size, Integer totalPages, long totalElements, Long start, Long end) {
             this.page = page;
             this.size = size;
             this.totalPages = totalPages;
@@ -72,7 +95,7 @@ public class Result<T> implements ResultInterface {
             this.end = end;
         }
 
-        private ResultPageable(Integer page, Integer size, Integer totalPages, Integer totalElements) {
+        private ResultPageable(Integer page, Integer size, Integer totalPages, long totalElements) {
             this.page = page;
             this.size = size;
             this.totalPages = totalPages;
@@ -82,11 +105,11 @@ public class Result<T> implements ResultInterface {
         }
 
         static ResultPageable from(Page page){
-            return new ResultPageable(page.getNumber(), page.getSize(), page.getTotalPages(), page.getNumberOfElements());
+            return new ResultPageable(page.getNumber(), page.getSize(), page.getTotalPages(), page.getTotalElements());
         }
 
         static  ResultPageable fromPageAndTime(Page page, Long start, Long end){
-            return new ResultPageable(page.getNumber(), page.getSize(), page.getTotalPages(), page.getNumberOfElements(), start, end);
+            return new ResultPageable(page.getNumber(), page.getSize(), page.getTotalPages(), page.getTotalElements(), start, end);
         }
     }
 

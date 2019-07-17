@@ -1,11 +1,26 @@
 package com.aion.dashboard.controllers;
 
 
+import com.aion.dashboard.controllers.mapper.BlockMapper;
+import com.aion.dashboard.controllers.mapper.TransactionMapper;
+import com.aion.dashboard.datatransferobject.BlockDTO;
+import com.aion.dashboard.datatransferobject.TransactionDTO;
+import com.aion.dashboard.exception.EntityNotFoundException;
+import com.aion.dashboard.exception.MissingArgumentException;
+import com.aion.dashboard.services.BlockService;
 import com.aion.dashboard.services.SearchService;
+import com.aion.dashboard.services.ThirdPartyService;
+import com.aion.dashboard.services.TransactionService;
+import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.ResultInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -24,11 +39,17 @@ import static org.springframework.http.HttpStatus.OK;
 public class Dashboardv2 {
 
     private SearchService searchService;
+    private BlockService blockService;
+    private ThirdPartyService thirdPartyService;
+    private TransactionService transactionService;
 
 
 
     @Autowired
-    Dashboardv2(SearchService searchService){
+    Dashboardv2(SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService){
+        this.blockService=blockService;
+        this.thirdPartyService=thirdPartyService;
+        this.transactionService=transactionService;
         this.searchService=searchService;
     }
 
@@ -48,11 +69,16 @@ public class Dashboardv2 {
      * @return the specified block or the head of the blockchain.
      */
     @GetMapping("/block")
-    public ResponseEntity block(@RequestParam(value = "blockNumber", required = false) String blockNumber,
-                                @RequestParam(value = "blockHash", required = false) String blockHash){
+    public ResponseEntity<Result<BlockDTO>> block(@RequestParam(value = "blockNumber", required = false) String blockNumber,
+                                                  @RequestParam(value = "blockHash", required = false) String blockHash){
 
-
-        throw new UnsupportedOperationException("/block");
+        if(isNotEmpty(blockNumber) ) {
+            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockNumber( Long.valueOf(blockNumber)))));
+        } else if(isNotEmpty(blockHash)) {
+            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockHash( blockHash))));
+        } else {
+            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.getHeightBlock())));
+        }
     }
 
     /**
@@ -86,7 +112,6 @@ public class Dashboardv2 {
     public ResponseEntity transaction(@RequestParam(value = "transactionHash", required = false) String transactionHash,
                                       @RequestParam(value = "address", required = false) String address){
 
-
         throw new UnsupportedOperationException("/transaction");
     }
 
@@ -103,15 +128,26 @@ public class Dashboardv2 {
      * @return
      */
     @GetMapping("/transactions")
-    public ResponseEntity transactions( @RequestParam(value = "blockNumber", required = false) String blockNumber,
-                                        @RequestParam(value = "blockHash", required = false) String blockHash,
-                                        @RequestParam(value = "startTime", required = false) String startTime,
-                                        @RequestParam(value = "endTime", required = false) String endTime,
-                                        @RequestParam(value = "size", defaultValue = "25", required = false) String size,
-                                        @RequestParam(value = "page", defaultValue = "0", required = false) String page
+    public ResponseEntity<Result<TransactionDTO>> transactions(@RequestParam(value = "blockNumber", required = false) String blockNumber,
+                                                               @RequestParam(value = "blockHash", required = false) String blockHash,
+                                                               @RequestParam(value = "startTime", required = false) String startTime,
+                                                               @RequestParam(value = "endTime", required = false) String endTime,
+                                                               @RequestParam(value = "size", defaultValue = "25", required = false) int size,
+                                                               @RequestParam(value = "page", defaultValue = "0", required = false) int page
     ){
-        throw new UnsupportedOperationException("/transactions");
+
+
+        if(isNotEmpty(blockNumber) )
+                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockNumber(Long.valueOf(blockNumber), page, size)));
+        else if(isNotEmpty(blockHash) )
+                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockHash(blockHash, page, size)));
+        else if( isNotEmpty(startTime) && isNotEmpty(endTime))
+            return packageResponse(TransactionMapper.makeTransactionDTOList(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime))));
+        else throw new MissingArgumentException();
+
     }
+
+
 
     /**
      * This request must specify an address.
@@ -312,6 +348,20 @@ public class Dashboardv2 {
     }
 
 
+    /**
+     * @return Return the current block height of the network
+     */
+    @GetMapping(value = "/height")
+    public  ResponseEntity<ResultInterface>  getHeightBlock() throws EntityNotFoundException {
+        return packageResponse(Result.from(blockService.blockNumber()));
 
+    }
+
+
+
+
+    boolean isNotEmpty(String str){
+        return !Optional.ofNullable(str).filter(s-> !s.isEmpty() && !s.isBlank()).isEmpty();
+    }
 
 }

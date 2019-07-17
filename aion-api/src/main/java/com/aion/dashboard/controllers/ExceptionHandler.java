@@ -17,16 +17,29 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     }
     @org.springframework.web.bind.annotation.ExceptionHandler(value = {Exception.class})
     protected ResponseEntity<ResultInterface> handleServerError(Exception e, WebRequest request){
+        logException(e, request);
         return packageError(ErrorResults.SERVER_ERROR);
+    }
+
+    private void logException(Exception e, WebRequest request) {
+        logger.error("Caught exception on call"+request.getDescription(false)+": ", e);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(value = {MissingArgumentException.class})
     protected ResponseEntity<ResultInterface> handleMissingArgument(MissingArgumentException e, WebRequest request){
+        logException(e, request);
         return packageError(ErrorResults.MISSING_ARGUMENT);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(value = {UnsupportedOperationException.class})
     protected ResponseEntity<ResultInterface> handleUnsupportedOperation(UnsupportedOperationException e, WebRequest request){
+        logException(e, request);
         return packageError(ErrorResults.NOT_FOUND);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {NumberFormatException.class})
+    protected ResponseEntity<ResultInterface> handleParseError(Exception e, WebRequest request){
+        logException(e, request);
+        return packageError(ErrorResults.ARGUMENT_PARSING_ERROR);
     }
 }

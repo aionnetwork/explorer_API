@@ -1,5 +1,6 @@
 package com.aion.dashboard;
 
+import com.aion.dashboard.utility.Logging;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -29,6 +30,7 @@ public class AionDashboardApiApplication {
 	private String host;
 
 	public static void main(String[] args) {
+		Logging.infoPrintVersion();
 		SpringApplication.run(AionDashboardApiApplication.class, args);
 	}
 
