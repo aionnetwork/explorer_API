@@ -72,13 +72,13 @@ public class Dashboardv2 {
      * @return the specified block or the head of the blockchain.
      */
     @GetMapping("/block")
-    public ResponseEntity<Result<BlockDTO>> block(@RequestParam(value = "blockNumber", required = false) String blockNumber,
-                                                  @RequestParam(value = "blockHash", required = false) String blockHash){
+    public ResponseEntity<Result<BlockDTO>> block(@RequestParam(value = "blockNumber", required = false) Optional<Long> blockNumber,
+                                                  @RequestParam(value = "blockHash", required = false) Optional<String> blockHash){
 
-        if(isNotEmpty(blockNumber) ) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockNumber( Long.valueOf(blockNumber)))));
-        } else if(isNotEmpty(blockHash)) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockHash( blockHash))));
+        if(blockNumber.isPresent()) {
+            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockNumber( blockNumber.get()))));
+        } else if(blockHash.isPresent()) {
+            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockHash( blockHash.get()))));
         } else {
             return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.getHeightBlock())));
         }
@@ -131,21 +131,21 @@ public class Dashboardv2 {
      * @return
      */
     @GetMapping("/transactions")
-    public ResponseEntity<Result<TransactionDTO>> transactions(@RequestParam(value = "blockNumber", required = false) String blockNumber,
-                                                               @RequestParam(value = "blockHash", required = false) String blockHash,
-                                                               @RequestParam(value = "startTime", required = false) String startTime,
-                                                               @RequestParam(value = "endTime", required = false) String endTime,
+    public ResponseEntity<Result<TransactionDTO>> transactions(@RequestParam(value = "blockNumber", required = false) Optional<Long> blockNumber,
+                                                               @RequestParam(value = "blockHash", required = false) Optional<String> blockHash,
+                                                               @RequestParam(value = "startTime", required = false) Optional<Long> startTime,
+                                                               @RequestParam(value = "endTime", required = false) Optional<Long> endTime,
                                                                @RequestParam(value = "size", defaultValue = "25", required = false) int size,
                                                                @RequestParam(value = "page", defaultValue = "0", required = false) int page
     ){
 
 
-        if(isNotEmpty(blockNumber) )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockNumber(Long.valueOf(blockNumber), page, size)));
-        else if(isNotEmpty(blockHash) )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockHash(blockHash, page, size)));
-        else if( isNotEmpty(startTime) && isNotEmpty(endTime))
-            return packageResponse(TransactionMapper.makeTransactionDTOList(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime))));
+        if(blockNumber.isPresent() )
+                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockNumber(blockNumber.get(), page, size)));
+        else if(blockHash.isPresent() )
+                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockHash(blockHash.get(), page, size)));
+        else if( startTime.isPresent())
+            return packageResponse(TransactionMapper.makeTransactionDTOList(transactionService.findByTime(page, size,startTime.get(),endTime.orElseGet(()-> System.currentTimeMillis()/1000))));
         else throw new MissingArgumentException();
 
     }
@@ -388,10 +388,10 @@ public class Dashboardv2 {
                                                   @RequestParam("contractAddress") Optional<String> contractAddress,
                                                   @RequestParam("blockNumberStart") Optional<Long> blockNumberStart,
                                                   @RequestParam("blockNumberEnd") Optional<Long> blockNumberEnd,
-                                                  @RequestParam("start") Optional<Long> start,
+                                                  @RequestParam(value = "start") Optional<Long> start,
                                                   @RequestParam("end") Optional<Long> end,
-                                                  @RequestParam("page") Optional<Integer> page,
-                                                  @RequestParam("end") Optional<Integer> size){
+                                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                  @RequestParam(value = "size", defaultValue = "25") Integer size){
         if (transactionHash.isPresent()){
             return packageResponse(TxLogMapper.makeResult(
                     txLogService.findLogsForTransaction(transactionHash.get())
@@ -399,34 +399,34 @@ public class Dashboardv2 {
         }
         else if (blockNumber.isPresent()){
             return packageResponse(TxLogMapper.makeResult(
-                    txLogService.findLogsForBlock(blockNumber.get(), page.orElse(0), size.orElse(25))
+                    txLogService.findLogsForBlock(blockNumber.get(), page, size)
             ));
         }
         else if(contractAddress.isPresent() && start.isPresent()){
             return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInTimeRange(
-                    contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25)
+                    contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page, size
             )));
 
         }
         else if (contractAddress.isPresent() && blockNumberStart.isPresent()){
             return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInBlockRange(
-                    contractAddress.get(), blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25)
+                    contractAddress.get(), blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page, size
             )));
 
         }
         else if (contractAddress.isPresent()){
             return packageResponse(TxLogMapper.makeResult(
-                    txLogService.findLogsForContract(contractAddress.get(), page.orElse(0), size.orElse(25))
+                    txLogService.findLogsForContract(contractAddress.get(), page, size)
             ));
         }
         else if (start.isPresent()){
             return packageResponse(TxLogMapper.makeResult(
-                    txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25))
+                    txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page, size)
             ));
         }
         else if (blockNumberStart.isPresent()){
             return packageResponse(TxLogMapper.makeResult(
-                    txLogService.findLogsForBlockRange(blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25))
+                    txLogService.findLogsForBlockRange(blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page, size)
             ));
         }
 
