@@ -11,7 +11,6 @@ import com.aion.dashboard.repositories.ParserStateJpaRepository;
 import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.specification.BlockSpec;
 import com.aion.dashboard.types.ParserStateType;
-import com.aion.dashboard.utility.RewardsCalculator;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -270,10 +269,7 @@ public class BlockService {
 
 	public Block findByBlockHash(String blockHash){
 
-
-		if(blockHash.startsWith("0x"))
-			blockHash= blockHash.replace("0x", "");
-		var block =blkRepo.findByBlockHash(blockHash);
+		var block =blkRepo.findByBlockHash(Utility.sanitizeHex(blockHash));
 
 		return block.orElseThrow(EntityNotFoundException::new);
 

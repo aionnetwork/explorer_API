@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -59,6 +60,11 @@ public class Utility {
                 return false;
             } else return  ACCOUNT_REGEX.matcher(addrToTest).find() || AddressWhiteList.contains(addrToTest);
         }
+    }
+
+
+    public static String sanitizeHex(String str){
+        return Objects.isNull(str)? "": str.replaceFirst("^0x","").toLowerCase();
     }
 
     public static boolean validLong(String searchParam) {

@@ -1,13 +1,8 @@
 package com.aion.dashboard.services;
 
 import com.aion.dashboard.AionDashboardApiApplication;
-import com.aion.dashboard.entities.Block;
-import com.aion.dashboard.entities.ParserState;
-import com.aion.dashboard.repositories.*;
 import com.aion.dashboard.view.SearchResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

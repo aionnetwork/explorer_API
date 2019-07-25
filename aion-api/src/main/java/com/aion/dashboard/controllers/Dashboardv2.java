@@ -2,17 +2,19 @@ package com.aion.dashboard.controllers;
 
 
 import com.aion.dashboard.controllers.mapper.BlockMapper;
+import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
+import com.aion.dashboard.controllers.mapper.TxLogMapper;
 import com.aion.dashboard.datatransferobject.BlockDTO;
+import com.aion.dashboard.datatransferobject.MetricsDTO;
 import com.aion.dashboard.datatransferobject.TransactionDTO;
+import com.aion.dashboard.datatransferobject.TxLogDTO;
 import com.aion.dashboard.exception.EntityNotFoundException;
+import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
-import com.aion.dashboard.services.BlockService;
-import com.aion.dashboard.services.SearchService;
-import com.aion.dashboard.services.ThirdPartyService;
-import com.aion.dashboard.services.TransactionService;
+import com.aion.dashboard.services.*;
 import com.aion.dashboard.view.Result;
-import com.aion.dashboard.view.ResultInterface;
+import com.aion.dashboard.view.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,15 +44,19 @@ public class Dashboardv2 {
     private BlockService blockService;
     private ThirdPartyService thirdPartyService;
     private TransactionService transactionService;
+    private StatisticsService statisticsService;
+    private TxLogService txLogService;
 
 
 
     @Autowired
-    Dashboardv2(SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService){
+    Dashboardv2(TxLogService txLogService, SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+        this.txLogService = txLogService;
         this.blockService=blockService;
         this.thirdPartyService=thirdPartyService;
         this.transactionService=transactionService;
         this.searchService=searchService;
+        this.statisticsService = statisticsService;
     }
 
     /**
@@ -261,8 +267,16 @@ public class Dashboardv2 {
      * @return the current network metrics
      */
     @GetMapping("/metrics")
-    public ResponseEntity metrics(@RequestParam(value = "type", defaultValue = "rt")String type){
-        throw new UnsupportedOperationException("/metrics");
+    public ResponseEntity<Result<MetricsDTO>> metrics(@RequestParam(value = "type", defaultValue = "rt")String type){
+        if (type.equalsIgnoreCase("rt")){
+            return packageResponse(MetricsMapper.makeMetricsDTO(statisticsService.getRtMetrics(), blockService.blockNumber()));
+        }
+        else if (type.equalsIgnoreCase("stable")){
+            return packageResponse(MetricsMapper.makeMetricsDTO(statisticsService.getSbMetrics(), blockService.blockNumber()));
+        }
+        else {
+            throw new IncorrectArgumentException("stable or rt. Found: " + type);
+        }
     }
 
 
@@ -343,7 +357,7 @@ public class Dashboardv2 {
 
 
     @GetMapping(value = "/search")
-    public ResponseEntity<ResultInterface> search(@RequestParam(value = "searchParam", required = false) String searchParam) {
+    public ResponseEntity<SearchResult> search(@RequestParam(value = "searchParam", required = false) String searchParam) {
         return packageResponse(searchService.search(searchParam));
     }
 
@@ -352,11 +366,75 @@ public class Dashboardv2 {
      * @return Return the current block height of the network
      */
     @GetMapping(value = "/height")
-    public  ResponseEntity<ResultInterface>  getHeightBlock() throws EntityNotFoundException {
+    public  ResponseEntity<Result<Long>>  getHeightBlock() throws EntityNotFoundException {
         return packageResponse(Result.from(blockService.blockNumber()));
 
     }
 
+
+    /**
+     * Returns the transaction logs given a block number, transaction hash or contract address.
+     * @param blockNumber
+     * @param transactionHash
+     * @param contractAddress
+     * @param blockNumberStart
+     * @param blockNumberEnd
+     * @param start
+     * @param end
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping(value = "/txlogs")
+    public ResponseEntity<Result<TxLogDTO>> txLog(@RequestParam("blockNumber") Optional<Long> blockNumber,
+                                                  @RequestParam("transactionHash") Optional<String> transactionHash,
+                                                  @RequestParam("contractAddress") Optional<String> contractAddress,
+                                                  @RequestParam("blockNumberStart") Optional<Long> blockNumberStart,
+                                                  @RequestParam("blockNumberEnd") Optional<Long> blockNumberEnd,
+                                                  @RequestParam("start") Optional<Long> start,
+                                                  @RequestParam("end") Optional<Long> end,
+                                                  @RequestParam("page") Optional<Integer> page,
+                                                  @RequestParam("end") Optional<Integer> size){
+        if (transactionHash.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForTransaction(transactionHash.get())
+            ));
+        }
+        else if (blockNumber.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForBlock(blockNumber.get(), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if(contractAddress.isPresent() && start.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInTimeRange(
+                    contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25)
+            )));
+
+        }
+        else if (contractAddress.isPresent() && blockNumberStart.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInBlockRange(
+                    contractAddress.get(), blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25)
+            )));
+
+        }
+        else if (contractAddress.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForContract(contractAddress.get(), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if (start.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if (blockNumberStart.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForBlockRange(blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25))
+            ));
+        }
+
+        throw new MissingArgumentException();
+    }
 
 
 

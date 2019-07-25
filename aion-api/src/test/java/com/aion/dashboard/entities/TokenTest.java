@@ -1,7 +1,6 @@
 package com.aion.dashboard.entities;
 
 import com.aion.dashboard.repositories.TokenJpaRepository;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
