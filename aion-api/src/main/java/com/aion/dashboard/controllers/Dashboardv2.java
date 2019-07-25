@@ -6,10 +6,12 @@ import static org.springframework.http.HttpStatus.OK;
 import com.aion.dashboard.controllers.mapper.BlockMapper;
 import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
+import com.aion.dashboard.controllers.mapper.TxLogMapper;
 import com.aion.dashboard.datatransferobject.BlockDTO;
 import com.aion.dashboard.datatransferobject.HealthDTO;
 import com.aion.dashboard.datatransferobject.MetricsDTO;
 import com.aion.dashboard.datatransferobject.TransactionDTO;
+import com.aion.dashboard.datatransferobject.TxLogDTO;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
@@ -47,11 +49,13 @@ public class Dashboardv2 {
     private ThirdPartyService thirdPartyService;
     private TransactionService transactionService;
     private StatisticsService statisticsService;
+    private TxLogService txLogService;
 
 
 
     @Autowired
-    Dashboardv2(SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+    Dashboardv2(TxLogService txLogService, SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+        this.txLogService = txLogService;
         this.blockService=blockService;
         this.thirdPartyService=thirdPartyService;
         this.transactionService=transactionService;
@@ -380,6 +384,70 @@ public class Dashboardv2 {
     public  ResponseEntity<Result<Long>>  getHeightBlock() throws EntityNotFoundException {
         return packageResponse(Result.from(blockService.blockNumber()));
 
+    }
+
+    /**
+     * Returns the transaction logs given a block number, transaction hash or contract address.
+     * @param blockNumber
+     * @param transactionHash
+     * @param contractAddress
+     * @param blockNumberStart
+     * @param blockNumberEnd
+     * @param start
+     * @param end
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping(value = "/txlogs")
+    public ResponseEntity<Result<TxLogDTO>> txLog(@RequestParam("blockNumber") Optional<Long> blockNumber,
+                                                  @RequestParam("transactionHash") Optional<String> transactionHash,
+                                                  @RequestParam("contractAddress") Optional<String> contractAddress,
+                                                  @RequestParam("blockNumberStart") Optional<Long> blockNumberStart,
+                                                  @RequestParam("blockNumberEnd") Optional<Long> blockNumberEnd,
+                                                  @RequestParam("start") Optional<Long> start,
+                                                  @RequestParam("end") Optional<Long> end,
+                                                  @RequestParam("page") Optional<Integer> page,
+                                                  @RequestParam("end") Optional<Integer> size){
+        if (transactionHash.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForTransaction(transactionHash.get())
+            ));
+        }
+        else if (blockNumber.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForBlock(blockNumber.get(), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if(contractAddress.isPresent() && start.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInTimeRange(
+                    contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25)
+            )));
+
+        }
+        else if (contractAddress.isPresent() && blockNumberStart.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInBlockRange(
+                    contractAddress.get(), blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25)
+            )));
+
+        }
+        else if (contractAddress.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForContract(contractAddress.get(), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if (start.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25))
+            ));
+        }
+        else if (blockNumberStart.isPresent()){
+            return packageResponse(TxLogMapper.makeResult(
+                    txLogService.findLogsForBlockRange(blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page.orElse(0), size.orElse(25))
+            ));
+        }
+
+        throw new MissingArgumentException();
     }
 
     boolean isNotEmpty(String str){
