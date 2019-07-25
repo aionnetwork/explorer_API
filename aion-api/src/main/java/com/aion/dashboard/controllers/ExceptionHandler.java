@@ -1,13 +1,18 @@
 package com.aion.dashboard.controllers;
 
+import com.aion.dashboard.exception.EntityNotFoundException;
+import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
 import com.aion.dashboard.view.ErrorResults;
+import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.ResultInterface;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class ExceptionHandler extends ResponseEntityExceptionHandler {
@@ -41,5 +46,15 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ResultInterface> handleParseError(Exception e, WebRequest request){
         logException(e, request);
         return packageError(ErrorResults.ARGUMENT_PARSING_ERROR);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {IncorrectArgumentException.class})
+    protected ResponseEntity<ResultInterface> handleIncorrectArgument(IncorrectArgumentException e, WebRequest request){
+        return packageError(ErrorResults.incorrectArgument(e.getMessage()));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {EntityNotFoundException.class, NoSuchElementException.class})
+    protected ResponseEntity<ResultInterface> handleIncorrectArgument(RuntimeException e, WebRequest request){
+        return packageError(Result.EMPTY_RESULT);
     }
 }

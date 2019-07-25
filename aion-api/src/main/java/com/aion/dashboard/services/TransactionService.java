@@ -2,7 +2,6 @@ package com.aion.dashboard.services;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.*;
-import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.repositories.*;
 import com.aion.dashboard.specification.TransactionSpec;
 import com.aion.dashboard.specification.TransferSpec;
@@ -16,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -421,7 +418,7 @@ public class TransactionService {
 
 	public Page<Transaction> findByBlockHash(String blockHash, int page,int size){
 
-		return txnRepo.findByBlockHash(blockHash,PageRequest.of(page,size));
+		return txnRepo.findByBlockHash(Utility.sanitizeHex(blockHash),PageRequest.of(page,size));
 
 	}
 
