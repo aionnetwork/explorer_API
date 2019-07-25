@@ -119,8 +119,8 @@ public class Metrics {
     public Long getBlockWindow() {
         return blockWindow;
     }
-    public BigInteger getLastBlockReward() {
-        return lastBlockReward.toBigInteger();
+    public BigDecimal getLastBlockReward() {
+        return lastBlockReward;
     }
     public Long getTargetBlockTime() {
         return targetBlockTime;

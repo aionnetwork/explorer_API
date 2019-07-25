@@ -10,7 +10,6 @@ import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
 import com.aion.dashboard.utility.Logging;
-import com.aion.dashboard.utility.RewardsCalculator;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -294,5 +293,14 @@ public class StatisticsService {
             Statistics statistics = Statistics.getInstance();
             statistics.setOutboundTxns(outboundTxns);
         }
+    }
+
+
+    public Metrics getSbMetrics(){
+        return metRepo.findById(1).orElseThrow();
+    }
+
+    public Metrics getRtMetrics(){
+        return metRepo.findById(2).orElseThrow();
     }
 }

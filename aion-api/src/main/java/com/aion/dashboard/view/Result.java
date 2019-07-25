@@ -28,6 +28,10 @@ public class Result<T> implements ResultInterface {
         return new Result<>(List.of(content), null, null);
     }
 
+    public static <T> Result<T> from(List<T> content) {
+        return new Result<>(content, null, null);
+    }
+
     public static <T> Result<T> from(List<T> content,Page page) {
         return new Result<>(content, ResultPageable.from(page), null);
     }
