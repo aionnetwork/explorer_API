@@ -24,6 +24,7 @@ public class TokenTransfers {
     @Column(name = "scaled_value")
     private BigDecimal tknValue;
     private Integer tokenDecimal;
+    private BigDecimal granularity;
     private Integer year;
     private Integer month;
     private Integer day;
@@ -112,5 +113,13 @@ public class TokenTransfers {
     }
     public void setDay(Integer day) {
         this.day = day;
+    }
+
+    public BigDecimal getGranularity() {
+        return granularity;
+    }
+
+    public void setGranularity(BigDecimal granularity) {
+        this.granularity = granularity;
     }
 }

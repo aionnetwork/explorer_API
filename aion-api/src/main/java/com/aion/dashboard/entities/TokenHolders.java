@@ -12,6 +12,17 @@ import java.util.Objects;
 @Table(name = "TokenHolders")
 @IdClass(TokenHolders.CompositeKey.class)
 public class TokenHolders {
+    @Id
+    private String holderAddr;
+    @Id
+    private String contractAddr;
+    private String rawBalance;
+    @Column(name = "scaled_balance")
+    private BigDecimal tknBalance;
+    private Integer tokenDecimal;
+    private Long blockNumber;
+    private BigDecimal granularity;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -30,63 +41,69 @@ public class TokenHolders {
         return Objects.hash(getHolderAddr(), getContractAddr(), getRawBalance(), getTknBalance(), getTokenDecimal(), getBlockNumber());
     }
 
-    @Id
-    private String holderAddr;
-    @Id
-    private String contractAddr;
-    private String rawBalance;
-    @Column(name = "scaled_balance")
-    private BigDecimal tknBalance;
-    private Integer tokenDecimal;
-    private Long blockNumber;
-
     public String getContractAddr() {
         return contractAddr;
     }
+
+    public void setContractAddr(String contractAddr) {
+        this.contractAddr = contractAddr;
+    }
+
     public String getHolderAddr() {
         return holderAddr;
     }
+
+    public void setHolderAddr(String holderAddr) {
+        this.holderAddr = holderAddr;
+    }
+
     public String getRawBalance() {
         return rawBalance;
     }
 
-    @Transient @JsonGetter("tknBalance")
-    public String getPlainStringTknBalance(){
-        return tknBalance.toPlainString();
+    public void setRawBalance(String rawBalance) {
+        this.rawBalance = rawBalance;
     }
 
+    @Transient
+    @JsonGetter("tknBalance")
+    public String getPlainStringTknBalance() {
+        return tknBalance.toPlainString();
+    }
 
     @JsonIgnore
     @Column(name = "scaled_balance")
     public BigDecimal getTknBalance() {
         return tknBalance;
     }
-    public Integer getTokenDecimal() {
-        return tokenDecimal;
-    }
-    public Long getBlockNumber() {
-        return blockNumber;
-    }
-
-    public void setContractAddr(String contractAddr) {
-        this.contractAddr = contractAddr;
-    }
-    public void setHolderAddr(String holderAddr) {
-        this.holderAddr = holderAddr;
-    }
-    public void setRawBalance(String rawBalance) {
-        this.rawBalance = rawBalance;
-    }
 
     @Column(name = "scaled_balance")
     public void setTknBalance(BigDecimal tknBalance) {
         this.tknBalance = tknBalance;
     }
+
+    public Integer getTokenDecimal() {
+        return tokenDecimal;
+    }
+
     public void setTokenDecimal(Integer tokenDecimal) {
         this.tokenDecimal = tokenDecimal;
     }
+
+    public Long getBlockNumber() {
+        return blockNumber;
+    }
+
     public void setBlockNumber(Long blockNumber) {
         this.blockNumber = blockNumber;
+    }
+
+    public BigDecimal getGranularity() {
+        return granularity;
+    }
+
+    public void setGranularity(BigDecimal granularity) {
+        this.granularity = granularity;
     }
 
     public static class CompositeKey implements Serializable {
