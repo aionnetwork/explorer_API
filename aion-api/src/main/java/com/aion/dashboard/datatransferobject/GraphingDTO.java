@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 
 public class GraphingDTO {
     private BigDecimal value;
-    private Integer day;
-    private Integer year;
-    private Integer month;
     private String detail;
     private String graphType;
     private Long timestamp;
@@ -14,18 +11,6 @@ public class GraphingDTO {
 
     public BigDecimal getValue() {
         return value;
-    }
-
-    public Integer getDay() {
-        return day;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public Integer getMonth() {
-        return month;
     }
 
     public String getDetail() {
@@ -44,11 +29,8 @@ public class GraphingDTO {
         return blockNumber;
     }
 
-    public GraphingDTO(BigDecimal value, Integer day, Integer year, Integer month, String detail, String graphType, Long timestamp, Long blockNumber) {
+    public GraphingDTO(BigDecimal value, String detail, String graphType, Long timestamp, Long blockNumber) {
         this.value = value;
-        this.day = day;
-        this.year = year;
-        this.month = month;
         this.detail = detail;
         this.graphType = graphType;
         this.timestamp = timestamp;
@@ -58,9 +40,6 @@ public class GraphingDTO {
 
     public static class GraphingDTOBuilder{
         private BigDecimal value;
-        private Integer day;
-        private Integer year;
-        private Integer month;
         private String detail;
         private String graphType;
         private Long timestamp;
@@ -71,20 +50,6 @@ public class GraphingDTO {
             return this;
         }
 
-        public GraphingDTOBuilder setDay(Integer day) {
-            this.day = day;
-            return this;
-        }
-
-        public GraphingDTOBuilder setYear(Integer year) {
-            this.year = year;
-            return this;
-        }
-
-        public GraphingDTOBuilder setMonth(Integer month) {
-            this.month = month;
-            return this;
-        }
 
         public GraphingDTOBuilder setDetail(String detail) {
             this.detail = detail;
@@ -104,6 +69,10 @@ public class GraphingDTO {
         public GraphingDTOBuilder setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
             return this;
+        }
+
+        public GraphingDTO createGraphingDTO(){
+            return new GraphingDTO(value, detail, graphType, timestamp, blockNumber);
         }
     }
 }

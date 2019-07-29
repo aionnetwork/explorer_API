@@ -40,8 +40,8 @@ public class Result<T> implements ResultInterface {
         return new Result<>(page.getContent(), ResultPageable.from(page), null);
     }
 
-    public static <T> Result<T> from(Page<T> page, long start, long end){
-        return new Result<>(page.getContent(), ResultPageable.fromPageAndTime(page, start, end), null);
+    public static <T> Result<T> from(List<T> content, Page<?> page, long start, long end){
+        return new Result<>(content, ResultPageable.fromPageAndTime(page, start, end), null);
     }
 
     public List<T> getContent() {

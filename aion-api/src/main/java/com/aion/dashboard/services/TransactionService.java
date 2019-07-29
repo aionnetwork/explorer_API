@@ -442,4 +442,9 @@ public class TransactionService {
 
 
 	}
+
+
+	public Transaction findByHash(String hash){
+		return txnRepo.findByTransactionHash(Utility.sanitizeHex(hash));
+	}
 }

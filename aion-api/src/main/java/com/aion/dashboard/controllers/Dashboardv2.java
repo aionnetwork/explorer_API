@@ -75,12 +75,13 @@ public class Dashboardv2 {
     public ResponseEntity<Result<BlockDTO>> block(@RequestParam(value = "blockNumber", required = false) Optional<Long> blockNumber,
                                                   @RequestParam(value = "blockHash", required = false) Optional<String> blockHash){
 
+        BlockMapper mapper = BlockMapper.getInstance();
         if(blockNumber.isPresent()) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockNumber( blockNumber.get()))));
+            return packageResponse(mapper.makeResult(blockService.findByBlockNumber( blockNumber.get())));
         } else if(blockHash.isPresent()) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockHash( blockHash.get()))));
+            return packageResponse(mapper.makeResult(blockService.findByBlockHash( blockHash.get())));
         } else {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.getHeightBlock())));
+            return packageResponse(mapper.makeResult(blockService.getHeightBlock()));
         }
     }
 
@@ -108,14 +109,13 @@ public class Dashboardv2 {
     /**
      * This request must specify either the transaction hash or address
      * @param transactionHash the requested transaction
-     * @param address a to/from/contract address
      * @return The transaction specified by the transaction hash or the last transaction in which the specified address participated
      */
     @GetMapping("/transaction")
-    public ResponseEntity transaction(@RequestParam(value = "transactionHash", required = false) String transactionHash,
-                                      @RequestParam(value = "address", required = false) String address){
+    public ResponseEntity<Result<TransactionDTO>> transaction(@RequestParam(value = "transactionHash", required = false) Optional<String> transactionHash){
 
-        throw new UnsupportedOperationException("/transaction");
+        if (transactionHash.isPresent()) return packageResponse(TransactionMapper.getInstance().makeResult(transactionService.findByHash(transactionHash.get())));
+        else throw new MissingArgumentException();
     }
 
     /**
@@ -139,13 +139,13 @@ public class Dashboardv2 {
                                                                @RequestParam(value = "page", defaultValue = "0", required = false) int page
     ){
 
-
+        TransactionMapper mapper = TransactionMapper.getInstance();
         if(blockNumber.isPresent() )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockNumber(blockNumber.get(), page, size)));
+                return packageResponse( mapper.makeResult(transactionService.findByBlockNumber(blockNumber.get(), page, size)));
         else if(blockHash.isPresent() )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockHash(blockHash.get(), page, size)));
+                return packageResponse( mapper.makeResult(transactionService.findByBlockHash(blockHash.get(), page, size)));
         else if( startTime.isPresent())
-            return packageResponse(TransactionMapper.makeTransactionDTOList(transactionService.findByTime(page, size,startTime.get(),endTime.orElseGet(()-> System.currentTimeMillis()/1000))));
+            return packageResponse( mapper.makeResult(transactionService.findByTime(page, size,startTime.get(),endTime.orElseGet(()-> System.currentTimeMillis()/1000))));
         else throw new MissingArgumentException();
 
     }
@@ -392,40 +392,45 @@ public class Dashboardv2 {
                                                   @RequestParam("end") Optional<Long> end,
                                                   @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                   @RequestParam(value = "size", defaultValue = "25") Integer size){
+        TxLogMapper mapper = TxLogMapper.getInstance();
         if (transactionHash.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(
+            return packageResponse(mapper.makeResult(
                     txLogService.findLogsForTransaction(transactionHash.get())
             ));
         }
         else if (blockNumber.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(
+            return packageResponse(mapper.makeResult(
                     txLogService.findLogsForBlock(blockNumber.get(), page, size)
             ));
         }
         else if(contractAddress.isPresent() && start.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInTimeRange(
-                    contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page, size
-            )));
+            long startTime = start.get();
+            long endTime =  end.orElse(System.currentTimeMillis()/1000);
+            return packageResponse(mapper.makeResult(txLogService.findLogsForContractAndInTimeRange(
+                    contractAddress.get(), startTime,endTime, page, size
+            ), startTime, endTime));
 
         }
         else if (contractAddress.isPresent() && blockNumberStart.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(txLogService.findLogsForContractAndInBlockRange(
+            return packageResponse(mapper.makeResult(txLogService.findLogsForContractAndInBlockRange(
                     contractAddress.get(), blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page, size
             )));
 
         }
         else if (contractAddress.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(
+            return packageResponse(mapper.makeResult(
                     txLogService.findLogsForContract(contractAddress.get(), page, size)
             ));
         }
         else if (start.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(
-                    txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page, size)
-            ));
+
+            long startTime = start.get();
+            long endTime =  end.orElse(System.currentTimeMillis()/1000);
+            return packageResponse(mapper.makeResult(
+                    txLogService.findLogsInTimeRange(startTime, endTime, page, size), startTime, endTime));
         }
         else if (blockNumberStart.isPresent()){
-            return packageResponse(TxLogMapper.makeResult(
+            return packageResponse(mapper.makeResult(
                     txLogService.findLogsForBlockRange(blockNumberStart.get(), blockNumberEnd.orElse(blockService.blockNumber()), page, size)
             ));
         }

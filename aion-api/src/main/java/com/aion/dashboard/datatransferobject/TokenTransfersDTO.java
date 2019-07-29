@@ -1,7 +1,5 @@
 package com.aion.dashboard.datatransferobject;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-
 import java.math.BigDecimal;
 
 public class TokenTransfersDTO {
@@ -66,8 +64,7 @@ public class TokenTransfersDTO {
         return operatorAddr;
     }
 
-    @JsonGetter("scaledValue")
-    public BigDecimal getTknValue() {
+    public BigDecimal getScaledValue() {
         return tknValue;
     }
 

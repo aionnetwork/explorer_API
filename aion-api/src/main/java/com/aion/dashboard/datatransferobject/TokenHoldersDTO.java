@@ -1,7 +1,5 @@
 package com.aion.dashboard.datatransferobject;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-
 import java.math.BigDecimal;
 
 public class TokenHoldersDTO {
@@ -37,8 +35,7 @@ public class TokenHoldersDTO {
         return rawBalance;
     }
 
-    @JsonGetter("scaledBalance")
-    public BigDecimal getTknBalance() {
+    public BigDecimal getScaledBalance() {
         return tknBalance;
     }
 
@@ -54,7 +51,7 @@ public class TokenHoldersDTO {
         return granularity;
     }
 
-    private static class TokenHoldersDTOBuilder{
+    public static class TokenHoldersDTOBuilder{
         private String holderAddr;
         private String contractAddr;
         private String rawBalance;
@@ -96,6 +93,10 @@ public class TokenHoldersDTO {
         public TokenHoldersDTOBuilder setGranularity(BigDecimal granularity) {
             this.granularity = granularity;
             return this;
+        }
+
+        public TokenHoldersDTO createTokenHoldersDTO(){
+            return new TokenHoldersDTO(holderAddr, contractAddr, rawBalance, tknBalance, tokenDecimal, blockNumber, granularity);
         }
     }
 }
