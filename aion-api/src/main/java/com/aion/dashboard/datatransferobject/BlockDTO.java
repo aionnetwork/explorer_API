@@ -15,7 +15,7 @@ public class BlockDTO {
     private Long blockTimestamp;
     private Long numTransactions;
     private Long blockTime;
-    private Long nrgReward;
+    private BigDecimal nrgReward;
     private Long difficulty;
     private Long totalDifficulty;
     private Integer year;
@@ -39,7 +39,7 @@ public class BlockDTO {
 
     public BlockDTO(){}
 
-    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
+    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -98,7 +98,7 @@ public class BlockDTO {
     public Long getTotalDifficulty() {
         return totalDifficulty;
     }
-    public Long getNrgReward() {
+    public BigDecimal getNrgReward() {
         return nrgReward;
     }
     public Integer getYear() {
@@ -174,7 +174,7 @@ public class BlockDTO {
     public void setTotalDifficulty(Long totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
-    public void setNrgReward(Long nrgReward) {
+    public void setNrgReward(BigDecimal nrgReward) {
         this.nrgReward = nrgReward;
     }
     public void setYear(Integer year) {
@@ -244,7 +244,7 @@ public class BlockDTO {
         private Long blockTimestamp;
         private Long numTransactions;
         private Long blockTime;
-        private Long nrgReward;
+        private BigDecimal nrgReward;
         private Long difficulty;
         private Long totalDifficulty;
         private Integer year;
@@ -299,7 +299,7 @@ public class BlockDTO {
             return this;
         }
 
-        public BlockDTOBuilder setNrgReward(Long nrgReward) {
+        public BlockDTOBuilder setNrgReward(BigDecimal nrgReward) {
             this.nrgReward = nrgReward;
             return this;
         }

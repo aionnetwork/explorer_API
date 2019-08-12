@@ -18,7 +18,7 @@ public class Block {
     private Long blockTimestamp;
     private Long numTransactions;
     private Long blockTime;
-    private Long nrgReward;
+    private BigDecimal nrgReward;
     private Long difficulty;
     private Long totalDifficulty;
     private BigDecimal blockReward;
@@ -42,7 +42,7 @@ public class Block {
 
     public Block(){}
 
-    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, Long nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
+    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -101,7 +101,7 @@ public class Block {
     public Long getTotalDifficulty() {
         return totalDifficulty;
     }
-    public Long getNrgReward() {
+    public BigDecimal getNrgReward() {
         return nrgReward;
     }
     public Integer getYear() {
@@ -177,7 +177,7 @@ public class Block {
     public void setTotalDifficulty(Long totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
-    public void setNrgReward(Long nrgReward) {
+    public void setNrgReward(BigDecimal nrgReward) {
         this.nrgReward = nrgReward;
     }
     public void setYear(Integer year) {
