@@ -2,33 +2,23 @@ package com.aion.dashboard.controllers.mapper;
 
 import com.aion.dashboard.datatransferobject.TxLogDTO;
 import com.aion.dashboard.entities.TxLog;
-import com.aion.dashboard.view.Result;
-import org.springframework.data.domain.Page;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class TxLogMapper {
+public class TxLogMapper extends Mapper<TxLog,TxLogDTO> {
 
+    private static final TxLogMapper mapper = new TxLogMapper();
 
-    public static List<TxLogDTO> makeTxLogDTOList(List<TxLog> logs) {
-        return  logs.stream().map(TxLogMapper::makeTxLogDTO).collect(Collectors.toList());
+    public static TxLogMapper getInstance() {
+        return mapper;
     }
 
-    public static Result<TxLogDTO> makeResult(Page<TxLog> logPage){
-        return Result.from(makeTxLogDTOList(logPage.getContent()),logPage);
+    private TxLogMapper(){}
+    @Override
+    protected TxLogDTO makeDTO(TxLog txLog) {
+        return makeTxLogDTO(txLog);
     }
-
-    public static Result<TxLogDTO> makeResult(List<TxLog> logList){
-        return Result.from(makeTxLogDTOList(logList));
-    }
-
-    public static Result<TxLogDTO> makeResult(TxLog logList){
-        return Result.from(makeTxLogDTO(logList));
-    }
-
-    public static TxLogDTO makeTxLogDTO(TxLog log){
+    private static TxLogDTO makeTxLogDTO(TxLog log){
         String topics = log.getTopics();
         var topicsList = Arrays.asList(topics.replaceAll("([|]|\")", "").split(","));
 
