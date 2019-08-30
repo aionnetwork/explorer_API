@@ -1,8 +1,6 @@
 package com.aion.dashboard.datatransferobject;
 
 
-import org.springframework.hateoas.ResourceSupport;
-
 import java.math.BigDecimal;
 
 
@@ -10,7 +8,11 @@ public class TransactionDTO  {
 
 
 
-    private TransactionDTO(String transactionHash, String blockHash, Long blockNumber, Long blockTimestamp, Long transactionIndex, Long nrgConsumed, Long nrgPrice, Long transactionTimestamp, Integer year, Integer month, Integer day, String fromAddr, String toAddr, String transactionLog, String data, String nonce, String txError, String contractAddr, BigDecimal value, String type) {
+    private TransactionDTO(String transactionHash, String blockHash, Long blockNumber,
+        Long blockTimestamp, Long transactionIndex, Long nrgConsumed, Long nrgPrice,
+        Long transactionTimestamp, Integer year, Integer month, Integer day, String fromAddr,
+        String toAddr, String transactionLog, String data, String nonce, String txError,
+        String contractAddr, BigDecimal value, String type, int internalTransactionCount) {
         this.transactionHash = transactionHash;
         this.blockHash = blockHash;
         this.blockNumber = blockNumber;
@@ -31,6 +33,7 @@ public class TransactionDTO  {
         this.contractAddr = contractAddr;
         this.value = value;
         this.type = type;
+        this.internalTransactionCount = internalTransactionCount;
     }
 
     private String transactionHash;
@@ -56,6 +59,7 @@ public class TransactionDTO  {
     private String contractAddr;
     private BigDecimal value;
     private String type;
+    private int internalTransactionCount;
 
 
 
@@ -188,6 +192,10 @@ public class TransactionDTO  {
         return new TransactionDTOBuilder();
     }
 
+    public int getInternalTransactionCount() {
+        return internalTransactionCount;
+    }
+
 
     public static class TransactionDTOBuilder {
         private String transactionHash;
@@ -210,6 +218,7 @@ public class TransactionDTO  {
         private String contractAddr;
         private BigDecimal value;
         private String type;
+        private int internalTransactionCount;
 
 
         public TransactionDTOBuilder setTransactionHash(String transactionHash) {
@@ -312,8 +321,15 @@ public class TransactionDTO  {
             return this;
         }
 
+
+        public TransactionDTOBuilder setInternalTransactionCount(int internalTransactionCount) {
+            this.internalTransactionCount = internalTransactionCount;
+            return this;
+        }
+
         public TransactionDTO createTransactionDTO() {
-            return new TransactionDTO(transactionHash, blockHash, blockNumber, blockTimestamp, transactionIndex, nrgConsumed, nrgPrice, transactionTimestamp, year, month, day, fromAddr, toAddr, transactionLog, data, nonce, txError, contractAddr, value, type);
+            return new TransactionDTO(transactionHash, blockHash, blockNumber, blockTimestamp, transactionIndex, nrgConsumed, nrgPrice, transactionTimestamp, year, month, day, fromAddr, toAddr, transactionLog, data, nonce, txError, contractAddr, value, type,
+                internalTransactionCount);
         }
     }
 

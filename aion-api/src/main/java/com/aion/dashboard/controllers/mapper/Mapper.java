@@ -8,11 +8,7 @@ import java.util.stream.Collectors;
 
 abstract class Mapper<T, U> {
 
-<<<<<<< HEAD
     abstract U makeDTO(T t);
-=======
-    protected abstract U makeDTO(T t);
->>>>>>> Replaced static mapper implementation with a singleton based approach
 
     private List<U> makeDTOList(List<T> ts){
         return ts.stream().map(this::makeDTO).collect(Collectors.toList());

@@ -3,7 +3,8 @@ package com.aion.dashboard.types;
 public enum ParserStateType {
     HEAD_BLOCK_TABLE(1),
     HEAD_BLOCKCHAIN(2),
-    HEAD_INTEGRITY(3);
+    HEAD_INTEGRITY(3),
+    HEAD_GRAPHING(4);
 
     private int id;
     ParserStateType(int id) {
@@ -19,6 +20,7 @@ public enum ParserStateType {
             case 1: return HEAD_BLOCK_TABLE;
             case 2: return HEAD_BLOCKCHAIN;
             case 3: return HEAD_INTEGRITY;
+            case 4: return HEAD_GRAPHING;
         }
         return null;
     }

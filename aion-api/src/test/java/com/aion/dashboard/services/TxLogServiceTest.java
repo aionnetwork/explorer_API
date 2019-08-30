@@ -93,7 +93,7 @@ public class TxLogServiceTest {
     @Test
     public void testDTO(){
         var res = service.findLogsForTransaction(transactionHash);
-        var result = TxLogMapper.makeResult(res.stream().findFirst().orElseThrow());
+        var result = TxLogMapper.getInstance().makeResult(res.stream().findFirst().orElseThrow());
         assertFalse(result.getContent().isEmpty());
 
     }

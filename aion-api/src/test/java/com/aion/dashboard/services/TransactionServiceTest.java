@@ -30,8 +30,6 @@ public class TransactionServiceTest {
         assertTrue(mapper.makeResult(t).getPage().getTotalPages()==t.getTotalPages());
         assertTrue(mapper.makeResult(t).getPage().getPage()==t.getNumber());
         assertTrue(mapper.makeResult(t).getPage().getSize()==t.getSize());
-
-
     }
 
     @Test

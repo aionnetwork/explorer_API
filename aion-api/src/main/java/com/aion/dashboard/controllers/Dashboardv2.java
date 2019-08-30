@@ -2,11 +2,7 @@ package com.aion.dashboard.controllers;
 
 
 import static org.springframework.http.HttpStatus.OK;
-
-import com.aion.dashboard.controllers.mapper.BlockMapper;
-import com.aion.dashboard.controllers.mapper.MetricsMapper;
-import com.aion.dashboard.controllers.mapper.TransactionMapper;
-import com.aion.dashboard.controllers.mapper.TxLogMapper;
+import com.aion.dashboard.controllers.mapper.*;
 import com.aion.dashboard.datatransferobject.*;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
@@ -43,11 +39,13 @@ public class Dashboardv2 {
     private TransactionService transactionService;
     private StatisticsService statisticsService;
     private TxLogService txLogService;
+    private InternalTransactionService internalTransactionService;
 
 
 
     @Autowired
-    Dashboardv2(TxLogService txLogService, SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+    Dashboardv2(InternalTransactionService internalTransactionService, TxLogService txLogService, SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+        this.internalTransactionService = internalTransactionService;
         this.txLogService = txLogService;
         this.blockService=blockService;
         this.thirdPartyService=thirdPartyService;
@@ -61,6 +59,7 @@ public class Dashboardv2 {
      * @return a json object specifying the request available in this controller and the link to access the swagger-ui.
      */
     @RequestMapping("/**")
+    @ApiIgnore
     public ResponseEntity dashboard(){
         return new ResponseEntity(OK);
     }
@@ -269,6 +268,30 @@ public class Dashboardv2 {
         throw new UnsupportedOperationException("/internalTansfers");
     }
 
+    @GetMapping("/internalTransaction")
+    public ResponseEntity<Result<InternalTransactionDTO>> internalTransaction(@RequestParam(value = "transactionHash", required = false) Optional<String> txHash,
+                                                                      @RequestParam(value = "index", required = false) Optional<Integer> index,
+                                                                      @RequestParam(value = "address", required = false) Optional<String> address,
+                                                                      @RequestParam(value = "blockNumber",required = false) Optional<Long> blockNumber,
+                                                                      @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                      @RequestParam(value = "size", defaultValue = "25") Integer size){
+        InternalTransactionMapper mapper = InternalTransactionMapper.getInstance();
+        if (index.isPresent() && txHash.isPresent()){
+            return packageResponse(mapper.makeResult(internalTransactionService.findByID(txHash.get(), index.get())));
+        }
+        else if (txHash.isPresent()){
+            return packageResponse(mapper.makeResult(internalTransactionService.findByTxHash(txHash.get())));
+        }
+        else if (address.isPresent()){
+            return packageResponse(mapper.makeResult(internalTransactionService.findByAddress(address.get(), page, size)));
+        }
+        else if (blockNumber.isPresent()){
+            return packageResponse(mapper.makeResult(internalTransactionService.findByBlockNumber(blockNumber.get(), page, size)));
+        }
+        else {
+            throw new MissingArgumentException();
+        }
+    }
 
 
     /**

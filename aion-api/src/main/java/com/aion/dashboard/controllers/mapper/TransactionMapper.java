@@ -35,6 +35,7 @@ public class TransactionMapper extends Mapper<Transaction, TransactionDTO> {
                 .setType(transaction.getType())
                 .setValue(transaction.getValue())
                 .setYear(transaction.getYear())
+                .setInternalTransactionCount(transaction.getInternalTransactionCount())
                 .setBlockTimestamp(transaction.getBlockTimestamp());
 
         return transactionDTOBuilder.createTransactionDTO();

@@ -39,6 +39,7 @@ public class Transaction {
     private String contractAddr;
     private BigDecimal value;
     private String type;
+    private int internalTransactionCount;
 
 
 
@@ -167,4 +168,12 @@ public class Transaction {
     }
 
 
+    public int getInternalTransactionCount() {
+        return internalTransactionCount;
+    }
+
+    public Transaction setInternalTransactionCount(int internalTransactionCount) {
+        this.internalTransactionCount = internalTransactionCount;
+        return this;
+    }
 }
