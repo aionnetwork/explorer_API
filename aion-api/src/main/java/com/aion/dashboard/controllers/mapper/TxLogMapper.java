@@ -20,7 +20,7 @@ public class TxLogMapper extends Mapper<TxLog,TxLogDTO> {
     }
     private static TxLogDTO makeTxLogDTO(TxLog log){
         String topics = log.getTopics();
-        var topicsList = Arrays.asList(topics.replaceAll("([|]|\")", "").split(","));
+        var topicsList = Arrays.asList(topics.replaceAll("(\\[|]|\")", "").split(","));
 
         return new TxLogDTO.TxLogDTOBuilder().setBlockNumber(log.getBlockNumber())
                 .setBlockTimestamp(log.getBlockTimestamp())
