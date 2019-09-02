@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -204,6 +203,7 @@ public class ContractService {
         if (transactionList != null && !transactionList.isEmpty()) {
             for (Transaction transaction : transactionList) {
                 JSONObject transactionResult = new JSONObject(ow.writeValueAsString(transaction));
+                transactionResult.put("value", Utility.toAion(transaction.getValue()));
                 transactionArray.put(transactionResult);
             }
 
