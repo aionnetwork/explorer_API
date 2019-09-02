@@ -41,6 +41,9 @@ public class AccountService {
     @Autowired
     private TokenHoldersJpaRepository tknBalRepo;
 
+    @Autowired
+    private InternalTransactionJpaRepository internalTransactionJpaRepository;
+
 
     private static final   String CONTENT="content";
     private static final  String BALANCE="balance";
@@ -71,8 +74,7 @@ public class AccountService {
                 result.put("tokens", tokensArray);
 
 
-                var internalTransferRecord = internalTransferJpaRepository.findTopByToAddrOrFromAddr(accountAddress, accountAddress);// find only one
-                result.put("hasInternalTransfer", internalTransferRecord != null);
+                result.put("hasInternalTransfer", internalTransactionJpaRepository.existsByAddr(accountAddress));
 
                 // Getting the LastBlockNumber from the Parser State
                 result.put("lastBlockNumber", parserState.get().getBlockNumber());

@@ -13,5 +13,8 @@ public interface InternalTransactionJpaRepository extends PagingAndSortingReposi
     Page<InternalTransaction> findAllByBlockNumber(long blockNumber, Pageable pageable);
     Page<InternalTransaction> findAllByContractAddress(String contractAddress, Pageable pageable);
     Page<InternalTransaction> findAllByToAddrOrFromAddr(String toAddr, String fromAddr, Pageable pageable);
-
+    Boolean existsByToAddrOrFromAddr(String toAddr, String fromAddr);
+    default Boolean existsByAddr(String addr){
+        return existsByToAddrOrFromAddr(addr, addr);
+    }
 }
