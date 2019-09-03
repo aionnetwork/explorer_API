@@ -11,8 +11,8 @@ import java.util.List;
 public interface InternalTransactionJpaRepository extends PagingAndSortingRepository<InternalTransaction, InternalTransaction.Composite> {
     List<InternalTransaction> findAllByTransactionHash(String txHash);
     Page<InternalTransaction> findAllByBlockNumber(long blockNumber, Pageable pageable);
-    Page<InternalTransaction> findAllByContractAddress(String contractAddress, Pageable pageable);
-    Page<InternalTransaction> findAllByToAddrOrFromAddr(String toAddr, String fromAddr, Pageable pageable);
+    List<InternalTransaction> findAllByContractAddress(String contractAddr);
+    Page<InternalTransaction> findAllByToAddrOrFromAddrOrContractAddress(String toAddr, String fromAddr, String contractAddr,Pageable pageable);
     Boolean existsByToAddrOrFromAddr(String toAddr, String fromAddr);
     default Boolean existsByAddr(String addr){
         return existsByToAddrOrFromAddr(addr, addr);

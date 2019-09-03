@@ -1,6 +1,7 @@
 package com.aion.dashboard.services;
 
 import com.aion.dashboard.entities.InternalTransaction;
+import com.aion.dashboard.exception.MissingArgumentException;
 import com.aion.dashboard.repositories.InternalTransactionJpaRepository;
 import com.aion.dashboard.utility.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,17 @@ public class InternalTransactionService {
     }
 
     public Page<InternalTransaction> findByAddress(String addr, int page, int size){
+        if (addr.isEmpty() || addr.isBlank()){
+            throw new MissingArgumentException();
+        }
         String sanitizedAddress = Utility.sanitizeHex(addr);
-        return txRepo.findAllByToAddrOrFromAddr(sanitizedAddress, sanitizedAddress, pageRequest(page, size));
+        return txRepo.findAllByToAddrOrFromAddrOrContractAddress(sanitizedAddress, sanitizedAddress, sanitizedAddress, pageRequest(page, size));
+    }
+
+    public List<InternalTransaction> findByContractAddress(String addr){
+        if (addr.isEmpty() || addr.isBlank()){
+            throw new MissingArgumentException();
+        }return txRepo.findAllByContractAddress(addr);
     }
 
 }

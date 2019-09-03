@@ -273,6 +273,7 @@ public class Dashboardv2 {
                                                                       @RequestParam(value = "index", required = false) Optional<Integer> index,
                                                                       @RequestParam(value = "address", required = false) Optional<String> address,
                                                                       @RequestParam(value = "blockNumber",required = false) Optional<Long> blockNumber,
+                                                                      @RequestParam(value = "contractAddress", required=false) Optional<String> contractAddress,
                                                                       @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                                       @RequestParam(value = "size", defaultValue = "25") Integer size){
         InternalTransactionMapper mapper = InternalTransactionMapper.getInstance();
@@ -281,6 +282,9 @@ public class Dashboardv2 {
         }
         else if (txHash.isPresent()){
             return packageResponse(mapper.makeResult(internalTransactionService.findByTxHash(txHash.get())));
+        }
+        else if (contractAddress.isPresent()){
+            return packageResponse(mapper.makeResult(internalTransactionService.findByContractAddress(contractAddress.get())));
         }
         else if (address.isPresent()){
             return packageResponse(mapper.makeResult(internalTransactionService.findByAddress(address.get(), page, size)));

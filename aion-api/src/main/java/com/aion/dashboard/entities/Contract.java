@@ -20,6 +20,7 @@ public class Contract {
     private Integer month;
     private Integer day;
     private String type;
+    private Boolean internal;
 
     public String getContractAddr() {
         return contractAddr;
@@ -50,6 +51,9 @@ public class Contract {
     }
     public String getType() {
         return type;
+    }
+    public Boolean getInternal() {
+        return internal;
     }
 
     public void setContractAddr(String contractAddr) {
@@ -82,5 +86,8 @@ public class Contract {
     public Contract setType(String type) {
         this.type = type;
         return this;
+    }
+    public void setInternal(Boolean internal){
+        this.internal = internal;
     }
 }
