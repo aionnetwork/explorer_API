@@ -1,9 +1,11 @@
 package com.aion.dashboard.entities;
 
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Entity
 @Table(name="Block")
@@ -37,6 +39,10 @@ public class Block {
     private String solution;
     private String transactionHash;
     private String transactionHashes;
+    private String sealType;
+    private String signature;
+    private String seed;
+    private String publicKey;
 
 
 
@@ -146,6 +152,18 @@ public class Block {
     public String getSolution() {
         return solution;
     }
+    public String getSealType() {
+        return sealType;
+    }
+    public String getSignature() {
+        return signature;
+    }
+    public String getSeed() {
+        return seed;
+    }
+    public String getPublicKey() {
+        return publicKey;
+    }
 
     public void setBlockNumber(Long blockNumber) {
         this.blockNumber = blockNumber;
@@ -222,8 +240,22 @@ public class Block {
     public void setSolution(String solution) {
         this.solution = solution;
     }
-
-
+    public Block setSealType(String sealType) {
+        this.sealType = sealType;
+        return this;
+    }
+    public Block setSignature(String signature) {
+        this.signature = signature;
+        return this;
+    }
+    public Block setSeed(String seed) {
+        this.seed = seed;
+        return this;
+    }
+    public Block setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+        return this;
+    }
 
     public BigDecimal getBlockReward() {
         return blockReward;

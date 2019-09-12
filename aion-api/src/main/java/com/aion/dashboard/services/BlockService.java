@@ -277,15 +277,10 @@ public class BlockService {
 
 
     public Block getHeightBlock() throws EntityNotFoundException{
-        var state = psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId());
-
-        if (state.isPresent())
-            return findByBlockNumber(state.get().getBlockNumber());
-        else throw new EntityNotFoundException("Not able to retrieve the block height");
-
+        return findByBlockNumber(blockNumber());
     }
 
-	public Page<Block> findBlocks(int number, int size){
+    public Page<Block> findBlocks(int number, int size){
 		return blkRepo.findAll(PageRequest.of(number, size, sortDesc()));
 	}
 

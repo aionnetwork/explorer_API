@@ -1,7 +1,6 @@
 package com.aion.dashboard.datatransferobject;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class BlockDTO {
 
@@ -33,13 +32,16 @@ public class BlockDTO {
     private String solution;
     private String transactionHash;
     private String transactionHashes;
-
+    private String sealType;
+    private String signature;
+    private String seed;
+    private String publicKey;
 
     private BigDecimal blockReward;
 
     public BlockDTO(){}
 
-    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
+    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, String sealType, String signature, String seed, String publicKey, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -65,6 +67,10 @@ public class BlockDTO {
         this.solution = solution;
         this.transactionHash = transactionHash;
         this.transactionHashes = transactionHashes;
+        this.sealType = sealType;
+        this.signature = signature;
+        this.seed = seed;
+        this.publicKey = publicKey;
         this.blockReward = blockReward;
     }
 
@@ -263,6 +269,30 @@ public class BlockDTO {
         private String transactionHash;
         private String transactionHashes;
         private BigDecimal blockReward;
+        private String sealType;
+        private String signature;
+        private String seed;
+        private String publicKey;
+
+        public BlockDTOBuilder setSealType(String sealType) {
+            this.sealType = sealType;
+            return this;
+        }
+
+        public BlockDTOBuilder setSignature(String signature) {
+            this.signature = signature;
+            return this;
+        }
+
+        public BlockDTOBuilder setSeed(String seed) {
+            this.seed = seed;
+            return this;
+        }
+
+        public BlockDTOBuilder setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+            return this;
+        }
 
         public BlockDTOBuilder setBlockNumber(Long blockNumber) {
             this.blockNumber = blockNumber;
@@ -395,6 +425,6 @@ public class BlockDTO {
         }
 
         public BlockDTO createBlockDTO() {
-            return new BlockDTO(blockNumber, nrgConsumed, nrgLimit, size, blockTimestamp, numTransactions, blockTime, nrgReward, difficulty, totalDifficulty, year, month, day, blockHash, minerAddress, parentHash, receiptTxRoot, stateRoot, txTrieRoot, extraData, nonce, bloom, solution, transactionHash, transactionHashes, blockReward);
+            return new BlockDTO(blockNumber, nrgConsumed, nrgLimit, size, blockTimestamp, numTransactions, blockTime, nrgReward, difficulty, totalDifficulty, year, month, day, blockHash, minerAddress, parentHash, receiptTxRoot, stateRoot, txTrieRoot, extraData, nonce, bloom, solution, transactionHash, transactionHashes, sealType, signature, seed, publicKey, blockReward);
         }    }
 }

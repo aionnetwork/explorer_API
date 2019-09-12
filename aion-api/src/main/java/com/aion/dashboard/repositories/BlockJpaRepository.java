@@ -21,13 +21,10 @@ public interface BlockJpaRepository extends PagingAndSortingRepository<Block, Lo
 	long countByBlockTimestampBetween(long start, long end);
 
 	Page<Block> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable);
+	Page<Block> findByBlockTimestampBetween(long start, long end, Pageable pageable);
+	Page<Block> findByMinerAddressAndBlockTimestampBetween(String minerAddress,long start, long end, Pageable pageable);
+	Page<Block> findByMinerAddress(String minerAddress, Pageable pageable);
 
 	Optional<Block> findByBlockNumber(Long blockNumber);
 	Optional<Block> findByBlockHash(String blockHash);
-
-    Page<Block> findByBlockTimestampBetween(long start, long end, Pageable pageable);
-
-	Page<Block> findByMinerAddressAndBlockTimestampBetween(String minerAddress, long start, long end, Pageable pageable);
-
-	Page<Block> findByMinerAddress(String minerAddress, Pageable pageable);
 }

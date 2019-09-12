@@ -26,7 +26,7 @@ public class BlockMapper extends Mapper<Block, BlockDTO> {
                 setNumTransactions(block.getNumTransactions()).setParentHash(block.getParentHash()).setReceiptTxRoot(block.getReceiptTxRoot()).
                 setSize(block.getSize()).setSolution(block.getSolution()).setStateRoot(block.getStateRoot()).setTotalDifficulty(block.getTotalDifficulty()).
                 setTransactionHash(block.getTransactionHash()).setTransactionHashes(block.getTransactionHashes()).setTxTrieRoot(block.getTxTrieRoot()).
-                setYear(block.getYear());
+                setYear(block.getYear()).setPublicKey(block.getPublicKey()).setSealType(block.getSealType()).setSeed(block.getSeed()).setSignature(block.getSignature());
 
 
         return blockDTOBuilder.createBlockDTO();
