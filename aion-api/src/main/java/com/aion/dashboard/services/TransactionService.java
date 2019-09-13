@@ -1,14 +1,26 @@
 package com.aion.dashboard.services;
 
 import com.aion.dashboard.configs.CacheConfig;
-import com.aion.dashboard.entities.*;
-import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.entities.Event;
+import com.aion.dashboard.entities.InternalTransfer;
+import com.aion.dashboard.entities.Token;
+import com.aion.dashboard.entities.TokenTransfers;
+import com.aion.dashboard.entities.Transaction;
+import com.aion.dashboard.repositories.EventJpaRepository;
+import com.aion.dashboard.repositories.InternalTransferJpaRepository;
+import com.aion.dashboard.repositories.TokenJpaRepository;
+import com.aion.dashboard.repositories.TokenTransfersJpaRepository;
+import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.specification.TransactionSpec;
 import com.aion.dashboard.specification.TransferSpec;
 import com.aion.dashboard.utility.Logging;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
 
 @SuppressWarnings("Duplicates")
 @Component
@@ -89,19 +96,19 @@ public class TransactionService {
 				if(!txn.getTransactionLog().equals("[]")) {
 					List<TokenTransfers> tknTxfsList = tknTxfRepo.findByTransactionHash(txn.getTransactionHash());
 					if (!tknTxfsList.isEmpty()) {
-						Token tkn = tknRepo.findByContractAddr(txn.getToAddr());
+						Token tkn = tknRepo.findByContractAddr(tknTxfsList.stream().findAny().map(t->t.getContractAddr()).orElse(""));
 						JSONArray transfersArray = new JSONArray();
-						for (TokenTransfers tknTxf : tknTxfsList) {
-							JSONObject object = new JSONObject();
-
-							object.put("tokenName", tkn.getName());
-							object.put("tokenSymbol", tkn.getSymbol());
-							object.put(VALUE, tknTxf.getRawValue());
-							object.put("to", tknTxf.getToAddr());
-							object.put("from", tknTxf.getFromAddr());
-							transfersArray.put(object);
+                        if (tkn != null) {
+                            for (TokenTransfers tknTxf : tknTxfsList) {
+                                JSONObject object = new JSONObject();
+                                object.put("tokenName", tkn.getName());
+                                object.put("tokenSymbol", tkn.getSymbol());
+                                object.put(VALUE, tknTxf.getRawValue());
+                                object.put("to", tknTxf.getToAddr());
+                                object.put("from", tknTxf.getFromAddr());
+                                transfersArray.put(object);
+                            }
 						}
-
 						result.put("tokenTransfers", transfersArray);
 
 					}
