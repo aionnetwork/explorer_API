@@ -44,6 +44,10 @@ public class Result<T> implements ResultInterface {
         return new Result<>(page.getContent(), ResultPageable.fromPageAndTime(page, start, end), null);
     }
 
+    public static <U,T> Result<U> from(List<U> list, Page<T> tPage, long startTime, long endTime) {
+        return new Result<>(list, ResultPageable.fromPageAndTime(tPage, startTime, endTime), null);
+    }
+
     public List<T> getContent() {
         return content;
     }

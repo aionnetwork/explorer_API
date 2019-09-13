@@ -2,32 +2,16 @@ package com.aion.dashboard.controllers.mapper;
 
 import com.aion.dashboard.datatransferobject.BlockDTO;
 import com.aion.dashboard.entities.Block;
-import com.aion.dashboard.view.Result;
-import org.springframework.data.domain.Page;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+public class BlockMapper extends Mapper<Block, BlockDTO> {
 
-public class BlockMapper {
+    private static final BlockMapper mapper = new BlockMapper();
 
-
-    /**
-     * @param block Data Transfer Object of block
-     * @return A Block object
-     */
-    public static Block makeBlock(BlockDTO block)
-    {
-        return new Block(block.getBlockNumber(), block.getNrgConsumed(), block.getNrgLimit(), block.getSize(),
-                block.getBlockTimestamp(), block.getNumTransactions(), block.getBlockTime(), block.getNrgReward(),
-                block.getDifficulty(), block.getTotalDifficulty(), block.getYear(), block.getMonth(), block.getDay(),
-                block.getBlockHash(), block.getMinerAddress(), block.getParentHash(), block.getReceiptTxRoot(),
-                block.getStateRoot(), block.getTxTrieRoot(), block.getExtraData(), block.getNonce(), block.getBloom(),
-                block.getSolution(), block.getTransactionHash(), block.getTransactionHashes(),block.getBlockReward());
-
+    public static BlockMapper getInstance() {
+        return mapper;
     }
 
-
+    private BlockMapper(){}
     /**
      * @param block Block object
      * @return A  Data Transfer Object of block
@@ -48,16 +32,8 @@ public class BlockMapper {
         return blockDTOBuilder.createBlockDTO();
     }
 
-
-    /**
-     * @param block Block in a Page object
-     * @return A  List of Data Transfer Object of block
-     */
-    public static Result<BlockDTO> makeBlockDTOList(Page<Block> block)
-    {
-
-        return Result.from(block.getContent().stream()
-                .map(BlockMapper::makeBlockDTO)
-                .collect(Collectors.toList()), block);
+    @Override
+    protected BlockDTO makeDTO(Block block) {
+        return makeBlockDTO(block);
     }
 }

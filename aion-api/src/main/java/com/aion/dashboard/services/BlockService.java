@@ -285,6 +285,21 @@ public class BlockService {
 
     }
 
+	public Page<Block> findBlocks(int number, int size){
+		return blkRepo.findAll(PageRequest.of(number, size, sortDesc()));
+	}
+
+	public Page<Block> findBlocksInRange(long start, long end, int number, int size){
+		return blkRepo.findByBlockTimestampBetween(start, end, PageRequest.of(number, size, sortDesc()));
+	}
+
+	public Page<Block> findByMinerAddress(String minerAddress, long start, long end,int number, int size){
+		return blkRepo.findByMinerAddressAndBlockTimestampBetween(minerAddress,start, end, PageRequest.of(number, size, sortDesc()));
+	}
+
+	public Page<Block> findByMinerAddress(String minerAddress, int number, int size){
+		return blkRepo.findByMinerAddress(minerAddress, PageRequest.of(number, size, sortDesc()));
+	}
 
     public Long blockNumber(){
 		return psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId()).orElseThrow().getBlockNumber();
