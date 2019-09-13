@@ -106,6 +106,10 @@ public class Utility {
 
     }
 
+    public static int limitPageSize(int pageSize){
+        return Math.min(pageSize, 500);
+    }
+
     public static long parseDefaultEnd(String timestampEnd) {
         return timestampEnd == null || !Utility.validLong(timestampEnd) ? System.currentTimeMillis()/1000 : Long.parseLong(timestampEnd);
     }
