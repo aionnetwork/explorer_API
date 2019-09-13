@@ -24,4 +24,10 @@ public interface BlockJpaRepository extends PagingAndSortingRepository<Block, Lo
 
 	Optional<Block> findByBlockNumber(Long blockNumber);
 	Optional<Block> findByBlockHash(String blockHash);
+
+    Page<Block> findByBlockTimestampBetween(long start, long end, Pageable pageable);
+
+	Page<Block> findByMinerAddressAndBlockTimestampBetween(String minerAddress, long start, long end, Pageable pageable);
+
+	Page<Block> findByMinerAddress(String minerAddress, Pageable pageable);
 }

@@ -73,13 +73,13 @@ public class Dashboardv2 {
     @GetMapping("/block")
     public ResponseEntity<Result<BlockDTO>> block(@RequestParam(value = "blockNumber", required = false) String blockNumber,
                                                   @RequestParam(value = "blockHash", required = false) String blockHash){
-
+        BlockMapper blockMapper = BlockMapper.getInstance();
         if(isNotEmpty(blockNumber) ) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockNumber( Long.valueOf(blockNumber)))));
+            return packageResponse(blockMapper.makeResult(blockService.findByBlockNumber( Long.valueOf(blockNumber))));
         } else if(isNotEmpty(blockHash)) {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.findByBlockHash( blockHash))));
+            return packageResponse(blockMapper.makeResult(blockService.findByBlockHash( blockHash)));
         } else {
-            return packageResponse(Result.from(BlockMapper.makeBlockDTO(blockService.getHeightBlock())));
+            return packageResponse(blockMapper.makeResult(blockService.getHeightBlock()));
         }
     }
 
@@ -93,14 +93,25 @@ public class Dashboardv2 {
      * @return A list of blocks
      */
     @GetMapping("/blocks")
-    public ResponseEntity blocks(@RequestParam(value = "size", defaultValue = "25", required = false) String size,
-                                 @RequestParam(value = "page", defaultValue = "0", required = false) String page,
-                                 @RequestParam(value = "startTime", required = false) String startTime,
-                                 @RequestParam(value = "endTime", required = false) String endTime,
-                                 @RequestParam(value = "minerAddress", required = false) String minerAddress){
+    public ResponseEntity blocks(@RequestParam(value = "size", defaultValue = "25", required = false) Integer size,
+                                 @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                 @RequestParam(value = "startTime", required = false) Optional<Long> startTime,
+                                 @RequestParam(value = "endTime", required = false) Optional<Long> endTime,
+                                 @RequestParam(value = "minerAddress", required = false) Optional<String> minerAddress){
+        BlockMapper mapper = BlockMapper.getInstance();
+        if (minerAddress.isPresent() && startTime.isPresent()){
+            return packageResponse(mapper.makeResult(blockService.findByMinerAddress(minerAddress.get(), startTime.get(), endTime.orElse(System.currentTimeMillis()/1000), page, size)));
+        }
+        else if (minerAddress.isPresent()){
+            return packageResponse(mapper.makeResult(blockService.findByMinerAddress(minerAddress.get(), page, size)));
+        }
+        else if (startTime.isPresent()){
+            return packageResponse(mapper.makeResult(blockService.findBlocksInRange( startTime.get(), endTime.orElse(System.currentTimeMillis()/1000), page, size)));
+        }
+        else {
+            return packageResponse(mapper.makeResult(blockService.findBlocks(page,size)));
+        }
 
-
-        throw new UnsupportedOperationException("/blocks");
     }
 
 
@@ -138,13 +149,13 @@ public class Dashboardv2 {
                                                                @RequestParam(value = "page", defaultValue = "0", required = false) int page
     ){
 
-
+        TransactionMapper mapper = TransactionMapper.getInstance();
         if(isNotEmpty(blockNumber) )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockNumber(Long.valueOf(blockNumber), page, size)));
+                return packageResponse( mapper.makeResult(transactionService.findByBlockNumber(Long.valueOf(blockNumber), page, size)));
         else if(isNotEmpty(blockHash) )
-                return packageResponse( TransactionMapper.makeTransactionDTOList(transactionService.findByBlockHash(blockHash, page, size)));
+                return packageResponse( mapper.makeResult(transactionService.findByBlockHash(blockHash, page, size)));
         else if( isNotEmpty(startTime) && isNotEmpty(endTime))
-            return packageResponse(TransactionMapper.makeTransactionDTOList(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime))));
+            return packageResponse(mapper.makeResult(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime))));
         else throw new MissingArgumentException();
 
     }
