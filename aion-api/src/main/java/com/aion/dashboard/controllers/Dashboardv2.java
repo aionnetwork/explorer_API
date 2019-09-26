@@ -15,6 +15,7 @@ import com.aion.dashboard.services.StatisticsService;
 import com.aion.dashboard.services.ThirdPartyService;
 import com.aion.dashboard.services.TransactionService;
 import com.aion.dashboard.services.TxLogService;
+import com.aion.dashboard.utility.Validators;
 import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.SearchResult;
 import java.util.Optional;
@@ -48,6 +49,7 @@ public class Dashboardv2 {
     private TxLogService txLogService;
     private InternalTransactionService internalTransactionService;
     private AccountService accountService;
+    private Validators validators;
 
 
 
@@ -55,7 +57,7 @@ public class Dashboardv2 {
     Dashboardv2(InternalTransactionService internalTransactionService, TxLogService txLogService,
         SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService,
         TransactionService transactionService, StatisticsService statisticsService,
-        AccountService accountService){
+        AccountService accountService, Validators validators){
         this.internalTransactionService = internalTransactionService;
         this.txLogService = txLogService;
         this.blockService=blockService;
@@ -64,6 +66,7 @@ public class Dashboardv2 {
         this.searchService=searchService;
         this.statisticsService = statisticsService;
         this.accountService = accountService;
+        this.validators = validators;
     }
 
     /**
@@ -110,6 +113,7 @@ public class Dashboardv2 {
                                  @RequestParam(value = "startTime", required = false) Optional<Long> startTime,
                                  @RequestParam(value = "endTime", required = false) Optional<Long> endTime,
                                  @RequestParam(value = "minerAddress", required = false) Optional<String> minerAddress){
+        validators.validateSize(size);
         BlockMapper mapper = BlockMapper.getInstance();
         if (minerAddress.isPresent() && startTime.isPresent()){
             return packageResponse(mapper.makeResult(blockService.findByMinerAddress(minerAddress.get(), startTime.get(), endTime.orElse(System.currentTimeMillis()/1000), page, size)));
@@ -160,6 +164,7 @@ public class Dashboardv2 {
                                                                @RequestParam(value = "size", defaultValue = "25", required = false) int size,
                                                                @RequestParam(value = "page", defaultValue = "0", required = false) int page
     ){
+        validators.validateSize(size);
         if(isNotEmpty(blockNumber) )
                 return packageResponse( TransactionMapper.getInstance().makeResult(transactionService.findByBlockNumber(Long.valueOf(blockNumber), page, size)));
         else if(isNotEmpty(blockHash) )
@@ -197,6 +202,7 @@ public class Dashboardv2 {
     public ResponseEntity accounts(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                    @RequestParam(value = "size", defaultValue = "25") Integer size,
                                    @RequestParam(value = "sort", defaultValue = "desc") String sort){
+        validators.validateSize(size);
         if (sort.equalsIgnoreCase("desc") || sort.equalsIgnoreCase("asc")) {
             return packageResponse(AccountMapper.getMapper().makeResult(accountService.findAccounts(page, size, sort)));
         } else {
@@ -295,6 +301,7 @@ public class Dashboardv2 {
                                                                       @RequestParam(value = "contractAddress", required=false) Optional<String> contractAddress,
                                                                       @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                                       @RequestParam(value = "size", defaultValue = "25") Integer size){
+        validators.validateSize(size);
         InternalTransactionMapper mapper = InternalTransactionMapper.getInstance();
         if (index.isPresent() && txHash.isPresent()){
             return packageResponse(mapper.makeResult(internalTransactionService.findByID(txHash.get(), index.get())));
@@ -460,6 +467,7 @@ public class Dashboardv2 {
                                                   @RequestParam("end") Optional<Long> end,
                                                   @RequestParam("page") Optional<Integer> page,
                                                   @RequestParam("end") Optional<Integer> size){
+        validators.validateSize(size.orElse(25));
         if (transactionHash.isPresent()){
             return packageResponse(TxLogMapper.getInstance().makeResult(
                     txLogService.findLogsForTransaction(transactionHash.get())
