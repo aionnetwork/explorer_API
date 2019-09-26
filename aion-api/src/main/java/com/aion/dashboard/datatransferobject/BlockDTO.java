@@ -15,8 +15,8 @@ public class BlockDTO {
     private Long numTransactions;
     private Long blockTime;
     private BigDecimal nrgReward;
-    private Long difficulty;
-    private Long totalDifficulty;
+    private BigDecimal difficulty;
+    private BigDecimal totalDifficulty;
     private Integer year;
     private Integer month;
     private Integer day;
@@ -41,7 +41,7 @@ public class BlockDTO {
 
     public BlockDTO(){}
 
-    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, String sealType, String signature, String seed, String publicKey, BigDecimal blockReward) {
+    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, BigDecimal difficulty, BigDecimal totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, String sealType, String signature, String seed, String publicKey, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -74,6 +74,22 @@ public class BlockDTO {
         this.blockReward = blockReward;
     }
 
+    public String getSealType() {
+        return sealType;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public String getSeed() {
+        return seed;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
     public Long getBlockNumber() {
         return blockNumber;
     }
@@ -98,11 +114,11 @@ public class BlockDTO {
     public String getTransactionHash() {
         return transactionHash;
     }
-    public Long getDifficulty() {
-        return difficulty;
+    public String getDifficulty() {
+        return difficulty.toPlainString();
     }
-    public Long getTotalDifficulty() {
-        return totalDifficulty;
+    public String getTotalDifficulty() {
+        return totalDifficulty.toPlainString();
     }
     public BigDecimal getNrgReward() {
         return nrgReward;
@@ -174,10 +190,10 @@ public class BlockDTO {
     public void setTransactionHash(String transactionHash) {
         this.transactionHash = transactionHash;
     }
-    public void setDifficulty(Long difficulty) {
+    public void setDifficulty(BigDecimal difficulty) {
         this.difficulty = difficulty;
     }
-    public void setTotalDifficulty(Long totalDifficulty) {
+    public void setTotalDifficulty(BigDecimal totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
     public void setNrgReward(BigDecimal nrgReward) {
@@ -251,8 +267,8 @@ public class BlockDTO {
         private Long numTransactions;
         private Long blockTime;
         private BigDecimal nrgReward;
-        private Long difficulty;
-        private Long totalDifficulty;
+        private BigDecimal difficulty;
+        private BigDecimal totalDifficulty;
         private Integer year;
         private Integer month;
         private Integer day;
@@ -334,12 +350,12 @@ public class BlockDTO {
             return this;
         }
 
-        public BlockDTOBuilder setDifficulty(Long difficulty) {
+        public BlockDTOBuilder setDifficulty(BigDecimal difficulty) {
             this.difficulty = difficulty;
             return this;
         }
 
-        public BlockDTOBuilder setTotalDifficulty(Long totalDifficulty) {
+        public BlockDTOBuilder setTotalDifficulty(BigDecimal totalDifficulty) {
             this.totalDifficulty = totalDifficulty;
             return this;
         }

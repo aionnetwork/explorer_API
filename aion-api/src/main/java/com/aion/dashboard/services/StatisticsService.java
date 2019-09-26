@@ -3,7 +3,12 @@ package com.aion.dashboard.services;
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.Dashboard;
 import com.aion.dashboard.datatransferobject.HealthDTO;
-import com.aion.dashboard.entities.*;
+import com.aion.dashboard.entities.Block;
+import com.aion.dashboard.entities.Metrics;
+import com.aion.dashboard.entities.Metrics.CompositeKey;
+import com.aion.dashboard.entities.ParserState;
+import com.aion.dashboard.entities.Statistics;
+import com.aion.dashboard.entities.Transaction;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.MetricsJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
@@ -68,6 +73,13 @@ public class StatisticsService {
     private Metrics sbMetricsState;
     private Metrics rtMetricsState;
 
+    @Cacheable(CacheConfig.LAST_STORED_BLOCK)
+    public long lastStoredBlock(){
+        return pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId())
+            .map(ParserState::getBlockNumber)
+            .orElseThrow();
+    }
+
     @Scheduled(fixedDelay = DASHBOARD_STATS_INTERVAL)
     public void calculateDashboardStatistics() {
         // Updates the Statistics Upon a New Block Received
@@ -98,7 +110,7 @@ public class StatisticsService {
     @Cacheable(CacheConfig.STATISTICS_RT_METRICS)
     public void calculateRealtimeStatistics() {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
-        Optional<Metrics> metrics = metRepo.findById(RT_METRICS);
+        Optional<Metrics> metrics = metRepo.findById(new CompositeKey(RT_METRICS, lastStoredBlock()));
 
         // Confirms that there's no Reorg Occurring and the ParserState is Current
         if(metrics.isPresent() && parserState.isPresent()) {
@@ -116,7 +128,7 @@ public class StatisticsService {
     @Cacheable(CacheConfig.STATISTICS_SB_METRICS)
     public void sbMetrics() {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
-        Optional<Metrics> metrics = metRepo.findById(SB_METRICS);
+        Optional<Metrics> metrics = metRepo.findById(new Metrics.CompositeKey(SB_METRICS, lastStoredBlock()));
 
         // Confirms that there's no Reorg Occurring and the ParserState is Current
         if(metrics.isPresent() && parserState.isPresent()) {
@@ -331,10 +343,18 @@ public class StatisticsService {
     }
 
     public Metrics getSbMetrics(){
-        return metRepo.findById(1).orElseThrow();
+        return getSbMetrics(lastStoredBlock());
     }
 
     public Metrics getRtMetrics(){
-        return metRepo.findById(2).orElseThrow();
+        return getRtMetrics(lastStoredBlock());
+    }
+
+    public Metrics getSbMetrics(long blockNumber){
+        return metRepo.findById(new CompositeKey(SB_METRICS, blockNumber)).orElseThrow();
+    }
+
+    public Metrics getRtMetrics(long blockNumber){
+        return metRepo.findById(new CompositeKey(RT_METRICS, blockNumber)).orElseThrow();
     }
 }

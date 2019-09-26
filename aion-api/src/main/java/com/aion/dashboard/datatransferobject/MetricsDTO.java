@@ -3,6 +3,7 @@ package com.aion.dashboard.datatransferobject;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+@SuppressWarnings("unused")
 public class MetricsDTO {
     private Integer id;
     private BigInteger totalTransaction;
@@ -21,25 +22,67 @@ public class MetricsDTO {
     private Long blockWindow;
     private Long targetBlockTime;
     private Long currentBlockchainHead;
+    private BigDecimal powBlockDifficulty;
+    private BigDecimal posBlockDifficulty;
+    private BigDecimal powBlockTime;
+    private BigDecimal posBlockTime;
+    private BigDecimal averagePosIssuance;
+    private BigDecimal percentageOfNetworkStaking;
+    private BigDecimal totalStake;
 
-    public MetricsDTO(Integer id, BigInteger totalTransaction, BigDecimal transactionsPerSecond, Integer peakTransactionsPerBlock, BigInteger startBlock, BigInteger endBlock, BigDecimal averageNrgConsumed, BigDecimal averageNrgLimit, BigDecimal averagedBlockTime, BigDecimal averageDifficulty, Long endTimestamp, Long startTimestamp, BigDecimal averagedHashPower, BigDecimal lastBlockReward, Long currentBlockchainHead) {
-        this.id = id;
-        this.totalTransaction = totalTransaction;
-        this.transactionsPerSecond = transactionsPerSecond;
-        this.peakTransactionsPerBlock = peakTransactionsPerBlock;
-        this.startBlock = startBlock;
-        this.endBlock = endBlock;
-        this.averageNrgConsumed = averageNrgConsumed;
-        this.averageNrgLimit = averageNrgLimit;
-        this.averagedBlockTime = averagedBlockTime;
-        this.averageDifficulty = averageDifficulty;
-        this.endTimestamp = endTimestamp;
-        this.startTimestamp = startTimestamp;
-        this.averagedHashPower = averagedHashPower;
-        this.lastBlockReward = lastBlockReward;
+    public MetricsDTO(MetricsDTOBuilder builder) {
+        this.id = builder.id;
+        this.totalTransaction = builder.totalTransaction;
+        this.transactionsPerSecond = builder.transactionsPerSecond;
+        this.peakTransactionsPerBlock = builder.peakTransactionsPerBlock;
+        this.startBlock = builder.startBlock;
+        this.endBlock = builder.endBlock;
+        this.averageNrgConsumed = builder.averageNrgConsumed;
+        this.averageNrgLimit = builder.averageNrgLimit;
+        this.averagedBlockTime = builder.averagedBlockTime;
+        this.averageDifficulty = builder.averageDifficulty;
+        this.endTimestamp = builder.endTimestamp;
+        this.startTimestamp = builder.startTimestamp;
+        this.averagedHashPower = builder.averagedHashPower;
+        this.lastBlockReward = builder.lastBlockReward;
         this.blockWindow = endBlock.subtract(startBlock).abs().longValue();
         this.targetBlockTime = 10L;
-        this.currentBlockchainHead = currentBlockchainHead;
+        this.currentBlockchainHead = builder.currentBlockchainHead;
+        this.posBlockDifficulty = builder.posBlockDifficulty;
+        this.powBlockDifficulty = builder.powBlockDifficulty;
+        this.powBlockTime = builder.powBlockTime;
+        this.posBlockTime = builder.posBlockTime;
+        this.averagePosIssuance = builder.averagePosIssuance;
+        this.percentageOfNetworkStaking = builder.percentageOfNetworkStaking;
+        this.totalStake = builder.totalStake;
+    }
+
+    public BigDecimal getPowBlockDifficulty() {
+        return powBlockDifficulty;
+    }
+
+    public BigDecimal getPosBlockDifficulty() {
+        return posBlockDifficulty;
+    }
+
+    public BigDecimal getPowBlockTime() {
+        return powBlockTime;
+    }
+
+    public BigDecimal getPosBlockTime() {
+        return posBlockTime;
+    }
+
+    public BigDecimal getAveragePosIssuance() {
+        return averagePosIssuance;
+    }
+
+    public BigDecimal getPercentageOfNetworkStaking() {
+        return percentageOfNetworkStaking;
+    }
+
+    public BigDecimal getTotalStake() {
+        return totalStake;
     }
 
     public String getId() {
@@ -126,6 +169,49 @@ public class MetricsDTO {
         private BigDecimal averagedHashPower;
         private BigDecimal lastBlockReward;
         private Long currentBlockchainHead;
+        private BigDecimal powBlockDifficulty;
+        private BigDecimal posBlockDifficulty;
+        private BigDecimal powBlockTime;
+        private BigDecimal posBlockTime;
+        private BigDecimal averagePosIssuance;
+        private BigDecimal percentageOfNetworkStaking;
+        private BigDecimal totalStake;
+
+        public MetricsDTOBuilder setPowBlockDifficulty(BigDecimal powBlockDifficulty) {
+            this.powBlockDifficulty = powBlockDifficulty;
+            return this;
+        }
+
+        public MetricsDTOBuilder setPosBlockDifficulty(BigDecimal posBlockDifficulty) {
+            this.posBlockDifficulty = posBlockDifficulty;
+            return this;
+        }
+
+        public MetricsDTOBuilder setPowBlockTime(BigDecimal powBlockTime) {
+            this.powBlockTime = powBlockTime;
+            return this;
+        }
+
+        public MetricsDTOBuilder setPosBlockTime(BigDecimal posBlockTime) {
+            this.posBlockTime = posBlockTime;
+            return this;
+        }
+
+        public MetricsDTOBuilder setAveragePosIssuance(BigDecimal averagePosIssuance) {
+            this.averagePosIssuance = averagePosIssuance;
+            return this;
+        }
+
+        public MetricsDTOBuilder setPercentageOfNetworkStaking(
+            BigDecimal percentageOfNetworkStaking) {
+            this.percentageOfNetworkStaking = percentageOfNetworkStaking;
+            return this;
+        }
+
+        public MetricsDTOBuilder setTotalStake(BigDecimal totalStake) {
+            this.totalStake = totalStake;
+            return this;
+        }
 
         public MetricsDTOBuilder setId(Integer id) {
             this.id = id;
@@ -204,23 +290,7 @@ public class MetricsDTO {
         }
 
         public MetricsDTO buildMetricsDTO() {
-            return new MetricsDTO(
-                    id,
-                    totalTransaction,
-                    transactionsPerSecond,
-                    peakTransactionsPerBlock,
-                    startBlock,
-                    endBlock,
-                    averageNrgConsumed,
-                    averageNrgLimit,
-                    averagedBlockTime,
-                    averageDifficulty,
-                    endTimestamp,
-                    startTimestamp,
-                    averagedHashPower,
-                    lastBlockReward,
-                    currentBlockchainHead
-            );
+            return new MetricsDTO(this);
         }
     }
 }

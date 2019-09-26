@@ -1,11 +1,11 @@
 package com.aion.dashboard.entities;
 
 
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name="Block")
@@ -21,8 +21,8 @@ public class Block {
     private Long numTransactions;
     private Long blockTime;
     private BigDecimal nrgReward;
-    private Long difficulty;
-    private Long totalDifficulty;
+    private BigDecimal difficulty;
+    private BigDecimal totalDifficulty;
     private BigDecimal blockReward;
     private Integer year;
     private Integer month;
@@ -48,7 +48,7 @@ public class Block {
 
     public Block(){}
 
-    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, Long difficulty, Long totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
+    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, BigDecimal difficulty, BigDecimal totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -101,10 +101,10 @@ public class Block {
     public String getTransactionHash() {
         return transactionHash;
     }
-    public Long getDifficulty() {
+    public BigDecimal getDifficulty() {
         return difficulty;
     }
-    public Long getTotalDifficulty() {
+    public BigDecimal getTotalDifficulty() {
         return totalDifficulty;
     }
     public BigDecimal getNrgReward() {
@@ -189,10 +189,10 @@ public class Block {
     public void setTransactionHash(String transactionHash) {
         this.transactionHash = transactionHash;
     }
-    public void setDifficulty(Long difficulty) {
+    public void setDifficulty(BigDecimal difficulty) {
         this.difficulty = difficulty;
     }
-    public void setTotalDifficulty(Long totalDifficulty) {
+    public void setTotalDifficulty(BigDecimal totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
     }
     public void setNrgReward(BigDecimal nrgReward) {

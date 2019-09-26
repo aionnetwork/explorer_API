@@ -7,7 +7,13 @@ import com.aion.dashboard.datatransferobject.*;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
-import com.aion.dashboard.services.*;
+import com.aion.dashboard.services.BlockService;
+import com.aion.dashboard.services.InternalTransactionService;
+import com.aion.dashboard.services.SearchService;
+import com.aion.dashboard.services.StatisticsService;
+import com.aion.dashboard.services.ThirdPartyService;
+import com.aion.dashboard.services.TransactionService;
+import com.aion.dashboard.services.TxLogService;
 import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.SearchResult;
 import java.util.Optional;
@@ -304,12 +310,22 @@ public class Dashboardv2 {
      * @return the current network metrics
      */
     @GetMapping("/metrics")
-    public ResponseEntity<Result<MetricsDTO>> metrics(@RequestParam(value = "type", defaultValue = "rt")String type){
+    public ResponseEntity<Result<MetricsDTO>> metrics(@RequestParam(value = "type", defaultValue = "rt")String type, @RequestParam(value = "blockNumber") Optional<Long> blockNumber){
         if (type.equalsIgnoreCase("rt")){
-            return packageResponse(MetricsMapper.makeMetricsDTO(statisticsService.getRtMetrics(), blockService.blockNumber()));
+            return packageResponse(
+                MetricsMapper.makeMetricsDTO(
+                    blockNumber.map(statisticsService::getRtMetrics)
+                        .orElseGet(statisticsService::getRtMetrics),
+                    blockService.blockNumber()
+                ));
         }
         else if (type.equalsIgnoreCase("stable")){
-            return packageResponse(MetricsMapper.makeMetricsDTO(statisticsService.getSbMetrics(), blockService.blockNumber()));
+            return packageResponse(
+                MetricsMapper.makeMetricsDTO(
+                    blockNumber.map(statisticsService::getSbMetrics)
+                        .orElseGet(statisticsService::getSbMetrics),
+                    blockService.blockNumber()
+                ));
         }
         else {
             throw new IncorrectArgumentException("stable or rt. Found: " + type);

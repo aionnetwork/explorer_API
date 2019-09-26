@@ -22,6 +22,13 @@ public class MetricsMapper {
                 .setStartTimestamp(metrics.getStartTimestamp())
                 .setTotalTransaction(metrics.getTotalTransaction())
                 .setTransactionsPerSecond(metrics.getTransactionsPerSecond())
+                .setAveragePosIssuance(metrics.getAvgPosIssuance())
+                .setPosBlockDifficulty(metrics.getPosAvgDifficulty())
+                .setPercentageOfNetworkStaking(metrics.getPercentageOfNetworkStaking())
+                .setPosBlockTime(metrics.getPosAvgBlockTime())
+                .setPowBlockDifficulty(metrics.getPowAvgDifficulty())
+                .setPowBlockTime(metrics.getPowAvgBlockTime())
+                .setTotalStake(metrics.getTotalStake())
                 .buildMetricsDTO());
 
     }
