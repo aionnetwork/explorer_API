@@ -5,11 +5,19 @@ import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Token;
 import com.aion.dashboard.entities.TokenHolders;
-import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.repositories.AccountJpaRepository;
+import com.aion.dashboard.repositories.InternalTransactionJpaRepository;
+import com.aion.dashboard.repositories.InternalTransferJpaRepository;
+import com.aion.dashboard.repositories.ParserStateJpaRepository;
+import com.aion.dashboard.repositories.TokenHoldersJpaRepository;
+import com.aion.dashboard.repositories.TokenJpaRepository;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class AccountService {
@@ -47,6 +51,10 @@ public class AccountService {
 
     private static final   String CONTENT="content";
     private static final  String BALANCE="balance";
+
+    private Sort sort(String sort){
+        return Sort.by(Sort.Direction.fromString(sort), BALANCE);
+    }
 
     @Cacheable(CacheConfig.ACCOUNT_DETAILS)
     public String getAccountDetails(String accountAddress,
@@ -165,5 +173,13 @@ public class AccountService {
         }
 
         return tokenArray.toString();
+    }
+
+    public Page<Account> findAccounts(int page, int size, String sort){
+        return acctRepo.findAll(PageRequest.of(page, size, sort(sort)));
+    }
+
+    public Account findByAccountAddress(String address){
+        return acctRepo.findById(address).orElseThrow();
     }
 }

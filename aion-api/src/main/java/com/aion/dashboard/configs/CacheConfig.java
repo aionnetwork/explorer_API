@@ -1,6 +1,8 @@
 package com.aion.dashboard.configs;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -11,9 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 @Configuration
 @EnableCaching
 public class CacheConfig {
@@ -23,6 +22,7 @@ public class CacheConfig {
 
    private static final Integer DURATION = 10;
    private static final Integer MAX_SIZE = 1000000;
+   private static final Integer LONG_SIZE = 16;
 
    // Tokens
    public static final String TOKEN_LIST = "tokenList";
@@ -38,7 +38,7 @@ public class CacheConfig {
    public static final String BLOCK_LIST = "blockList";
    public static final String BLOCKS_MINED_BY_ADDRESS = "blocksMinedByAddress";
    public static final String BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER = "blockAndTransactionDetailFromBlockHashOrBlockNumber";
-
+   public static final String LAST_STORED_BLOCK = "last_stored_block";
    // Contracts
    public static final String CONTRACT_LIST = "contractList";
    public static final String CONTRACT_DETAIL_BY_CONTRACT_ADDRESS = "contractDetailByContractAddress";
@@ -99,6 +99,7 @@ public class CacheConfig {
               buildExpireAfterWriteCache(BLOCK_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
               buildExpireAfterWriteCache(BLOCKS_MINED_BY_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
               buildExpireAfterWriteCache(BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+              buildExpireAfterWriteCache(LAST_STORED_BLOCK, DURATION, TimeUnit.SECONDS, LONG_SIZE, cacheEnable),
 
               // Contracts
               buildExpireAfterWriteCache(CONTRACT_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),

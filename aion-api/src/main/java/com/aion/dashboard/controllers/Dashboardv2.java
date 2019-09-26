@@ -7,6 +7,7 @@ import com.aion.dashboard.datatransferobject.*;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
+import com.aion.dashboard.services.AccountService;
 import com.aion.dashboard.services.BlockService;
 import com.aion.dashboard.services.InternalTransactionService;
 import com.aion.dashboard.services.SearchService;
@@ -46,11 +47,15 @@ public class Dashboardv2 {
     private StatisticsService statisticsService;
     private TxLogService txLogService;
     private InternalTransactionService internalTransactionService;
+    private AccountService accountService;
 
 
 
     @Autowired
-    Dashboardv2(InternalTransactionService internalTransactionService, TxLogService txLogService, SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService, TransactionService transactionService, StatisticsService statisticsService){
+    Dashboardv2(InternalTransactionService internalTransactionService, TxLogService txLogService,
+        SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService,
+        TransactionService transactionService, StatisticsService statisticsService,
+        AccountService accountService){
         this.internalTransactionService = internalTransactionService;
         this.txLogService = txLogService;
         this.blockService=blockService;
@@ -58,6 +63,7 @@ public class Dashboardv2 {
         this.transactionService=transactionService;
         this.searchService=searchService;
         this.statisticsService = statisticsService;
+        this.accountService = accountService;
     }
 
     /**
@@ -172,9 +178,13 @@ public class Dashboardv2 {
      * @return The specified account.
      */
     @GetMapping("/account")
-    public ResponseEntity account(@RequestParam(value = "address", required = false) String address){
-
-        throw new UnsupportedOperationException("/account");
+    public ResponseEntity account(@RequestParam(value = "address", required = false) Optional<String> address){
+        return packageResponse(
+            AccountMapper
+                .getMapper()
+                .makeResult(accountService
+                    .findByAccountAddress(address.orElseThrow(MissingArgumentException::new)))
+        );
     }
 
     /**
@@ -184,11 +194,14 @@ public class Dashboardv2 {
      * @return A list of accounts sorted by aion balance.
      */
     @GetMapping("/accounts")
-    public ResponseEntity accounts(@RequestParam(value = "page", defaultValue = "0") String page,
-                                   @RequestParam(value = "size", defaultValue = "25") String size,
+    public ResponseEntity accounts(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                   @RequestParam(value = "size", defaultValue = "25") Integer size,
                                    @RequestParam(value = "sort", defaultValue = "desc") String sort){
-
-        throw new UnsupportedOperationException("/accounts");
+        if (sort.equalsIgnoreCase("desc") || sort.equalsIgnoreCase("asc")) {
+            return packageResponse(AccountMapper.getMapper().makeResult(accountService.findAccounts(page, size, sort)));
+        } else {
+            throw new IncorrectArgumentException("asc or desc");
+        }
     }
 
 
