@@ -22,6 +22,7 @@ public class CacheConfig {
 
    private static final Integer DURATION = 10;
    private static final Integer MAX_SIZE = 1000000;
+   private static final Integer VIEW_SIZE = 24000;
    private static final Integer LONG_SIZE = 16;
 
    // Tokens
@@ -70,6 +71,7 @@ public class CacheConfig {
    // Miscellaneous
    public static final String SEND_FEEDBACK = "sendFeedback";
    public static final String GRAPHING_INFO_BY_TIMESTAMP = "graphingInfoByTimstamp";
+   public static final String VIEW_V2="viewV2";
 
    // Third Party API
    public static final String COUNT_OPERATIONS = "countOperations";
@@ -131,6 +133,7 @@ public class CacheConfig {
               // Miscellaneous
               buildExpireAfterWriteCache(SEND_FEEDBACK, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
               buildExpireAfterWriteCache(GRAPHING_INFO_BY_TIMESTAMP, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+              buildExpireAfterWriteCache(VIEW_V2, DURATION, TimeUnit.SECONDS, VIEW_SIZE, cacheEnable),
 
               // Third Party API
               buildExpireAfterWriteCache(COUNT_OPERATIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),

@@ -449,4 +449,8 @@ public class TransactionService {
 
 
 	}
+
+	public Page<Transaction> findAll(int page, int size){
+		return txnRepo.findAll(PageRequest.of(page, size, sortDesc1()));
+	}
 }

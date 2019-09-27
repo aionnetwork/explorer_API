@@ -6,7 +6,11 @@ import com.aion.dashboard.view.Result;
 
 public class MetricsMapper {
     public static Result<MetricsDTO> makeMetricsDTO(Metrics metrics, long blockNumber){
-        return Result.from(new MetricsDTO.MetricsDTOBuilder()
+        return Result.from(makeDTO(metrics, blockNumber));
+    }
+
+    static MetricsDTO makeDTO(Metrics metrics, long blockNumber) {
+        return new MetricsDTO.MetricsDTOBuilder()
                 .setAveragedBlockTime(metrics.getAveragedBlockTime())
                 .setLastBlockReward(metrics.getLastBlockReward())
                 .setAveragedHashPower(metrics.getAveragedHashPower())
@@ -29,7 +33,6 @@ public class MetricsMapper {
                 .setPowBlockDifficulty(metrics.getPowAvgDifficulty())
                 .setPowBlockTime(metrics.getPowAvgBlockTime())
                 .setTotalStake(metrics.getTotalStake())
-                .buildMetricsDTO());
-
+                .buildMetricsDTO();
     }
 }

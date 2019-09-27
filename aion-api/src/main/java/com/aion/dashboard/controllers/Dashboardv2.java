@@ -2,6 +2,8 @@ package com.aion.dashboard.controllers;
 
 
 import static org.springframework.http.HttpStatus.OK;
+
+import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.mapper.*;
 import com.aion.dashboard.datatransferobject.*;
 import com.aion.dashboard.exception.EntityNotFoundException;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.annotations.Cacheable;
 
 
 /**
@@ -508,6 +511,13 @@ public class Dashboardv2 {
 
         throw new MissingArgumentException();
     }
+
+    @GetMapping(value = "/view")
+    @Cacheable(CacheConfig.VIEW_V2)
+    public ResponseEntity<Result<ViewDTO>> view(){
+        return packageResponse(ViewDTOMapper.makeDTO(statisticsService.getSbMetrics(), blockService.blockNumber(), transactionService.findAll(0, 10), blockService.findBlocks(0,4)));
+    }
+
 
     boolean isNotEmpty(String str){
         return !Optional.ofNullable(str).filter(s-> !s.isEmpty() && !s.isBlank()).isEmpty();

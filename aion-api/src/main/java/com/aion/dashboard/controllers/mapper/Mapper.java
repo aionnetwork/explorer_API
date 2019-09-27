@@ -1,16 +1,15 @@
 package com.aion.dashboard.controllers.mapper;
 
 import com.aion.dashboard.view.Result;
-import org.springframework.data.domain.Page;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
 
 abstract class Mapper<T, U> {
 
     abstract U makeDTO(T t);
 
-    private List<U> makeDTOList(List<T> ts){
+    List<U> makeDTOList(List<T> ts){
         return ts.stream().map(this::makeDTO).collect(Collectors.toList());
     }
 
