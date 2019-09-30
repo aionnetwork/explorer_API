@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.OK;
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.mapper.*;
 import com.aion.dashboard.datatransferobject.*;
+import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
@@ -445,6 +446,16 @@ public class Dashboardv2 {
     public  ResponseEntity<Result<Long>>  getHeightBlock() throws EntityNotFoundException {
         return packageResponse(Result.from(blockService.blockNumber()));
 
+    }
+
+    @GetMapping(value = "/validatorStatistics")
+    public ResponseEntity<Result<ValidatorStatsDTO>> validators(@RequestParam(value = "blockNumber") Optional<Long> blockNumber){
+        return packageResponse(
+            ValidatorStatsMapper.getInstance().makeResult(
+                blockNumber
+                    .map(statisticsService::validatorStats)
+                    .orElseGet(statisticsService::validatorStats))
+        );
     }
 
     /**

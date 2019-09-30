@@ -9,10 +9,12 @@ import com.aion.dashboard.entities.Metrics.CompositeKey;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Statistics;
 import com.aion.dashboard.entities.Transaction;
+import com.aion.dashboard.entities.ValidatorStats;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.MetricsJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
 import com.aion.dashboard.repositories.TransactionJpaRepository;
+import com.aion.dashboard.repositories.ValidatorStatsJPARepository;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
 import com.aion.dashboard.utility.Logging;
@@ -25,6 +27,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,16 +49,20 @@ public class StatisticsService {
     private MetricsJpaRepository metRepo;
 
     private TransactionJpaRepository txnRepo;
-
+    private ValidatorStatsJPARepository validatorStatsJPARepository;
 
     private ParserStateJpaRepository pSRepo;
 
     @Autowired
-    public StatisticsService(Dashboard dashboard, BlockJpaRepository blkRepo, MetricsJpaRepository metRepo, TransactionJpaRepository txnRepo, ParserStateJpaRepository pSRepo) {
+    public StatisticsService(Dashboard dashboard, BlockJpaRepository blkRepo,
+        MetricsJpaRepository metRepo, TransactionJpaRepository txnRepo,
+        ValidatorStatsJPARepository validatorStatsJPARepository,
+        ParserStateJpaRepository pSRepo) {
         this.dashboard = dashboard;
         this.blkRepo = blkRepo;
         this.metRepo = metRepo;
         this.txnRepo = txnRepo;
+        this.validatorStatsJPARepository = validatorStatsJPARepository;
         this.pSRepo = pSRepo;
 
     }
@@ -356,5 +363,24 @@ public class StatisticsService {
 
     public Metrics getRtMetrics(long blockNumber){
         return metRepo.findById(new CompositeKey(RT_METRICS, blockNumber)).orElseThrow();
+    }
+
+    public List<ValidatorStats> validatorStats(long blockNumber){
+        if (blockNumber<360) {
+            throw new NoSuchElementException();
+        } else {
+            List<ValidatorStats> res;
+            do {
+                // find the last entry in the db that can be used
+                long lastMetrics = blockNumber - blockNumber  % 360;
+                res = validatorStatsJPARepository.findAllByBlockNumber(lastMetrics);
+                blockNumber -= 360;
+            }while (res.isEmpty() && blockNumber >= 360);
+            return res;
+        }
+    }
+
+    public List<ValidatorStats> validatorStats(){
+        return validatorStats(lastStoredBlock());
     }
 }
