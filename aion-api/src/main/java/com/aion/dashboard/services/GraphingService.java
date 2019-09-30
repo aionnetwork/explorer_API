@@ -1,35 +1,64 @@
 package com.aion.dashboard.services;
 
-import com.aion.dashboard.configs.CacheConfig;
-import com.aion.dashboard.entities.Graphing;
-import com.aion.dashboard.repositories.GraphingJpaRepository;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-
 import static com.fasterxml.jackson.core.io.NumberInput.parseBigDecimal;
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
+import com.aion.dashboard.configs.CacheConfig;
+import com.aion.dashboard.entities.Graphing;
+import com.aion.dashboard.repositories.GraphingJpaRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import java.time.ZonedDateTime;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Component;
+
 @Component
 public class GraphingService {
-    private static final List<String> GRAPH_TYPES = Arrays.asList("Active Address Growth", "Top Miner", "Difficulty", "Hashing Power", "transactions per hour", "Block Time");
+    public enum GraphType {
+        ACTIVE_ADDRESS_GROWTH("Active Address Growth"),
+        BLOCK_TIME("Block Time"),
+        DIFFICULTY("Difficulty"),
+        HASH_POWER("Hashing Power"),
+        TOP_MINER("Top Miner"),
+        TRANSACTION_OVER_TIME("Transactions per hour"),
+        BLOCKS_MINED("Blocks Mined"),
+        POS_DIFFICULTY("Pos Difficulty"),
+        POW_DIFFICULTY("Pow Difficulty"),
+        POS_BLOCK_TIME("Pos avg block time"),
+        POW_BLOCK_TIME("Pow avg block time");
 
+        private String type;
+
+        GraphType(String s) {
+            type = s;
+        }
+
+        @Override
+        public String toString() {
+            return this.type;
+        }
+
+        public static GraphType getByType(String s){
+            for (GraphType type:values()){
+                if (type.type.equals(s)){
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("Illegal type");
+        }
+    }
     @Autowired
     private GraphingJpaRepository graphingJpaRepository;
+    private final List<GraphType> graphTypes = List.of(GraphType.values());
 
     @Cacheable(CacheConfig.GRAPHING_INFO_BY_TIMESTAMP)
     public String getGraphingInfo(int graphType) throws Exception {
+        if (graphType > graphTypes.size()) throw new IllegalArgumentException();
         List<Object> topMinerList;
         List<Graphing> graphingList;
 
@@ -41,7 +70,7 @@ public class GraphingService {
         Long endTime = ZonedDateTime.now().withMinute(0).withSecond(0).toInstant().getEpochSecond();
 
         // Graphing for Top Miner
-        if(GRAPH_TYPES.get(graphType).equals("Top Miner")) {
+        if(GraphType.TOP_MINER.ordinal() == graphType) {
             topMinerList = graphingJpaRepository.getTopMiner(topMinerStartTime, endTime);
             if (topMinerList != null && !topMinerList.isEmpty()) {
                 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -67,7 +96,7 @@ public class GraphingService {
         } else {
 
             // Graphing for Everything Else
-            graphingList = graphingJpaRepository.getGraphInfo(graphingStartTime, endTime, GRAPH_TYPES.get(graphType));
+            graphingList = graphingJpaRepository.getGraphInfo(graphingStartTime, endTime, graphTypes.get(graphType).type);
             if (graphingList != null && !graphingList.isEmpty()) {
                 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
                 for(Graphing graphing : graphingList) {
