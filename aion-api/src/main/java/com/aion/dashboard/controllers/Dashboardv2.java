@@ -449,13 +449,33 @@ public class Dashboardv2 {
     }
 
     @GetMapping(value = "/validatorStatistics")
-    public ResponseEntity<Result<ValidatorStatsDTO>> validators(@RequestParam(value = "blockNumber") Optional<Long> blockNumber){
-        return packageResponse(
-            ValidatorStatsMapper.getInstance().makeResult(
-                blockNumber
-                    .map(statisticsService::validatorStats)
-                    .orElseGet(statisticsService::validatorStats))
-        );
+    public ResponseEntity<Result<ValidatorStatsDTO>> validators(
+        @RequestParam(value = "blockNumber") Optional<Long> blockNumber,
+        @RequestParam(value="sealType") Optional<String> sealType,
+        @RequestParam(value = "page", defaultValue = "0") Integer page,
+        @RequestParam(value = "size", defaultValue = "25") Integer size){
+        validators.validateSize(size);
+        if(sealType.isPresent()){
+            return packageResponse(
+                ValidatorStatsMapper.getInstance().makeResult(
+                    sealType.filter(s-> s.equalsIgnoreCase("POW") ||
+                        s.equalsIgnoreCase("POS"))
+                    .map(seal -> {
+                        if (blockNumber.isPresent())
+                            return statisticsService.validatorStats(blockNumber.get(),
+                                seal, page, size);
+                        else return statisticsService.validatorStats(seal, page, size);
+                    }).orElseThrow(()-> new IncorrectArgumentException("POW or POS."))
+                )
+            );
+        }else {
+            return packageResponse(
+                ValidatorStatsMapper.getInstance().makeResult(
+                    blockNumber
+                        .map(b -> statisticsService.validatorStats(b, page, size))
+                        .orElseGet(() -> statisticsService.validatorStats(page, size)))
+            );
+        }
     }
 
     /**

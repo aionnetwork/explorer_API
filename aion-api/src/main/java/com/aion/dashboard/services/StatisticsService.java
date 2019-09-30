@@ -365,22 +365,41 @@ public class StatisticsService {
         return metRepo.findById(new CompositeKey(RT_METRICS, blockNumber)).orElseThrow();
     }
 
-    public List<ValidatorStats> validatorStats(long blockNumber){
+    public Page<ValidatorStats> validatorStats(long blockNumber, int page, int size){
         if (blockNumber<360) {
             throw new NoSuchElementException();
         } else {
-            List<ValidatorStats> res;
+            Page<ValidatorStats> res;
             do {
                 // find the last entry in the db that can be used
                 long lastMetrics = blockNumber - blockNumber  % 360;
-                res = validatorStatsJPARepository.findAllByBlockNumber(lastMetrics);
+                res = validatorStatsJPARepository.findAllByBlockNumber(lastMetrics, PageRequest.of(page, size));
                 blockNumber -= 360;
             }while (res.isEmpty() && blockNumber >= 360);
             return res;
         }
     }
 
-    public List<ValidatorStats> validatorStats(){
-        return validatorStats(lastStoredBlock());
+    public Page<ValidatorStats> validatorStats(int page, int size){
+        return validatorStats(lastStoredBlock(), page, size);
+    }
+
+    public Page<ValidatorStats> validatorStats(long blockNumber, String sealType, int page, int size){
+        if (blockNumber<360) {
+            throw new NoSuchElementException();
+        } else {
+            Page<ValidatorStats> res;
+            do {
+                // find the last entry in the db that can be used
+                long lastMetrics = blockNumber - blockNumber  % 360;
+                res = validatorStatsJPARepository.findAllByBlockNumberAndSealType(lastMetrics, sealType, PageRequest.of(page, size));
+                blockNumber -= 360;
+            }while (res.isEmpty() && blockNumber >= 360);
+            return res;
+        }
+    }
+
+    public Page<ValidatorStats> validatorStats(String sealType,int page, int size){
+        return validatorStats(lastStoredBlock(), sealType, page, size);
     }
 }

@@ -9,6 +9,7 @@ public class ValidatorStatsDTO {
     private final int blockCount;
     private final long blockTimestamp;
     private final BigDecimal percentageOfBlocksValidated;
+    private final long totalBlockCount = 60480L;
 
     public ValidatorStatsDTO(long blockNumber, String minerAddress, String sealType, int blockCount, long blockTimestamp, BigDecimal percentageOfBlocksValidated) {
         this.blockNumber = blockNumber;
@@ -43,4 +44,7 @@ public class ValidatorStatsDTO {
         return percentageOfBlocksValidated;
     }
 
+    public long getTotalBlockCount() {
+        return totalBlockCount;
+    }
 }
