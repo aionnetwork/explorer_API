@@ -22,14 +22,19 @@ public class ValidatorStats {
     private int blockCount;
     private long blockTimestamp;
     private BigDecimal percentageOfBlocksValidated;
+    private BigDecimal averageTransactionsPerBlock;
 
-    public ValidatorStats(long blockNumber, String minerAddress, String sealType, int blockCount, long blockTimestamp, BigDecimal percentageOfBlocksValidated) {
+
+    public ValidatorStats(long blockNumber, String minerAddress, String sealType, int blockCount,
+        long blockTimestamp, BigDecimal percentageOfBlocksValidated,
+        BigDecimal averageTransactionsPerBlock) {
         this.blockNumber = blockNumber;
         this.minerAddress = minerAddress;
         this.sealType = sealType;
         this.blockCount = blockCount;
         this.blockTimestamp = blockTimestamp;
         this.percentageOfBlocksValidated = percentageOfBlocksValidated;
+        this.averageTransactionsPerBlock = averageTransactionsPerBlock;
     }
 
     public ValidatorStats() {
@@ -81,6 +86,18 @@ public class ValidatorStats {
 
     public BigDecimal getPercentageOfBlocksValidated() {
         return percentageOfBlocksValidated;
+    }
+
+    public BigDecimal getAverageTransactionsPerBlock() {
+        if (averageTransactionsPerBlock.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        } else {
+            return averageTransactionsPerBlock;
+        }
+    }
+
+    public void setAverageTransactionsPerBlock(BigDecimal averageTransactionsPerBlock) {
+        this.averageTransactionsPerBlock = averageTransactionsPerBlock;
     }
 
     public static class CompositeKey implements Serializable {

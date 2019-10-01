@@ -13,6 +13,13 @@ public class ValidatorStatsMapper extends Mapper<ValidatorStats, ValidatorStatsD
 
     @Override
     ValidatorStatsDTO makeDTO(ValidatorStats validatorStats) {
-        return new ValidatorStatsDTO(validatorStats.getBlockNumber(), validatorStats.getMinerAddress(), validatorStats.getSealType(), validatorStats.getBlockCount(), validatorStats.getBlockTimestamp(),validatorStats.getPercentageOfBlocksValidated());
+        return new ValidatorStatsDTO(
+                validatorStats.getBlockNumber(),
+                validatorStats.getMinerAddress(),
+                validatorStats.getSealType(),
+                validatorStats.getBlockCount(),
+                validatorStats.getBlockTimestamp(),
+                validatorStats.getPercentageOfBlocksValidated(),
+                validatorStats.getAverageTransactionsPerBlock());
     }
 }
