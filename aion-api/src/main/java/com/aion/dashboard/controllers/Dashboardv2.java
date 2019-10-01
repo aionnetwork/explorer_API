@@ -126,7 +126,7 @@ public class Dashboardv2 {
             return packageResponse(mapper.makeResult(blockService.findByMinerAddress(minerAddress.get(), page, size)));
         }
         else if (startTime.isPresent()){
-            return packageResponse(mapper.makeResult(blockService.findBlocksInRange( startTime.get(), endTime.orElse(System.currentTimeMillis()/1000), page, size)));
+            return packageResponse(mapper.makeResult(blockService.findBlocksInRange(startTime.get(), endTime.orElse(System.currentTimeMillis()/1000), page, size), startTime.get(), endTime.orElse(System.currentTimeMillis()/1000)));
         }
         else {
             return packageResponse(mapper.makeResult(blockService.findBlocks(page,size)));
@@ -174,7 +174,7 @@ public class Dashboardv2 {
         else if(isNotEmpty(blockHash) )
                 return packageResponse( TransactionMapper.getInstance().makeResult(transactionService.findByBlockHash(blockHash, page, size)));
         else if( isNotEmpty(startTime) && isNotEmpty(endTime))
-            return packageResponse(TransactionMapper.getInstance().makeResult(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime))));
+            return packageResponse(TransactionMapper.getInstance().makeResult(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime)), Long.valueOf(startTime),Long.valueOf(endTime)));
         else throw new MissingArgumentException();
 
     }
@@ -515,7 +515,7 @@ public class Dashboardv2 {
         else if(contractAddress.isPresent() && start.isPresent()){
             return packageResponse(TxLogMapper.getInstance().makeResult(txLogService.findLogsForContractAndInTimeRange(
                     contractAddress.get(), start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25)
-            )));
+            ), start.get(), end.orElse(System.currentTimeMillis()/1000)));
 
         }
         else if (contractAddress.isPresent() && blockNumberStart.isPresent()){
@@ -532,6 +532,7 @@ public class Dashboardv2 {
         else if (start.isPresent()){
             return packageResponse(TxLogMapper.getInstance().makeResult(
                     txLogService.findLogsInTimeRange(start.get(), end.orElse(System.currentTimeMillis()/1000), page.orElse(0), size.orElse(25))
+                ,start.get(), end.orElse(System.currentTimeMillis()/1000)
             ));
         }
         else if (blockNumberStart.isPresent()){
