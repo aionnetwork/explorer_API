@@ -21,11 +21,11 @@ import org.springframework.stereotype.Component;
 public class GraphingService {
     public enum GraphType {
         ACTIVE_ADDRESS_GROWTH("Active Address Growth"),
-        BLOCK_TIME("Block Time"),
+        TOP_MINER("Top Miner"),
         DIFFICULTY("Difficulty"),
         HASH_POWER("Hashing Power"),
-        TOP_MINER("Top Miner"),
         TRANSACTION_OVER_TIME("Transactions per hour"),
+        BLOCK_TIME("Block Time"),
         BLOCKS_MINED("Blocks Mined"),
         POS_DIFFICULTY("Pos Difficulty"),
         POW_DIFFICULTY("Pow Difficulty"),
