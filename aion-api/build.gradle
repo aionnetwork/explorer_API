@@ -25,7 +25,7 @@ apply plugin: 'org.ajoberstar.grgit'
 mainClassName = "com.aion.dashboard.AionDashboardApiApplication"
 
 group = 'com.aion.dashboard'
-version = "2.3-${grgit.head().abbreviatedId}-${DateTimeFormatter.ofPattern("hhmm-dd-MM-yyyy").format(ZonedDateTime.now( ZoneId.of("UTC")))}"
+version = "2.4-${grgit.head().abbreviatedId}-${DateTimeFormatter.ofPattern("hhmm-dd-MM-yyyy").format(ZonedDateTime.now( ZoneId.of("UTC")))}"
 
 gversion {
     srcDir       = "src/main/java/"           // path is relative to the sub-project by default
