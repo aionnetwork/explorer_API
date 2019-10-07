@@ -2,14 +2,24 @@ package com.aion.dashboard.controllers;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Statistics;
-import com.aion.dashboard.services.*;
+import com.aion.dashboard.services.AccountService;
+import com.aion.dashboard.services.BlockService;
+import com.aion.dashboard.services.ContractService;
+import com.aion.dashboard.services.GraphingService;
+import com.aion.dashboard.services.ThirdPartyService;
+import com.aion.dashboard.services.TokenService;
+import com.aion.dashboard.services.TransactionService;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
 import com.aion.dashboard.utility.Logging;
 import com.aion.dashboard.utility.Utility;
+import io.micrometer.core.annotation.Timed;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.Cacheable;
 
 /**
@@ -17,6 +27,7 @@ import springfox.documentation.annotations.Cacheable;
  */
 @RestController
 @RequestMapping("/dashboard")
+@Timed
 public class Dashboard {
 
     private static final String MESSAGE = "message";
@@ -52,6 +63,7 @@ public class Dashboard {
     }
 
     // Tokens
+    @Cacheable(CacheConfig.TOKENS)
     @GetMapping(value = "/getTokenList")
     public String getTokenList(@RequestParam(value = "page", required = false) String page,
                                @RequestParam(value = "size", required = false) String size,
@@ -72,6 +84,7 @@ public class Dashboard {
         }
     }
 
+    @Cacheable(CacheConfig.TOKEN_LIST_BY_NAME)
     @GetMapping(value = "/getTokenListByTokenNameOrTokenSymbol")
     public String getTokenListByTokenNameOrTokenSymbol(@RequestParam(value = "searchParam", required = false) String searchParam,
                                                        @RequestParam(value = "page", required = false) String page,
@@ -96,7 +109,7 @@ public class Dashboard {
         }
     }
 
-
+    @Cacheable(CacheConfig.TOKEN_TRANSFERS)
     @GetMapping(value = "/getTokenDetailsTransfersAndHoldersByContractAddress")
     public String getTokenDetailsTransfersAndHoldersByContractAddress(@RequestParam(value = "searchParam", required = false) String searchParam,
                                                                       @RequestParam(value = "contractAddress", required = false) String contractAddress,
@@ -132,6 +145,7 @@ public class Dashboard {
 
 
     // Contracts
+    @Cacheable(CacheConfig.CONTRACT_LIST)
     @GetMapping(value = "/getContractList")
     public String getContractList(@RequestParam(value = "page", required = false) String page,
                                   @RequestParam(value = "size", required = false) String size,
@@ -151,6 +165,7 @@ public class Dashboard {
         }
     }
 
+    @Cacheable(CacheConfig.CONTRACT_DETAILS)
     @GetMapping(value = "/getContractDetailsByContractAddress")
     public String getContractDetailsByContractAddress(@RequestParam(value = "searchParam", required = false) String searchParam,
                                                       @RequestParam(value = "contractAddress", required = false) String contractAddress,
@@ -180,6 +195,7 @@ public class Dashboard {
 
 
     // blocks
+    @Cacheable(CacheConfig.BLOCK_LIST)
     @GetMapping(value = "/getBlockList")
     public String getBlockList(@RequestParam(value = "page", required = false) String page,
                                @RequestParam(value = "size", required = false) String size,
@@ -198,6 +214,7 @@ public class Dashboard {
         }
     }
 
+    @Cacheable(CacheConfig.BLOCKS_MINED)
     @GetMapping(value = "/getBlocksMinedByAddress")
     public String getBlocksMinedByAddress(@RequestParam(value = "searchParam", required = false) String searchParam,
                                           @RequestParam(value = "accountAddress", required = false) String accountAddress,
@@ -224,6 +241,7 @@ public class Dashboard {
 
     }
 
+    @Cacheable(CacheConfig.BLOCKS_AND_TRANSACTION)
     @GetMapping(value = "/getBlockAndTransactionDetailsFromBlockNumberOrBlockHash")
     public String getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(@RequestParam(value = "searchParam", required = false) String searchParam) {
         try {
@@ -238,6 +256,7 @@ public class Dashboard {
 
 
     // transactions
+    @Cacheable(CacheConfig.TRANSACTION_LIST)
     @GetMapping(value = "/getTransactionList")
     public String getTransactionList(@RequestParam(value = "page", required = false) String page,
                                      @RequestParam(value = "size", required = false) String size,
@@ -259,6 +278,7 @@ public class Dashboard {
 
     }
 
+    @Cacheable(CacheConfig.TRANSACTION_BY_ADDRESS)
     @GetMapping(value = "/getTransactionsByAddress")
     public String getTransactionsByAddress(@RequestParam(value = "searchParam", required = false) String searchParam,
                                            @RequestParam(value = "page", required = false) String page,
@@ -294,6 +314,7 @@ public class Dashboard {
     }
 
     @GetMapping(value = "/getInternalTransfersByAddress")
+    @Deprecated
     public String getInternalTransfersByAddress(@RequestParam(value = "accountAddress", required = false) String accountAddress,
                                                 @RequestParam(value = "page", required = false) String page,
                                                 @RequestParam(value = "size", required = false) String size,
@@ -319,7 +340,7 @@ public class Dashboard {
     }
 
     @GetMapping(value = "/getInternalTransfersByTransactionHash")
-
+    @Deprecated
     public String getInternalTransfersByTransactionHash(@RequestParam(value = "transactionHash", required = false) String transactionHash,
                                                         @RequestParam(value = "page", required = false) String page,
                                                         @RequestParam(value = "size", required = false) String size) {
@@ -340,6 +361,7 @@ public class Dashboard {
 
     }
 
+    @Cacheable(CacheConfig.TRANSACTION)
     @GetMapping(value = "/getTransactionDetailsByTransactionHash")
     public String getTransactionDetailsByTransactionHash(@RequestParam(value = "searchParam", required = false) String searchParam,
                                                          @RequestParam(value = "transactionHash", required = false) String transactionHash,
@@ -364,6 +386,7 @@ public class Dashboard {
 
 
     // Accounts
+    @Cacheable(CacheConfig.STATISTICS_ACCOUNT_STATS)
     @GetMapping(value = "/getDailyAccountStatistics")
     public String getDailyAccountStatistics() {
         try {
@@ -374,6 +397,7 @@ public class Dashboard {
         }
     }
 
+    @Cacheable(CacheConfig.RICH_LIST)
     @GetMapping(value = "/getRichList")
     public String getRichList() {
         try {
@@ -384,6 +408,7 @@ public class Dashboard {
         }
     }
 
+    @Cacheable(CacheConfig.ACCOUNT_DETAILS)
     @GetMapping(value = "/getAccountDetails")
     public String getAccountDetails(@RequestParam(value = "accountAddress", required = false) String accountAddress,
                                     @RequestParam(value = "tokenAddress", required = false) String tokenAddress) {
@@ -399,6 +424,7 @@ public class Dashboard {
 
     // Home
     @GetMapping(value = "/search")
+    @Deprecated
     public String search(@RequestParam(value = "searchParam", required = false) String searchParam) {
         if (searchParam != null && !searchParam.trim().isEmpty()) {
 
@@ -462,7 +488,7 @@ public class Dashboard {
         return getJsonString(RESULT,MISSING_SEARCH_PARAM);
     }
 
-
+    @Cacheable(CacheConfig.VIEW_V1)
     @GetMapping(value = "/view")
     public String viewDashboard() {
         try {
@@ -473,16 +499,6 @@ public class Dashboard {
 
         }
     }
-
-    @PostMapping(value = "/newBlockReceived")
-    public void newBlockDashboard() {
-        try {
-            this.brokerMessagingTemplate.convertAndSend("/dashboard/view", Statistics.getInstance().getDashboardJSON());
-        } catch (Exception e) {
-            Logging.traceException(e);
-        }
-    }
-
 
     // Third Party APIs
     @GetMapping(value = "/getCirculatingSupply")
@@ -499,6 +515,7 @@ public class Dashboard {
 
     // Miscellaneous
     @GetMapping(value = "/getRTMetrics")
+    @Deprecated
     public BackwardsCompactibilityUtil.oldMetrics getRTMetrics() {
         try {
             return BackwardsCompactibilityUtil.oldMetrics.toObject(Statistics.getInstance().getRTMetrics());
@@ -526,7 +543,6 @@ public class Dashboard {
 
     @Cacheable(CacheConfig.BLOCK_NUMBER)
     @GetMapping(value = "/getBlockNumber")
-
     public String getBlockNumber() {
         return blockService.getBlockNumber();
     }

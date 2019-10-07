@@ -1,19 +1,25 @@
 package com.aion.dashboard.services;
 
+import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Token;
 import com.aion.dashboard.exception.MissingArgumentException;
-import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.repositories.AccountJpaRepository;
+import com.aion.dashboard.repositories.BlockJpaRepository;
+import com.aion.dashboard.repositories.ContractJpaRepository;
+import com.aion.dashboard.repositories.ParserStateJpaRepository;
+import com.aion.dashboard.repositories.TokenJpaRepository;
+import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.utility.Utility;
 import com.aion.dashboard.view.SearchResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SearchServiceMysql implements SearchService {
@@ -47,6 +53,7 @@ public class SearchServiceMysql implements SearchService {
         this.dbExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
     }
 
+    @Cacheable(CacheConfig.SEARCH)
     @Override
     public SearchResult search(final String key) {
 

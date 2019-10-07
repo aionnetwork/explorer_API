@@ -4,9 +4,22 @@ package com.aion.dashboard.controllers;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.aion.dashboard.configs.CacheConfig;
-import com.aion.dashboard.controllers.mapper.*;
-import com.aion.dashboard.datatransferobject.*;
-import com.aion.dashboard.configs.CacheConfig;
+import com.aion.dashboard.controllers.mapper.AccountMapper;
+import com.aion.dashboard.controllers.mapper.BlockMapper;
+import com.aion.dashboard.controllers.mapper.InternalTransactionMapper;
+import com.aion.dashboard.controllers.mapper.MetricsMapper;
+import com.aion.dashboard.controllers.mapper.TransactionMapper;
+import com.aion.dashboard.controllers.mapper.TxLogMapper;
+import com.aion.dashboard.controllers.mapper.ValidatorStatsMapper;
+import com.aion.dashboard.controllers.mapper.ViewDTOMapper;
+import com.aion.dashboard.datatransferobject.BlockDTO;
+import com.aion.dashboard.datatransferobject.HealthDTO;
+import com.aion.dashboard.datatransferobject.InternalTransactionDTO;
+import com.aion.dashboard.datatransferobject.MetricsDTO;
+import com.aion.dashboard.datatransferobject.TransactionDTO;
+import com.aion.dashboard.datatransferobject.TxLogDTO;
+import com.aion.dashboard.datatransferobject.ValidatorStatsDTO;
+import com.aion.dashboard.datatransferobject.ViewDTO;
 import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
@@ -21,15 +34,18 @@ import com.aion.dashboard.services.TxLogService;
 import com.aion.dashboard.utility.Validators;
 import com.aion.dashboard.view.Result;
 import com.aion.dashboard.view.SearchResult;
+import io.micrometer.core.annotation.Timed;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.annotations.Cacheable;
 
 
 /**
@@ -43,6 +59,7 @@ import springfox.documentation.annotations.Cacheable;
  */
 @RestController
 @RequestMapping("/v2/dashboard")
+@Timed
 public class Dashboardv2 {
 
     private SearchService searchService;
@@ -175,8 +192,8 @@ public class Dashboardv2 {
                 return packageResponse( TransactionMapper.getInstance().makeResult(transactionService.findByBlockHash(blockHash, page, size)));
         else if( isNotEmpty(startTime) && isNotEmpty(endTime))
             return packageResponse(TransactionMapper.getInstance().makeResult(transactionService.findByTime(page, size,Long.valueOf(startTime),Long.valueOf(endTime)), Long.valueOf(startTime),Long.valueOf(endTime)));
-        else throw new MissingArgumentException();
-
+        else
+            return packageResponse(TransactionMapper.getInstance().makeResult(transactionService.findAll(page, size)));
     }
 
 
@@ -203,6 +220,7 @@ public class Dashboardv2 {
      * @return A list of accounts sorted by aion balance.
      */
     @GetMapping("/accounts")
+    @Cacheable(CacheConfig.ACCOUNT_LIST)
     public ResponseEntity accounts(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                    @RequestParam(value = "size", defaultValue = "25") Integer size,
                                    @RequestParam(value = "sort", defaultValue = "desc") String sort){
@@ -298,6 +316,7 @@ public class Dashboardv2 {
     }
 
     @GetMapping("/internalTransaction")
+    @Cacheable(CacheConfig.INTERNAL_TRANSACTION)
     public ResponseEntity<Result<InternalTransactionDTO>> internalTransaction(@RequestParam(value = "transactionHash", required = false) Optional<String> txHash,
                                                                       @RequestParam(value = "index", required = false) Optional<Integer> index,
                                                                       @RequestParam(value = "address", required = false) Optional<String> address,
@@ -334,6 +353,7 @@ public class Dashboardv2 {
      * @return the current network metrics
      */
     @GetMapping("/metrics")
+    @Cacheable(value = CacheConfig.STATISTICS_METRICS)
     public ResponseEntity<Result<MetricsDTO>> metrics(@RequestParam(value = "type", defaultValue = "rt")String type, @RequestParam(value = "blockNumber") Optional<Long> blockNumber){
         if (type.equalsIgnoreCase("rt")){
             return packageResponse(
@@ -449,6 +469,7 @@ public class Dashboardv2 {
     }
 
     @GetMapping(value = "/validatorStatistics")
+    @Cacheable(CacheConfig.STATISTICS_VALIDATORS)
     public ResponseEntity<Result<ValidatorStatsDTO>> validators(
         @RequestParam(value = "blockNumber") Optional<Long> blockNumber,
         @RequestParam(value="sealType") Optional<String> sealType,
@@ -492,6 +513,7 @@ public class Dashboardv2 {
      * @return
      */
     @GetMapping(value = "/txlogs")
+    @Cacheable(CacheConfig.TX_LOG)
     public ResponseEntity<Result<TxLogDTO>> txLog(@RequestParam("blockNumber") Optional<Long> blockNumber,
                                                   @RequestParam("transactionHash") Optional<String> transactionHash,
                                                   @RequestParam("contractAddress") Optional<String> contractAddress,
@@ -547,6 +569,7 @@ public class Dashboardv2 {
     @GetMapping(value = "/view")
     @Cacheable(CacheConfig.VIEW_V2)
     public ResponseEntity<Result<ViewDTO>> view(){
+        Logger logger = LoggerFactory.getLogger(this.getClass());
         return packageResponse(ViewDTOMapper.makeDTO(statisticsService.getSbMetrics(), blockService.blockNumber(), transactionService.findAll(0, 10), blockService.findBlocks(0,4)));
     }
 

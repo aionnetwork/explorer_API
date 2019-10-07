@@ -73,7 +73,6 @@ public class TransactionService {
 		return new Sort(Sort.Direction.DESC,"transferTimestamp" );
 	}
 
-	@Cacheable(CacheConfig.TRANSACTION_DETAIL_FROM_TRANSACTION_HASH)
 	public String getTransactionDetailsByTransactionHash(String searchParam,
 														 int pageNumber,
 														 int pageSize) throws Exception{
@@ -122,7 +121,6 @@ public class TransactionService {
 		throw new Exception();
 	}
 
-	@Cacheable(CacheConfig.TRANSACTION_LIST)
 	public String getTransactionList(int pageNumber,
 									 int pageSize,
 									 long startTime,
@@ -171,7 +169,6 @@ public class TransactionService {
 	}
 
 
-	@Cacheable(CacheConfig.TRANSACTIONS_BY_ADDRESS_FOR_TOKEN)
 	public String getTransactionsByAddressForToken(int pageNumber,
 												   int pageSize,
 												   long timeStampStart,
@@ -227,7 +224,6 @@ public class TransactionService {
 		throw new Exception();
 	}
 
-	@Cacheable(CacheConfig.TRANSACTIONS_BY_ADDRESS_FOR_AION)
 	public String getTransactionsByAddressForNative(int pageNumber,
 													int pageSize,
 													long timeStampStart,
@@ -380,7 +376,6 @@ public class TransactionService {
 
 
 	// Internal Methods
-	@Cacheable(CacheConfig.TRANSACTION_EVENTS_BY_TRANSACTION_ID)
 	private String getTransactionEventsByTransactionHash(String txnHash,
 														 int pageNumber,
 														 int pageSize) throws Exception {
@@ -416,13 +411,14 @@ public class TransactionService {
 		return eventObject.toString();
 	}
 
-
+	@Cacheable(CacheConfig.TRANSACTIONS)
 	public Page<Transaction> findByBlockNumber(long blockNumber, int page,int size){
 
 		return txnRepo.findByBlockNumber(blockNumber,PageRequest.of(page,size));
 
 	}
 
+	@Cacheable(CacheConfig.TRANSACTIONS)
 	public Page<Transaction> findByBlockHash(String blockHash, int page,int size){
 
 		return txnRepo.findByBlockHash(Utility.sanitizeHex(blockHash),PageRequest.of(page,size));
@@ -437,6 +433,7 @@ public class TransactionService {
      * @param pageNumber
      * @return List of peggable transaction
      */
+	@Cacheable(CacheConfig.TRANSACTIONS)
 	public Page<Transaction>  findByTime(int pageNumber,
 									 int pageSize,
 									 long startTime,
@@ -450,6 +447,7 @@ public class TransactionService {
 
 	}
 
+	@Cacheable(CacheConfig.TRANSACTIONS_2)
 	public Page<Transaction> findAll(int page, int size){
 		return txnRepo.findAll(PageRequest.of(page, size, sortDesc1()));
 	}

@@ -9,6 +9,7 @@ import com.aion.dashboard.entities.Graphing;
 import com.aion.dashboard.repositories.GraphingJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import org.json.JSONArray;
@@ -100,8 +101,10 @@ public class GraphingService {
             if (graphingList != null && !graphingList.isEmpty()) {
                 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
                 for(Graphing graphing : graphingList) {
-                    JSONObject result = new JSONObject(ow.writeValueAsString(graphing));
-                    graphingArray.put(result);
+                    if (graphing.getValue().compareTo(BigDecimal.ZERO) >= 0) {
+                        JSONObject result = new JSONObject(ow.writeValueAsString(graphing));
+                        graphingArray.put(result);
+                    }
                 }
             }
         }

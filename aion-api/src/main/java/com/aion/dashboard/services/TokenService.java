@@ -1,6 +1,7 @@
 package com.aion.dashboard.services;
 
-import com.aion.dashboard.configs.CacheConfig;
+import static java.lang.Math.min;
+
 import com.aion.dashboard.entities.Token;
 import com.aion.dashboard.entities.TokenHolders;
 import com.aion.dashboard.entities.TokenTransfers;
@@ -10,20 +11,16 @@ import com.aion.dashboard.repositories.TokenTransfersJpaRepository;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.List;
-
-import static java.lang.Math.min;
 
 @Component
 public class TokenService {
@@ -43,7 +40,6 @@ public class TokenService {
     private static final String NUMBER="number";
     private static final String CONTENT="content";
 
-    @Cacheable(CacheConfig.TOKEN_LIST)
     public String getTokenList(long start,
                                long end,
                                int pageNumber,
@@ -98,7 +94,6 @@ public class TokenService {
         return tknObject.toString();
     }
 
-    @Cacheable(CacheConfig.TOKEN_LIST_BY_TOKEN_NAME)
     public String getTokenListByTokenName(String tokenName,
                                           int pageNumber,
                                           int pageSize) throws Exception {
@@ -138,7 +133,6 @@ public class TokenService {
     }
 
 
-    @Cacheable(CacheConfig.TOKEN_LIST_BY_TOKEN_SYMBOL)
     public String getTokenListByTokenSymbol(String tokenSymbol,
                                             int pageNumber,
                                             int pageSize) throws Exception {
@@ -177,7 +171,6 @@ public class TokenService {
         return tokenObject.toString();
     }
 
-    @Cacheable(CacheConfig.TOKEN_DETAILS_TRANSFERS_AND_HOLDERS_BY_CONTRACT_ADDRESS)
     public String getTokenDetailsTransfersAndHoldersByContractAddress(long start,
                                                                       long end,
                                                                       int holderPageNumber,
@@ -221,13 +214,10 @@ public class TokenService {
     }
 
     // Internal Methods to the Service
-    @Cacheable(CacheConfig.TOKEN_HOLDERS_TOTAL)
     private Long getTotalTokenHolders(String contractAddr) { return tknHolRepo.countByContractAddr(contractAddr); }
 
-    @Cacheable(CacheConfig.TOKEN_TRANSFERS_TOTAL)
     private Long getTotalTokenTransfers(String contractAddr) { return txfRepo.countByContractAddr(contractAddr); }
 
-    @Cacheable(CacheConfig.TOKEN_HOLDERS_BY_CONTRACT_ADDRESS)
     private String getTokenHoldersByContractAddress(String contractAddress,
                                                     int holderPageNumber,
                                                     int holderPageSize) throws Exception {
@@ -270,7 +260,6 @@ public class TokenService {
         throw new Exception();
     }
 
-    @Cacheable(CacheConfig.TOKEN_TRANSFERS_BY_CONTRACT_ADDRESS)
     private String getTokenTransfersByContractAddress(long start,
                                                       long end,
                                                       int pageNumber,

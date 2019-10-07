@@ -1,27 +1,28 @@
 package com.aion.dashboard.services;
 
-import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.Contract;
 import com.aion.dashboard.entities.Event;
 import com.aion.dashboard.entities.Transaction;
-import com.aion.dashboard.repositories.*;
+import com.aion.dashboard.repositories.AccountJpaRepository;
+import com.aion.dashboard.repositories.ContractJpaRepository;
+import com.aion.dashboard.repositories.EventJpaRepository;
+import com.aion.dashboard.repositories.TokenJpaRepository;
+import com.aion.dashboard.repositories.TransactionJpaRepository;
 import com.aion.dashboard.utility.Logging;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.List;
 
 @Component
 public class ContractService {
@@ -49,7 +50,7 @@ public class ContractService {
     private Sort sortDesc(){
         return new Sort( Sort.Direction.DESC,"blockNumber");
     }
-    @Cacheable(CacheConfig.CONTRACT_LIST)
+
     public String getContractList(long start,
                                   long end,
                                   int pageNumber,
@@ -106,7 +107,6 @@ public class ContractService {
         return conObject.toString();
     }
 
-    @Cacheable(CacheConfig.CONTRACT_DETAIL_BY_CONTRACT_ADDRESS)
     public String getContractDetailsByContractAddress(String searchParam,
                                                       int eventPageNumber,
                                                       int eventPageSize,
@@ -155,7 +155,6 @@ public class ContractService {
     }
 
     // Internal Methods
-    @Cacheable(CacheConfig.CONTRACT_EVENTS_BY_CONTRACT_ADDRESS)
     private String getContractEventsByContractAddress(String contractAddress,
                                                       int pageNumber,
                                                       int pageSize) throws Exception {
@@ -190,7 +189,6 @@ public class ContractService {
         return eventObject.toString();
     }
 
-    @Cacheable(CacheConfig.CONTRACT_TRANSACTIONS_BY_CONTRACT_ADDRESS)
     private String getContractTransactionsByContractAddress(String contractAddress,
                                                             int pageNumber,
                                                             int pageSize) throws Exception {

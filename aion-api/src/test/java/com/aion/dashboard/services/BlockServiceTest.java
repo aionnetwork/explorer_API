@@ -1,16 +1,17 @@
 package com.aion.dashboard.services;
 
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.aion.dashboard.AionDashboardApiApplication;
 import com.aion.dashboard.controllers.mapper.BlockMapper;
+import java.math.BigDecimal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AionDashboardApiApplication.class)
@@ -48,7 +49,7 @@ public class BlockServiceTest {
         assertTrue(BlockMapper.makeBlockDTO(b).getBlockTimestamp()==b.getBlockTimestamp());
         assertTrue(BlockMapper.makeBlockDTO(b).getBloom().equals(b.getBloom()));
         assertTrue(BlockMapper.makeBlockDTO(b).getDay()==b.getDay());
-        assertTrue(BlockMapper.makeBlockDTO(b).getDifficulty()==b.getDifficulty());
+        assertTrue(new BigDecimal(BlockMapper.makeBlockDTO(b).getDifficulty()).compareTo(b.getDifficulty()) == 0);
         assertTrue(BlockMapper.makeBlockDTO(b).getExtraData().equals(b.getExtraData()));
         assertTrue(BlockMapper.makeBlockDTO(b).getMinerAddress().equals(b.getMinerAddress()));
         assertTrue(BlockMapper.makeBlockDTO(b).getMonth()==b.getMonth());

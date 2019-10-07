@@ -31,6 +31,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -52,6 +54,7 @@ public class StatisticsService {
     private ValidatorStatsJPARepository validatorStatsJPARepository;
 
     private ParserStateJpaRepository pSRepo;
+    private Logger logger = LoggerFactory.getLogger(Statistics.class);
 
     @Autowired
     public StatisticsService(Dashboard dashboard, BlockJpaRepository blkRepo,
@@ -73,14 +76,14 @@ public class StatisticsService {
     private static final int DISPLAYED_BLKS = 4;
     private static final int DISPLAYED_TXNS = 10;
     private static final int PRECISION = 1;
-    private static final long REALTIME_STATS_INTERVAL = 1000;
-    private static final long DASHBOARD_STATS_INTERVAL = 2000;
-    private static final long DAILY_ACCOUNT_STATS_INTERVAL = 3600000;
+    private static final long REALTIME_STATS_INTERVAL = 10_000;
+    private static final long DASHBOARD_STATS_INTERVAL = 10_000;
+    private static final long DAILY_ACCOUNT_STATS_INTERVAL = 3_600_000;
 
     private Metrics sbMetricsState;
     private Metrics rtMetricsState;
 
-    @Cacheable(CacheConfig.LAST_STORED_BLOCK)
+    @Cacheable(CacheConfig.BLOCK_NUMBER_3)
     public long lastStoredBlock(){
         return pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId())
             .map(ParserState::getBlockNumber)
@@ -94,7 +97,6 @@ public class StatisticsService {
             blocks();
             sbMetrics();
             transactions();
-            dashboard.newBlockDashboard();
         } catch (Exception e) {
 
             Logging.traceException(e);
@@ -114,7 +116,6 @@ public class StatisticsService {
     }
 
     @Scheduled(fixedDelay = REALTIME_STATS_INTERVAL)
-    @Cacheable(CacheConfig.STATISTICS_RT_METRICS)
     public void calculateRealtimeStatistics() {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         Optional<Metrics> metrics = metRepo.findById(new CompositeKey(RT_METRICS, lastStoredBlock()));
@@ -132,7 +133,6 @@ public class StatisticsService {
         statistics.setRTMetrics(BackwardsCompactibilityUtil.Metrics(rtMetricsState));
     }
 
-    @Cacheable(CacheConfig.STATISTICS_SB_METRICS)
     public void sbMetrics() {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         Optional<Metrics> metrics = metRepo.findById(new Metrics.CompositeKey(SB_METRICS, lastStoredBlock()));
@@ -153,7 +153,6 @@ public class StatisticsService {
         statistics.setSBMetrics(BackwardsCompactibilityUtil.Metrics(sbMetricsState));
     }
 
-    @Cacheable(CacheConfig.STATISTICS_BLOCKS)
     public void blocks() throws Exception {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -180,7 +179,6 @@ public class StatisticsService {
         }
     }
 
-    @Cacheable(CacheConfig.STATISTICS_TRANSACTIONS)
     public void transactions() throws Exception {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         Sort txnSort = new Sort(Sort.Direction.DESC, "blockTimestamp");
@@ -210,7 +208,6 @@ public class StatisticsService {
         }
     }
 
-    @Cacheable(CacheConfig.STATISTICS_MINED_BLOCKS)
     public void minedBlks() throws Exception {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
@@ -246,7 +243,6 @@ public class StatisticsService {
         }
     }
 
-    @Cacheable(CacheConfig.STATISTICS_INBOUND_TRANSACTIONS)
     public void inboundTxns() throws Exception {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
@@ -284,7 +280,6 @@ public class StatisticsService {
         }
     }
 
-    @Cacheable(CacheConfig.STATISTICS_OUTBOUND_TRANSACTIONS)
     public void outboundTxns() throws Exception {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();

@@ -1,6 +1,5 @@
 package com.aion.dashboard.services;
 
-import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Token;
@@ -21,7 +20,6 @@ import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -56,7 +54,6 @@ public class AccountService {
         return Sort.by(Sort.Direction.fromString(sort), BALANCE);
     }
 
-    @Cacheable(CacheConfig.ACCOUNT_DETAILS)
     public String getAccountDetails(String accountAddress,
                                     String tokenAddress) throws Exception {
         if (accountAddress.startsWith("0x")) accountAddress = accountAddress.replace("0x", "");
@@ -117,7 +114,6 @@ public class AccountService {
         throw new Exception();
     }
 
-    @Cacheable(CacheConfig.ACCOUNT_RICH_LIST)
     public String getAccountRichList() {
         JSONObject accountObj = new JSONObject();
         JSONArray accountArr = new JSONArray();
@@ -156,7 +152,6 @@ public class AccountService {
 
 
     // Internal Methods
-    @Cacheable(CacheConfig.ACCOUNT_TOKEN_LIST)
     private String getAccountTokenList(String holderAddress) throws Exception {
         List<TokenHolders> tokenHoldersList = tknBalRepo.findByHolderAddr(holderAddress);
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

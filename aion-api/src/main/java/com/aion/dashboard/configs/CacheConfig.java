@@ -1,9 +1,20 @@
 package com.aion.dashboard.configs;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.Arrays;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.github.benmanes.caffeine.cache.stats.StatsCounter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAccumulator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -16,136 +27,222 @@ import org.springframework.core.env.Environment;
 @Configuration
 @EnableCaching
 public class CacheConfig {
+    // Tokens
+    public static final String TOKENS = "TOKENS";
+    public static final String TOKEN_LIST_BY_NAME = "TOKEN_LIST_BY_NAME";
+    public static final String TOKEN_TRANSFERS = "TOKEN_TRANSFERS";
+    // blocks
+    public static final String BLOCK_LIST = "BLOCK_LIST";
+    public static final String BLOCKS_MINED = "BLOCKS_MINED";
+    public static final String BLOCKS_AND_TRANSACTION = "BLOCKS_AND_TRANSACTION_DETAILS";
+    public static final String BLOCK = "block";
+    public static final String BEST_BLOCK = "bestBlock";
+    public static final String BLOCK_LIST_2 = "block_list_2";
+    public static final String BLOCK_LIST_3 = "block_list_3";
+    // Contracts
+    public static final String CONTRACT_LIST = "CONTRACT_LIST";
+    public static final String CONTRACT_DETAILS = "CONTRACT_DETAILS";
+    // transactions
+    public static final String TRANSACTIONS = "transactions";
+    public static final String TRANSACTIONS_2 = "transactions_paging";
+    public static final String TRANSACTION_LIST = "TRANSACTION_LIST";
+    public static final String TRANSACTION_BY_ADDRESS = "TRANSACTIONS_BY_ADDRESS";
+    public static final String TRANSACTION = "TRANSACTION";
+    // Accounts
+    public static final String ACCOUNT_LIST = "accountList";
+    public static final String RICH_LIST = "RICH_LIST";
+    public static final String ACCOUNT_DETAILS = "ACCOUNT_DETAILS";
+    // Statistics
+    public static final String STATISTICS_METRICS = "statisticsMetrics";
+    public static final String STATISTICS_VALIDATORS = "Validators";
+    public static final String STATISTICS_ACCOUNT_STATS = "ACCOUNT_STATISTICS";
+    // Miscellaneous
+    public static final String GRAPHING_INFO_BY_TIMESTAMP = "graphingInfoByTimstamp";
+    public static final String VIEW_V2 = "viewV2";
+    public static final String VIEW_V1 = "viewV1";
+    public static final String SEARCH = "SEARCH";
+    // Third Party API
+    public static final String CIRCULATING_SUPPLY = "circulatingSupply";
+    public static final String BLOCK_NUMBER = "BlockNumber";
+    public static final String BLOCK_NUMBER_2 = "BlockNumber2";
+    public static final String BLOCK_NUMBER_3 = "BlockNumber3";
+    // TX LOG
+    public static final String TX_LOG = "txlog";
+    // INTERNAL TX
+    public static final String INTERNAL_TRANSACTION = "internal_transaction";
+    //Cache sizes
+    private static final Integer LIST_SIZE = 50;
+    private static final Integer MAX_SIZE = 100;
+    private static final Integer MIN_SIZE = 1;
+    //Cache durations
+    private static final Integer BLOCK_INTERVAL_DURATION = 10;
+    private static final Integer MINUTE_DURATION = 60;
+    private static final Integer CONSTANT_VALUE_DURATION = 300;
 
-   @Autowired
-   private Environment environment;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfig.class);
+    private final Executor cacheExecutor = Executors.newSingleThreadExecutor();
+    @Autowired Environment environment;
+    @Value("${com.aion.dashboard.configs.CacheConfig.cacheEnable}")
+    private boolean cacheEnable;
+    @Value("${management.metrics.export.datadog.enabled}")
+    private boolean datadogEnable;
+    private boolean testingEnable;
 
-   private static final Integer DURATION = 10;
-   private static final Integer MAX_SIZE = 1000000;
-   private static final Integer VIEW_SIZE = 24000;
-   private static final Integer LONG_SIZE = 16;
+    @Bean
+    public CacheManager cacheManager() {
+        testingEnable = environment.getProperty("testing", "false").equalsIgnoreCase("true");
+        SimpleCacheManager cacheManager = new SimpleCacheManager();
+        cacheManager.setCaches(buildAllCaches());
+        return cacheManager;
+    }
 
-   // Tokens
-   public static final String TOKEN_LIST = "tokenList";
-   public static final String TOKEN_HOLDERS_TOTAL = "tokenHoldersTotal";
-   public static final String TOKEN_TRANSFERS_TOTAL = "tokenTransfersTotal";
-   public static final String TOKEN_HOLDERS_BY_CONTRACT_ADDRESS = "tokenHoldersByContractAddress";
-   public static final String TOKEN_TRANSFERS_BY_CONTRACT_ADDRESS = "tokenTransfersByContractAddress";
-   public static final String TOKEN_LIST_BY_TOKEN_NAME = "tokenListByTokenName";
-   public static final String TOKEN_LIST_BY_TOKEN_SYMBOL = "tokenListByTokenSymbol";
-   public static final String TOKEN_DETAILS_TRANSFERS_AND_HOLDERS_BY_CONTRACT_ADDRESS = "tokenAndTransactionAndAccountDetailFromTokenNameOrTokenAddress";
+    private List<Cache> buildAllCaches() {
+        return List.of(
+                // Tokens
+                buildExpireAfterWriteCache(TOKEN_TRANSFERS, BLOCK_INTERVAL_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(TOKEN_LIST_BY_NAME, MINUTE_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(TOKENS, MINUTE_DURATION, MAX_SIZE),
+                // blocks
+                buildExpireAfterWriteCache(BLOCK, MINUTE_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(BEST_BLOCK, BLOCK_INTERVAL_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(BLOCK_LIST_2, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(BLOCK_LIST_3, MINUTE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(BLOCKS_AND_TRANSACTION, MINUTE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(BLOCKS_MINED, MINUTE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(BLOCK_LIST, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                // Contracts
+                buildExpireAfterWriteCache(CONTRACT_LIST, MINUTE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(CONTRACT_DETAILS, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                // transactions
+                buildExpireAfterWriteCache(TRANSACTION_LIST, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(
+                        TRANSACTION_BY_ADDRESS, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(TRANSACTION, CONSTANT_VALUE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(TRANSACTIONS, CONSTANT_VALUE_DURATION, LIST_SIZE),
+                buildExpireAfterWriteCache(TRANSACTIONS_2, BLOCK_INTERVAL_DURATION, LIST_SIZE),
+                // Accounts
+                buildExpireAfterWriteCache(ACCOUNT_LIST, BLOCK_INTERVAL_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(RICH_LIST, CONSTANT_VALUE_DURATION, MIN_SIZE),
+                buildExpireAfterWriteCache(ACCOUNT_DETAILS, BLOCK_INTERVAL_DURATION, MAX_SIZE),
 
-   // blocks
-   public static final String BLOCK_LIST = "blockList";
-   public static final String BLOCKS_MINED_BY_ADDRESS = "blocksMinedByAddress";
-   public static final String BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER = "blockAndTransactionDetailFromBlockHashOrBlockNumber";
-   public static final String LAST_STORED_BLOCK = "last_stored_block";
-   // Contracts
-   public static final String CONTRACT_LIST = "contractList";
-   public static final String CONTRACT_DETAIL_BY_CONTRACT_ADDRESS = "contractDetailByContractAddress";
-   public static final String CONTRACT_EVENTS_BY_CONTRACT_ADDRESS = "contractEventsByContractAddress";
-   public static final String CONTRACT_TRANSACTIONS_BY_CONTRACT_ADDRESS = "contractTransactionsByContractAddress";
+                // Statistics
+                buildExpireAfterWriteCache(
+                        STATISTICS_VALIDATORS, MINUTE_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(STATISTICS_METRICS, BLOCK_INTERVAL_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(
+                        STATISTICS_ACCOUNT_STATS, BLOCK_INTERVAL_DURATION, MIN_SIZE),
+                // Miscellaneous
+                buildExpireAfterWriteCache(GRAPHING_INFO_BY_TIMESTAMP, MINUTE_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(VIEW_V2, BLOCK_INTERVAL_DURATION, MIN_SIZE),
+                buildExpireAfterWriteCache(VIEW_V1, BLOCK_INTERVAL_DURATION, MIN_SIZE),
+                buildExpireAfterWriteCache(SEARCH, CONSTANT_VALUE_DURATION, MAX_SIZE),
+                // Third Party API
+                buildExpireAfterWriteCache(CIRCULATING_SUPPLY, CONSTANT_VALUE_DURATION, MAX_SIZE),
+                buildExpireAfterWriteCache(BLOCK_NUMBER, BLOCK_INTERVAL_DURATION, MIN_SIZE),
+                buildExpireAfterWriteCache(BLOCK_NUMBER_2, BLOCK_INTERVAL_DURATION, MIN_SIZE),
+                buildExpireAfterWriteCache(BLOCK_NUMBER_3, BLOCK_INTERVAL_DURATION, MIN_SIZE),
 
-   // transactions
-   public static final String TRANSACTION_LIST = "transactionList";
-   public static final String TRANSACTIONS_BY_ADDRESS = "transactionsByAddress";
-   public static final String TRANSACTIONS_BY_ADDRESS_FOR_AION = "transactionsByAddressForAion";
-   public static final String TRANSACTIONS_BY_ADDRESS_FOR_TOKEN = "transactionsByAddressForToken";
-   public static final String TRANSACTION_EVENTS_BY_TRANSACTION_ID = "transactionEventsByTransactionID";
-   public static final String TRANSACTION_DETAIL_FROM_TRANSACTION_HASH = "transactionDetailFromTransactionHash";
+                // Tx log
+                buildExpireAfterWriteCache(TX_LOG, MINUTE_DURATION, MAX_SIZE),
+                // internal transaction
+                buildExpireAfterWriteCache(INTERNAL_TRANSACTION, MINUTE_DURATION, MAX_SIZE));
+    }
 
-   // Accounts
-   public static final String ACCOUNT_DETAILS = "accountDetails";
-   public static final String ACCOUNT_RICH_LIST = "accountRichList";
-   public static final String ACCOUNT_TOKEN_LIST = "accountTokenList";
+    private Cache buildExpireAfterWriteCache(final String name, long duration, long maxSize) {
+        if (LOGGER.isInfoEnabled() && cacheEnable) {
+            LOGGER.info("Enabling cache: {}", name);
+        } else if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Cache {} is disabled.", name);
+        }
+        Caffeine cc =
+                Caffeine.newBuilder()
+                        .expireAfterWrite(duration, TimeUnit.SECONDS)
+                        .initialCapacity(0)
+                        .maximumSize(cacheEnable ? maxSize : 0)
+                        .removalListener(
+                                (key, value, cause) -> {
+                                    if (LOGGER.isTraceEnabled()) {
+                                        LOGGER.trace("Evicting value from: {}", name);
+                                    }
+                                })
+                        .executor(cacheExecutor);
 
-   // Statistics
-   public static final String STATISTICS_SB_METRICS = "statisticsStableMetrics";
-   public static final String STATISTICS_RT_METRICS = "statisticsRealtimeMetrics";
-   public static final String STATISTICS_BLOCKS = "statisticsStableBlocks";
-   public static final String STATISTICS_MINED_BLOCKS = "statisticsMinedBlocks";
-   public static final String STATISTICS_TRANSACTIONS = "statisticsStableTransactions";
-   public static final String STATISTICS_INBOUND_TRANSACTIONS = "statisticsMinedBlocks";
-   public static final String STATISTICS_OUTBOUND_TRANSACTIONS = "statisticsMinedBlocks";
+        if (testingEnable) cc.recordStats(() -> new MockedStatsCounter(name));
+        else if (datadogEnable) cc.recordStats();
+        //noinspection unchecked
+        return new CaffeineCache(name, cc.build());
+    }
 
-   // Miscellaneous
-   public static final String SEND_FEEDBACK = "sendFeedback";
-   public static final String GRAPHING_INFO_BY_TIMESTAMP = "graphingInfoByTimstamp";
-   public static final String VIEW_V2="viewV2";
+    // Mocked counter to be used for testing
+    public static class MockedStatsCounter implements StatsCounter {
+        private static final Map<String, MockedStatsCounter> instanceMap =
+                Collections.synchronizedMap(new HashMap<>());
+        private static final Logger STATS_COUNTER_LOGGER = LoggerFactory.getLogger(StatsCounter.class);
+        private final String name;
+        private LongAccumulator hitCounter = simpleSummingAccumulator();
+        private LongAccumulator missCounter = simpleSummingAccumulator();
+        private LongAccumulator recordLoadSuccess = simpleSummingAccumulator();
+        private LongAccumulator recordLoadFailure = simpleSummingAccumulator();
+        private LongAccumulator recordEviction = simpleSummingAccumulator();
+        private LongAccumulator totalLoadCount = simpleSummingAccumulator();
+        private LongAccumulator evictionWeightCounter = simpleSummingAccumulator();
+        private MockedStatsCounter(String name) {
+            this.name = name;
+            instanceMap.put(name, this);
+        }
 
-   // Third Party API
-   public static final String COUNT_OPERATIONS = "countOperations";
-   public static final String CIRCULATING_SUPPLY = "circulatingSupply";
-   public static final String BLOCK_NUMBER ="BlockNumber";
+        public static MockedStatsCounter getStatsCounterFor(String name) {
+            return instanceMap.get(name);
+        }
 
-   @Bean
-   public CacheManager cacheManager() {
-      SimpleCacheManager cacheManager = new SimpleCacheManager();
+        private static LongAccumulator simpleSummingAccumulator() {
+            return new LongAccumulator(Long::sum, 0);
+        }
 
-      boolean cacheEnable = false;
-      String datadogEnable = environment.getProperty("DATADOG_ENABLE");
-      if(datadogEnable != null && datadogEnable.equalsIgnoreCase("true")) cacheEnable = true;
+        @Override
+        public void recordHits(int count) {
+            STATS_COUNTER_LOGGER.trace("Hit for {}", name);
+            hitCounter.accumulate(count);
+        }
 
-      cacheManager.setCaches(Arrays.asList(
-              // Tokens
-              buildExpireAfterWriteCache(TOKEN_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_HOLDERS_TOTAL, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_TRANSFERS_TOTAL, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_HOLDERS_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_TRANSFERS_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_LIST_BY_TOKEN_NAME, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_LIST_BY_TOKEN_SYMBOL, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TOKEN_DETAILS_TRANSFERS_AND_HOLDERS_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+        @Override
+        public void recordMisses(int count) {
+            STATS_COUNTER_LOGGER.trace("Miss for {}", name);
+            missCounter.accumulate(count);
+        }
 
-              // blocks
-              buildExpireAfterWriteCache(BLOCK_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(BLOCKS_MINED_BY_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(LAST_STORED_BLOCK, DURATION, TimeUnit.SECONDS, LONG_SIZE, cacheEnable),
+        @Override
+        public void recordLoadSuccess(long loadTime) {
+            recordLoadSuccess.accumulate(loadTime);
+            totalLoadCount.accumulate(loadTime);
+        }
 
-              // Contracts
-              buildExpireAfterWriteCache(CONTRACT_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(CONTRACT_DETAIL_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(CONTRACT_EVENTS_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(CONTRACT_TRANSACTIONS_BY_CONTRACT_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+        @Override
+        public void recordLoadFailure(long loadTime) {
+            recordLoadFailure.accumulate(loadTime);
+            totalLoadCount.accumulate(loadTime);
+        }
 
-              // transactions
-              buildExpireAfterWriteCache(TRANSACTION_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TRANSACTIONS_BY_ADDRESS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TRANSACTIONS_BY_ADDRESS_FOR_AION, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TRANSACTIONS_BY_ADDRESS_FOR_TOKEN, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TRANSACTION_EVENTS_BY_TRANSACTION_ID, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(TRANSACTION_DETAIL_FROM_TRANSACTION_HASH, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              // Accounts
-              buildExpireAfterWriteCache(ACCOUNT_DETAILS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(ACCOUNT_RICH_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(ACCOUNT_TOKEN_LIST, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+        @Override
+        public void recordEviction() {
+            this.recordEviction.accumulate(1);
+        }
 
-              // Statistics
-              buildExpireAfterWriteCache(STATISTICS_BLOCKS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_SB_METRICS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_RT_METRICS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_MINED_BLOCKS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_INBOUND_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(STATISTICS_OUTBOUND_TRANSACTIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
+        @Override
+        public void recordEviction(int weight) {
+            evictionWeightCounter.accumulate(weight);
+        }
 
-              // Miscellaneous
-              buildExpireAfterWriteCache(SEND_FEEDBACK, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(GRAPHING_INFO_BY_TIMESTAMP, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(VIEW_V2, DURATION, TimeUnit.SECONDS, VIEW_SIZE, cacheEnable),
-
-              // Third Party API
-              buildExpireAfterWriteCache(COUNT_OPERATIONS, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(CIRCULATING_SUPPLY, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable),
-              buildExpireAfterWriteCache(BLOCK_NUMBER, DURATION, TimeUnit.SECONDS, MAX_SIZE, cacheEnable)
-      ));
-      return cacheManager;
-   }
-
-   private Cache buildExpireAfterWriteCache(String name, long duration, TimeUnit timeUnit, long maxSize, boolean cacheEnable) {
-      Caffeine cc = Caffeine.newBuilder().expireAfterWrite(duration, timeUnit).maximumSize(maxSize);
-      if(cacheEnable) cc.recordStats();
-      return new CaffeineCache(name, cc.build());
-   }
+        @Override
+        public CacheStats snapshot() {
+            return new CacheStats(
+                    hitCounter.get(),
+                    missCounter.get(),
+                    recordLoadSuccess.get(),
+                    recordLoadFailure.get(),
+                    totalLoadCount.get(),
+                    recordEviction.get(),
+                    evictionWeightCounter.get());
+        }
+    }
 }

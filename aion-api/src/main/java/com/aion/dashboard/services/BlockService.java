@@ -1,5 +1,7 @@
 package com.aion.dashboard.services;
 
+import static com.aion.dashboard.utility.Logging.traceLogStartAndEnd;
+
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Account;
 import com.aion.dashboard.entities.Block;
@@ -14,6 +16,10 @@ import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import static com.aion.dashboard.utility.Logging.traceLogStartAndEnd;
 
 @Component
 public class BlockService {
@@ -48,7 +47,7 @@ public class BlockService {
 	private Sort sortDesc(){
 		return new Sort( Sort.Direction.DESC,"blockTimestamp");
 	}
-	@Cacheable(CacheConfig.BLOCK_LIST)
+
 	public String getBlockList(long start,
 							   long end,
 							   int pageNumber,
@@ -95,7 +94,6 @@ public class BlockService {
 		return blkObject.toString();
 	}
 
-	@Cacheable(CacheConfig.BLOCKS_MINED_BY_ADDRESS)
 	public String getBlocksMinedByAddress(long start,
 										  long end,
 										  int pageNumber,
@@ -151,7 +149,6 @@ public class BlockService {
 		throw new Exception();
 	}
 
-	@Cacheable(CacheConfig.BLOCK_AND_TRANSACTION_DETAIL_FROM_BLOCK_HASH_OR_BLOCK_NUMBER)
 	public String getBlockAndTransactionDetailsFromBlockNumberOrBlockHash(String searchParam) throws Exception {
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		JSONArray blockArray = new JSONArray();
@@ -259,14 +256,14 @@ public class BlockService {
 		}
 	}
 
-
+	@Cacheable(CacheConfig.BLOCK)
 	public Block findByBlockNumber(Long blockNumber){
         var block =blkRepo.findByBlockNumber(blockNumber);
 		return block.orElseThrow(EntityNotFoundException::new);
 
 	}
 
-
+	@Cacheable(CacheConfig.BLOCK)
 	public Block findByBlockHash(String blockHash){
 
 		var block =blkRepo.findByBlockHash(Utility.sanitizeHex(blockHash));
@@ -275,27 +272,32 @@ public class BlockService {
 
 	}
 
-
-    public Block getHeightBlock() throws EntityNotFoundException{
+	@Cacheable(CacheConfig.BEST_BLOCK)
+	public Block getHeightBlock() throws EntityNotFoundException{
         return findByBlockNumber(blockNumber());
     }
 
-    public Page<Block> findBlocks(int number, int size){
+	@Cacheable(CacheConfig.BLOCK_LIST_2)
+	public Page<Block> findBlocks(int number, int size){
 		return blkRepo.findAll(PageRequest.of(number, size, sortDesc()));
 	}
 
+	@Cacheable(CacheConfig.BLOCK_LIST_3)
 	public Page<Block> findBlocksInRange(long start, long end, int number, int size){
 		return blkRepo.findByBlockTimestampBetween(start, end, PageRequest.of(number, size, sortDesc()));
 	}
 
+	@Cacheable(CacheConfig.BLOCK_LIST_3)
 	public Page<Block> findByMinerAddress(String minerAddress, long start, long end,int number, int size){
 		return blkRepo.findByMinerAddressAndBlockTimestampBetween(minerAddress,start, end, PageRequest.of(number, size, sortDesc()));
 	}
 
+	@Cacheable(CacheConfig.BLOCK_LIST_3)
 	public Page<Block> findByMinerAddress(String minerAddress, int number, int size){
 		return blkRepo.findByMinerAddress(minerAddress, PageRequest.of(number, size, sortDesc()));
 	}
 
+	@Cacheable(CacheConfig.BLOCK_NUMBER_2)
     public Long blockNumber(){
 		return psRepo.findById(ParserStateType.HEAD_BLOCKCHAIN.getId()).orElseThrow().getBlockNumber();
 	}
