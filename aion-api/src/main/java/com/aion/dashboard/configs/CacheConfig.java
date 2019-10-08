@@ -66,6 +66,7 @@ public class CacheConfig {
     public static final String BLOCK_NUMBER = "BlockNumber";
     public static final String BLOCK_NUMBER_2 = "BlockNumber2";
     public static final String BLOCK_NUMBER_3 = "BlockNumber3";
+    public static final String BLOCK_NUMBER_VALIDATOR = "BlockNumberValidator";
     // TX LOG
     public static final String TX_LOG = "txlog";
     // INTERNAL TX
@@ -141,7 +142,7 @@ public class CacheConfig {
                 buildExpireAfterWriteCache(BLOCK_NUMBER, BLOCK_INTERVAL_DURATION, MIN_SIZE),
                 buildExpireAfterWriteCache(BLOCK_NUMBER_2, BLOCK_INTERVAL_DURATION, MIN_SIZE),
                 buildExpireAfterWriteCache(BLOCK_NUMBER_3, BLOCK_INTERVAL_DURATION, MIN_SIZE),
-
+                buildExpireAfterWriteCache(BLOCK_NUMBER_VALIDATOR, BLOCK_INTERVAL_DURATION, MIN_SIZE),
                 // Tx log
                 buildExpireAfterWriteCache(TX_LOG, MINUTE_DURATION, MAX_SIZE),
                 // internal transaction

@@ -90,6 +90,13 @@ public class StatisticsService {
             .orElseThrow();
     }
 
+    @Cacheable(CacheConfig.BLOCK_NUMBER_VALIDATOR)
+    public long lastStoredValidator(){
+        return pSRepo.findById(ParserStateType.VALIDATOR_STATS.getId())
+            .map(ParserState::getBlockNumber)
+            .orElseThrow();
+    }
+
     @Scheduled(fixedDelay = DASHBOARD_STATS_INTERVAL)
     public void calculateDashboardStatistics() {
         // Updates the Statistics Upon a New Block Received
@@ -376,20 +383,20 @@ public class StatisticsService {
     }
 
     public Page<ValidatorStats> validatorStats(int page, int size){
-        return validatorStats(lastStoredBlock(), page, size);
+        return validatorStats(lastStoredValidator(), page, size);
     }
 
     public Page<ValidatorStats> validatorStats(long blockNumber, String sealType, int page, int size){
-        if (blockNumber<360) {
+        if (blockNumber<360 || blockNumber > lastStoredValidator()) {
             throw new NoSuchElementException();
         } else {
             Page<ValidatorStats> res;
+            long metricsBlockNumber = blockNumber - blockNumber % 360;
             do {
                 // find the last entry in the db that can be used
-                long lastMetrics = blockNumber - blockNumber  % 360;
-                res = validatorStatsJPARepository.findAllByBlockNumberAndSealType(lastMetrics, sealType, PageRequest.of(page, size));
-                blockNumber -= 360;
-            }while (res.isEmpty() && blockNumber >= 360);
+                res = validatorStatsJPARepository.findAllByBlockNumberAndSealType(metricsBlockNumber, sealType, PageRequest.of(page, size));
+                metricsBlockNumber -= 360;
+            }while (res.isEmpty() && metricsBlockNumber >= 360);
             return res;
         }
     }
