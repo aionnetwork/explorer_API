@@ -13,6 +13,7 @@ import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
 import com.aion.dashboard.utility.Logging;
 import com.aion.dashboard.utility.Utility;
 import io.micrometer.core.annotation.Timed;
+import io.swagger.annotations.ApiOperation;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -425,6 +426,7 @@ public class Dashboard {
     // Home
     @GetMapping(value = "/search")
     @Deprecated
+    @ApiOperation(value = "DEPRECATED")
     public String search(@RequestParam(value = "searchParam", required = false) String searchParam) {
         if (searchParam != null && !searchParam.trim().isEmpty()) {
 
@@ -516,6 +518,7 @@ public class Dashboard {
     // Miscellaneous
     @GetMapping(value = "/getRTMetrics")
     @Deprecated
+    @ApiOperation(value = "DEPRECATED")
     public BackwardsCompactibilityUtil.oldMetrics getRTMetrics() {
         try {
             return BackwardsCompactibilityUtil.oldMetrics.toObject(Statistics.getInstance().getRTMetrics());
