@@ -6,7 +6,7 @@ public class BlockDTO {
 
 
 
-
+    private String coinbase;
     private Long blockNumber;
     private Long nrgConsumed;
     private Long nrgLimit;
@@ -41,7 +41,14 @@ public class BlockDTO {
 
     public BlockDTO(){}
 
-    public BlockDTO(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, BigDecimal difficulty, BigDecimal totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, String sealType, String signature, String seed, String publicKey, BigDecimal blockReward) {
+    public BlockDTO(String coinbase, Long blockNumber, Long nrgConsumed, Long nrgLimit,
+        Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward,
+        BigDecimal difficulty, BigDecimal totalDifficulty, Integer year, Integer month, Integer day,
+        String blockHash, String minerAddress, String parentHash, String receiptTxRoot,
+        String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom,
+        String solution, String transactionHash, String transactionHashes, String sealType,
+        String signature, String seed, String publicKey, BigDecimal blockReward) {
+        this.coinbase = coinbase;
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -257,8 +264,16 @@ public class BlockDTO {
         return new BlockDTOBuilder();
     }
 
+    public String getCoinbase() {
+        return coinbase;
+    }
+
+    public void setCoinbase(String coinbase) {
+        this.coinbase = coinbase;
+    }
 
     public static class BlockDTOBuilder{
+        private String coinbaseAddress;
         private Long blockNumber;
         private Long nrgConsumed;
         private Long nrgLimit;
@@ -289,6 +304,11 @@ public class BlockDTO {
         private String signature;
         private String seed;
         private String publicKey;
+
+        public BlockDTOBuilder setCoinbaseAddress(String coinbaseAddress) {
+            this.coinbaseAddress = coinbaseAddress;
+            return this;
+        }
 
         public BlockDTOBuilder setSealType(String sealType) {
             this.sealType = sealType;
@@ -441,6 +461,6 @@ public class BlockDTO {
         }
 
         public BlockDTO createBlockDTO() {
-            return new BlockDTO(blockNumber, nrgConsumed, nrgLimit, size, blockTimestamp, numTransactions, blockTime, nrgReward, difficulty, totalDifficulty, year, month, day, blockHash, minerAddress, parentHash, receiptTxRoot, stateRoot, txTrieRoot, extraData, nonce, bloom, solution, transactionHash, transactionHashes, sealType, signature, seed, publicKey, blockReward);
+            return new BlockDTO(coinbaseAddress, blockNumber, nrgConsumed, nrgLimit, size, blockTimestamp, numTransactions, blockTime, nrgReward, difficulty, totalDifficulty, year, month, day, blockHash, minerAddress, parentHash, receiptTxRoot, stateRoot, txTrieRoot, extraData, nonce, bloom, solution, transactionHash, transactionHashes, sealType, signature, seed, publicKey, blockReward);
         }    }
 }

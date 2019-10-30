@@ -43,12 +43,18 @@ public class Block {
     private String signature;
     private String seed;
     private String publicKey;
-
+    private String coinbaseAddress;
 
 
     public Block(){}
 
-    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp, Long numTransactions, Long blockTime, BigDecimal nrgReward, BigDecimal difficulty, BigDecimal totalDifficulty, Integer year, Integer month, Integer day, String blockHash, String minerAddress, String parentHash, String receiptTxRoot, String stateRoot, String txTrieRoot, String extraData, String nonce, String bloom, String solution, String transactionHash, String transactionHashes, BigDecimal blockReward) {
+    public Block(Long blockNumber, Long nrgConsumed, Long nrgLimit, Long size, Long blockTimestamp,
+        Long numTransactions, Long blockTime, BigDecimal nrgReward, BigDecimal difficulty,
+        BigDecimal totalDifficulty, Integer year, Integer month, Integer day, String blockHash,
+        String minerAddress, String parentHash, String receiptTxRoot, String stateRoot,
+        String txTrieRoot, String extraData, String nonce, String bloom, String solution,
+        String transactionHash, String transactionHashes, BigDecimal blockReward,
+        String coinbaseAddress) {
         this.blockNumber = blockNumber;
         this.nrgConsumed = nrgConsumed;
         this.nrgLimit = nrgLimit;
@@ -75,6 +81,7 @@ public class Block {
         this.transactionHash = transactionHash;
         this.transactionHashes = transactionHashes;
         this.blockReward = blockReward;
+        this.coinbaseAddress = coinbaseAddress;
     }
 
     public Long getBlockNumber() {
@@ -262,5 +269,13 @@ public class Block {
     }
     public void setBlockReward(BigDecimal blockReward) {
         this.blockReward = blockReward;
+    }
+
+    public String getCoinbaseAddress() {
+        return coinbaseAddress;
+    }
+
+    public void setCoinbaseAddress(String coinbaseAddress) {
+        this.coinbaseAddress = coinbaseAddress;
     }
 }
