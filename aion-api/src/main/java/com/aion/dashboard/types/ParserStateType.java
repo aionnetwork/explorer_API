@@ -5,7 +5,8 @@ public enum ParserStateType {
     HEAD_BLOCKCHAIN(2),
     HEAD_INTEGRITY(3),
     HEAD_GRAPHING(4),
-    VALIDATOR_STATS(10);
+    VALIDATOR_STATS(10),
+    TRANSACTION_STATS(11);
 
     private int id;
     ParserStateType(int id) {
@@ -23,6 +24,7 @@ public enum ParserStateType {
             case 3: return HEAD_INTEGRITY;
             case 4: return HEAD_GRAPHING;
             case 10: return VALIDATOR_STATS;
+            case 11: return TRANSACTION_STATS;
         }
         return null;
     }

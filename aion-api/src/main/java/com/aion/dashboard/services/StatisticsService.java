@@ -3,17 +3,21 @@ package com.aion.dashboard.services;
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.Dashboard;
 import com.aion.dashboard.datatransferobject.HealthDTO;
+import com.aion.dashboard.entities.AccountStats;
 import com.aion.dashboard.entities.Block;
 import com.aion.dashboard.entities.Metrics;
 import com.aion.dashboard.entities.Metrics.CompositeKey;
 import com.aion.dashboard.entities.ParserState;
 import com.aion.dashboard.entities.Statistics;
 import com.aion.dashboard.entities.Transaction;
+import com.aion.dashboard.entities.TransactionStats;
 import com.aion.dashboard.entities.ValidatorStats;
+import com.aion.dashboard.repositories.AccountsStatsJpaRepository;
 import com.aion.dashboard.repositories.BlockJpaRepository;
 import com.aion.dashboard.repositories.MetricsJpaRepository;
 import com.aion.dashboard.repositories.ParserStateJpaRepository;
 import com.aion.dashboard.repositories.TransactionJpaRepository;
+import com.aion.dashboard.repositories.TransactionStatsJpaRepository;
 import com.aion.dashboard.repositories.ValidatorStatsJPARepository;
 import com.aion.dashboard.types.ParserStateType;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
@@ -47,9 +51,9 @@ public class StatisticsService {
     private Dashboard dashboard;
 
     private BlockJpaRepository blkRepo;
-
+    private AccountsStatsJpaRepository accountsStatsJpaRepository;
     private MetricsJpaRepository metRepo;
-
+    private TransactionStatsJpaRepository transactionStatsJpaRepository;
     private TransactionJpaRepository txnRepo;
     private ValidatorStatsJPARepository validatorStatsJPARepository;
 
@@ -58,12 +62,17 @@ public class StatisticsService {
 
     @Autowired
     public StatisticsService(Dashboard dashboard, BlockJpaRepository blkRepo,
-        MetricsJpaRepository metRepo, TransactionJpaRepository txnRepo,
+        AccountsStatsJpaRepository accountsStatsJpaRepository,
+        MetricsJpaRepository metRepo,
+        TransactionStatsJpaRepository transactionStatsJpaRepository,
+        TransactionJpaRepository txnRepo,
         ValidatorStatsJPARepository validatorStatsJPARepository,
         ParserStateJpaRepository pSRepo) {
         this.dashboard = dashboard;
         this.blkRepo = blkRepo;
+        this.accountsStatsJpaRepository = accountsStatsJpaRepository;
         this.metRepo = metRepo;
+        this.transactionStatsJpaRepository = transactionStatsJpaRepository;
         this.txnRepo = txnRepo;
         this.validatorStatsJPARepository = validatorStatsJPARepository;
         this.pSRepo = pSRepo;
@@ -403,5 +412,29 @@ public class StatisticsService {
 
     public Page<ValidatorStats> validatorStats(String sealType,int page, int size){
         return validatorStats(lastStoredBlock(), sealType, page, size);
+    }
+
+    public List<AccountStats> allAccountStats(){
+        return accountsStatsJpaRepository.findAll();
+    }
+
+    public List<AccountStats> recentAccountStats(){
+        return accountStats(pSRepo.findById(ParserStateType.TRANSACTION_STATS.getId()).orElseThrow().getBlockNumber());
+    }
+
+    public List<AccountStats> accountStats(long blockNumber){
+        return accountsStatsJpaRepository.findByBlockNumber(blockNumber - (blockNumber%4320));
+    }
+
+    public List<TransactionStats> allTransactionStats(){
+        return transactionStatsJpaRepository.findAll();
+    }
+
+    public TransactionStats transactionStats(long blockNumber){
+        return transactionStatsJpaRepository.findById(blockNumber - (blockNumber%4320)).orElseThrow();
+    }
+
+    public TransactionStats transactionStats(){
+        return transactionStats(pSRepo.findById(ParserStateType.TRANSACTION_STATS.getId()).orElseThrow().getBlockNumber());
     }
 }

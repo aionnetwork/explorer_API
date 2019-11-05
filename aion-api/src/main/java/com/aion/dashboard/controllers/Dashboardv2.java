@@ -5,18 +5,22 @@ import static org.springframework.http.HttpStatus.OK;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.controllers.mapper.AccountMapper;
+import com.aion.dashboard.controllers.mapper.AccountsStatsMapper;
 import com.aion.dashboard.controllers.mapper.BlockMapper;
 import com.aion.dashboard.controllers.mapper.InternalTransactionMapper;
 import com.aion.dashboard.controllers.mapper.MetricsMapper;
 import com.aion.dashboard.controllers.mapper.TransactionMapper;
+import com.aion.dashboard.controllers.mapper.TransactionStatsMapper;
 import com.aion.dashboard.controllers.mapper.TxLogMapper;
 import com.aion.dashboard.controllers.mapper.ValidatorStatsMapper;
 import com.aion.dashboard.controllers.mapper.ViewDTOMapper;
+import com.aion.dashboard.datatransferobject.AccountStatsDTO;
 import com.aion.dashboard.datatransferobject.BlockDTO;
 import com.aion.dashboard.datatransferobject.HealthDTO;
 import com.aion.dashboard.datatransferobject.InternalTransactionDTO;
 import com.aion.dashboard.datatransferobject.MetricsDTO;
 import com.aion.dashboard.datatransferobject.TransactionDTO;
+import com.aion.dashboard.datatransferobject.TransactionStatsDTO;
 import com.aion.dashboard.datatransferobject.TxLogDTO;
 import com.aion.dashboard.datatransferobject.ValidatorStatsDTO;
 import com.aion.dashboard.datatransferobject.ViewDTO;
@@ -644,4 +648,23 @@ public class Dashboardv2 {
         return !Optional.ofNullable(str).filter(s-> !s.isEmpty() && !s.isBlank()).isEmpty();
     }
 
+    @GetMapping(value = "/accountsStat")
+    public ResponseEntity<Result<AccountStatsDTO>> accountsStat(@RequestParam(value = "blockNumber") Optional<Long> blockNumber){
+        return packageResponse(AccountsStatsMapper.getMapper()
+            .makeResult(blockNumber
+                .map(statisticsService::accountStats)
+                .orElseGet(statisticsService::recentAccountStats)));
+    }
+
+    @GetMapping(value = "/transactionStats")
+    public ResponseEntity<Result<TransactionStatsDTO>> transactionsStats(){
+        return packageResponse(TransactionStatsMapper.getMapper().makeResult(statisticsService.allTransactionStats()));
+    }
+
+    @GetMapping(value = "/transactionStat")
+    public ResponseEntity<Result<TransactionStatsDTO>> transactionsStat(@RequestParam(value = "blockNumber")Optional<Long> blockNumber){
+        return packageResponse(TransactionStatsMapper.getMapper().makeResult(
+            blockNumber.map(statisticsService::transactionStats).orElseGet(statisticsService::transactionStats)
+        ));
+    }
 }
