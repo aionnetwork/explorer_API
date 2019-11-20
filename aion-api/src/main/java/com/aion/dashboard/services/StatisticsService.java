@@ -25,11 +25,6 @@ import com.aion.dashboard.utility.Logging;
 import com.aion.dashboard.utility.Utility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -58,6 +53,8 @@ public class StatisticsService {
     private ValidatorStatsJPARepository validatorStatsJPARepository;
 
     private ParserStateJpaRepository pSRepo;
+    private BlockService blockService;
+    private TransactionService transactionService;
     private Logger logger = LoggerFactory.getLogger(Statistics.class);
 
     @Autowired
@@ -67,7 +64,8 @@ public class StatisticsService {
         TransactionStatsJpaRepository transactionStatsJpaRepository,
         TransactionJpaRepository txnRepo,
         ValidatorStatsJPARepository validatorStatsJPARepository,
-        ParserStateJpaRepository pSRepo) {
+        ParserStateJpaRepository pSRepo, BlockService blockService,
+        TransactionService transactionService) {
         this.dashboard = dashboard;
         this.blkRepo = blkRepo;
         this.accountsStatsJpaRepository = accountsStatsJpaRepository;
@@ -76,7 +74,8 @@ public class StatisticsService {
         this.txnRepo = txnRepo;
         this.validatorStatsJPARepository = validatorStatsJPARepository;
         this.pSRepo = pSRepo;
-
+        this.blockService = blockService;
+        this.transactionService = transactionService;
     }
 
     private static final int SB_METRICS = 1;
@@ -123,7 +122,6 @@ public class StatisticsService {
     public void calculateDailyAccountStatistics() {
         // Updates the Statistics ever Hour
         try {
-            minedBlks();
             inboundTxns();
             outboundTxns();
         } catch (Exception e) {
@@ -172,16 +170,10 @@ public class StatisticsService {
     public void blocks() throws Exception {
         Optional<ParserState> parserState = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Sort blkSort = new Sort(Sort.Direction.DESC, "blockNumber");
 
         if(parserState.isPresent()) {
 
-            Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).get().getBlockTimestamp());
-            int d = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getDayOfMonth();
-            int m = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getMonthValue();
-            int y = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getYear();
-
-            Page<Block> blksPage = blkRepo.findByDayAndMonthAndYear(d, m, y, PageRequest.of(0, DISPLAYED_BLKS, blkSort));
+            Page<Block> blksPage = blockService.findBlocks(0, DISPLAYED_BLKS);
             List<Block> blksList = blksPage.getContent();
             if (!blksList.isEmpty()) {
                 JSONArray blocksArray = new JSONArray();
@@ -202,14 +194,7 @@ public class StatisticsService {
 
         if(!parserState.isPresent())
             throw new NullPointerException("ParserState is null");
-
-        Instant instant = Instant.ofEpochSecond(blkRepo.findByBlockNumber(parserState.get().getBlockNumber()).get().getBlockTimestamp());
-
-        int d = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getDayOfMonth();
-        int m = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getMonthValue();
-        int y = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")).getYear();
-
-        Page<Transaction> txnsPage = txnRepo.findByDayAndMonthAndYear(d, m, y, PageRequest.of(0, DISPLAYED_TXNS, txnSort));
+        Page<Transaction> txnsPage = transactionService.findAll(0, DISPLAYED_TXNS);
         List<Transaction> txnsList = txnsPage.getContent();
         if(!txnsList.isEmpty()) {
             JSONArray transactionsArray = new JSONArray();
@@ -224,52 +209,13 @@ public class StatisticsService {
         }
     }
 
-    public void minedBlks() throws Exception {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-
-        ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
-        Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
-        Long oneDayAgo = currTime - 86400;
-        List<Object> blksList = blkRepo.findAvgAndCountForAddressBetweenTimestamp(oneDayAgo, currTime);
-        long numBlocks = blkRepo.countByBlockTimestampBetween(oneDayAgo, currTime);
-        if(!blksList.isEmpty()) {
-
-            JSONArray minedBlks = new JSONArray();
-            for(Object blk: blksList) {
-
-                // Parse out the Information
-                String[] responseStrings = ow.writeValueAsString(blk)
-                        .replace("\"", "")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .split(",");
-
-                JSONArray result = new JSONArray();
-                result.put(responseStrings[0].trim());                                              // Miner Address
-                result.put(responseStrings[1].trim());                                              // Average Num of transactions
-                result.put(new BigDecimal(responseStrings[2].trim())
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(numBlocks),PRECISION, RoundingMode.HALF_UP)
-                        .toString());    // The Percentage of blocks Mined
-                minedBlks.put(result);
-            }
-
-            Statistics statistics = Statistics.getInstance();
-            statistics.setMinedBlks(minedBlks);
-        }
-    }
-
     public void inboundTxns() throws Exception {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ParserState blockHead = pSRepo.findById(ParserStateType.HEAD_BLOCK_TABLE.getId()).get();
 
         Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
-
-
-        var zdtStart = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currTime), ZoneId.of("UTC"));
-        var zdtEnd = ZonedDateTime.ofInstant(Instant.ofEpochSecond(oneDayAgo), ZoneId.of("UTC"));
-        List<Object> txnsList = txnRepo.findAvgsAndCountForToAddressByTimestampRange(oneDayAgo, currTime, zdtStart.getYear(), zdtStart.getMonthValue(), zdtEnd.getYear(), zdtEnd.getMonthValue());
+        List<Object> txnsList = txnRepo.findAvgsAndCountForToAddressByTimestampRange(oneDayAgo, currTime);
 
         if(!txnsList.isEmpty()) {
 
@@ -302,9 +248,7 @@ public class StatisticsService {
 
         Long currTime = blkRepo.findByBlockNumber(blockHead.getBlockNumber()).get().getBlockTimestamp();
         Long oneDayAgo = currTime - 86400;
-        var zdtStart = ZonedDateTime.ofInstant(Instant.ofEpochSecond(currTime), ZoneId.of("UTC"));
-        var zdtEnd = ZonedDateTime.ofInstant(Instant.ofEpochSecond(oneDayAgo), ZoneId.of("UTC"));
-        List<Object> txnsList = txnRepo.findAvgsAndCountForFromAddressByTimestampRange(oneDayAgo, currTime, zdtStart.getYear(), zdtStart.getMonthValue(), zdtEnd.getYear(), zdtEnd.getMonthValue());
+        List<Object> txnsList = txnRepo.findAvgsAndCountForFromAddressByTimestampRange(oneDayAgo, currTime);
 
         if(!txnsList.isEmpty()) {
 

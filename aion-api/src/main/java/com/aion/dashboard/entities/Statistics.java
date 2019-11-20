@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 public class Statistics {
 
-	private JSONArray minedBlks;
 	private JSONArray inboundTxns;
 	private JSONArray outboundTxns;
 
@@ -26,7 +25,6 @@ public class Statistics {
 		rtMetrics = new JSONObject();
 		transactions = new JSONArray();
 
-		minedBlks = new JSONArray();
 		inboundTxns = new JSONArray();
 		outboundTxns = new JSONArray();
 	}
@@ -38,9 +36,6 @@ public class Statistics {
 		return StatisticsHolder.INSTANCE;
 	}
 
-	public JSONArray getMinedBlks() {
-		return minedBlks;
-	}
 	public JSONArray getInboundTxns() {
 		return inboundTxns;
 	}
@@ -85,7 +80,6 @@ public class Statistics {
 		try {
 			Statistics statistics = Statistics.getInstance();
 			JSONObject result = new JSONObject();
-			result.put("miners", new JSONObject().put(CONTENT, statistics.getMinedBlks()));
 			result.put("txnInbound", new JSONObject().put(CONTENT, statistics.getInboundTxns()));
 			result.put("txnOutbound", new JSONObject().put(CONTENT, statistics.getOutboundTxns()));
 			return result.toString();
@@ -96,9 +90,6 @@ public class Statistics {
 		}
 	}
 
-	public void setMinedBlks(JSONArray minedBlks) {
-		this.minedBlks = minedBlks;
-	}
 	public void setInboundTxns(JSONArray inboundTxns) {
 		this.inboundTxns = inboundTxns;
 	}
