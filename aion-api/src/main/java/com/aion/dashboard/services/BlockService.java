@@ -45,7 +45,7 @@ public class BlockService {
 	private static final String TRANSACTION_HASH="transactionHashes";
 
 	private Sort sortDesc(){
-		return new Sort( Sort.Direction.DESC,"blockTimestamp");
+		return new Sort( Sort.Direction.DESC,"blockNumber");
 	}
 
 	public String getBlockList(long start,
