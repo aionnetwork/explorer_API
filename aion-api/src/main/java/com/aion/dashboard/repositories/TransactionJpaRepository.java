@@ -19,6 +19,9 @@ public interface TransactionJpaRepository extends PagingAndSortingRepository<Tra
 	@Query(value = "SELECT * FROM transaction WHERE from_addr = ?1 OR to_addr = ?1 ORDER BY block_number DESC", nativeQuery = true)
 	Page<Transaction> findTransactionsByAddress(String address, Pageable pageable);
 
+	Page<Transaction> findTransactionsByFromAddrOrderByBlockNumberDesc(String fromAddr, Pageable pageable);
+	Page<Transaction> findTransactionsByToAddrOrderByBlockNumberDesc(String toAddr, Pageable pageable);
+
 	Page<Transaction> findByDayAndMonthAndYear(int day, int month, int year, Pageable pageable);
 
 	Transaction findByTransactionHash(String transactionHash);

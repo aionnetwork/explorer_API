@@ -42,6 +42,9 @@ public class ContractService {
     @Autowired
     TransactionJpaRepository txnRepo;
 
+    @Autowired
+    TransactionService transactionService;
+
     private static final String TOTAL_ELEMENTS="totalElements";
     private static final String TOTAL_PAGES= "totalPages";
     private static final String NUMBER="number";
@@ -196,7 +199,7 @@ public class ContractService {
         JSONObject transactionObject = new JSONObject();
 
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        Page<Transaction> transactionPage = txnRepo.findTransactionsByAddress(contractAddress, PageRequest.of(pageNumber, pageSize));
+        Page<Transaction> transactionPage = transactionService.findTransactionsByAddress(contractAddress, PageRequest.of(pageNumber, pageSize));
         List<Transaction> transactionList = transactionPage.getContent();
         if (transactionList != null && !transactionList.isEmpty()) {
             for (Transaction transaction : transactionList) {
