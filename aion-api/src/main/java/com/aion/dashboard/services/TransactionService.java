@@ -20,14 +20,19 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
 @SuppressWarnings("Duplicates")
@@ -235,10 +240,36 @@ public class TransactionService {
 			var dateStart = Instant.ofEpochSecond(timeStampStart).atZone(ZoneId.of("UTC"));
 			var dateEnd = Instant.ofEpochSecond(timeStampEnd).atZone(ZoneId.of("UTC"));
 
+			final String addressFinal=address;
             Logging.traceLogStartAndEnd(dateStart,dateEnd, "Call to getTransactionsByAddressForNative");
 
-			var page = txnRepo.findAll(TransactionSpec.hasAddr(address).and(TransactionSpec.checkTime(dateStart, dateEnd)), PageRequest.of(pageNumber, pageSize, sortDesc1()));
-			List<Transaction> txnsList = page.getContent();
+
+			ExecutorService pool = Executors.newCachedThreadPool();
+
+			Future<Page<Transaction>> fromAddr = pool.submit(() -> {
+				return txnRepo.findAll(TransactionSpec.isFrom(addressFinal).and(TransactionSpec.checkTime(dateStart, dateEnd)), PageRequest.of(pageNumber, pageSize, sortDesc1()));
+
+			});
+
+			Future<Page<Transaction>> toAddr = pool.submit(() -> {
+
+				return txnRepo.findAll(TransactionSpec.isTo(addressFinal).and(TransactionSpec.checkTime(dateStart, dateEnd)), PageRequest.of(pageNumber, pageSize, sortDesc1()));
+			});
+
+
+            //Two different call needs to be make to avoid the OR
+			var pageFrom = fromAddr.get();
+			var pageTo = toAddr.get();
+			pool.shutdown();
+
+
+			List<Transaction> txnsList =new ArrayList<>();
+			if(!pageFrom.isEmpty())
+				txnsList.addAll(pageFrom.getContent());
+
+			if(!pageTo.isEmpty())
+				txnsList.addAll(pageTo.getContent());
+
 			JSONArray txnArray = new JSONArray();
 			JSONObject txnObject = new JSONObject();
 			if (txnsList != null && !txnsList.isEmpty()) {
@@ -252,13 +283,13 @@ public class TransactionService {
 				}
 
 				JSONObject pageObject = new JSONObject();
-				pageObject.put(TOTAL_ELEMENTS, page.getTotalElements());
-				pageObject.put(TOTAL_PAGES, page.getTotalPages());
+				pageObject.put(TOTAL_ELEMENTS, pageFrom.getTotalElements()+pageTo.getTotalElements());
+				pageObject.put(TOTAL_PAGES, (pageFrom.isEmpty()?0:(pageFrom.getTotalPages())-1)
+						+(pageTo.isEmpty()?0:pageTo.getTotalPages()-1));
 				pageObject.put(NUMBER, pageNumber);
 				pageObject.put(SIZE, pageSize);
 				pageObject.put(START, timeStampStart);
 				pageObject.put(END, timeStampEnd);
-
 
 				txnObject.put(CONTENT, txnArray);
 				txnObject.put(PAGE, pageObject);
@@ -451,4 +482,43 @@ public class TransactionService {
 	public Page<Transaction> findAll(int page, int size){
 		return txnRepo.findAll(PageRequest.of(page, size, sortDesc1()));
 	}
+
+
+	public Page<Transaction> findTransactionsByAddress(String address, Pageable pageable){
+
+		ExecutorService pool = Executors.newCachedThreadPool();
+
+		Future<Page<Transaction>> fromAddr = pool.submit(() -> {
+
+			return txnRepo.findTransactionsByFromAddrOrderByBlockNumberDesc(address,pageable);
+		});
+
+		Future<Page<Transaction>> toAddr = pool.submit(() -> {
+
+			return txnRepo.findTransactionsByToAddrOrderByBlockNumberDesc(address,pageable);
+		});
+
+		List<Transaction> transactionList=new ArrayList<>();
+		Page<Transaction> pagesTransactions =null;
+		try {
+			if(!fromAddr.get().isEmpty())
+				transactionList.addAll(fromAddr.get().getContent());
+			if(!toAddr.get().isEmpty())
+				transactionList.addAll(toAddr.get().getContent());
+			PageRequest of = PageRequest.of(pageable.getPageNumber()
+					,transactionList.isEmpty()?1:transactionList.size()
+					,sortDesc1());
+			pagesTransactions = new PageImpl<>(transactionList, of, toAddr.get().getTotalElements()+fromAddr.get().getTotalElements());
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+
+		pool.shutdown();
+
+		return pagesTransactions;
+	}
+
 }

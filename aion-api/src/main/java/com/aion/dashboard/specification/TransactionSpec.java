@@ -67,8 +67,6 @@ public class TransactionSpec {
 
 
     public static Specification<Transaction> checkTime(ZonedDateTime zdtStart, ZonedDateTime zdtEnd){
-
-        return timestampBetween(zdtStart.toEpochSecond(), zdtEnd.toEpochSecond())
-                .and(yearMonth(zdtStart).or(yearMonth(zdtEnd)));
+        return timestampBetween(zdtStart.toEpochSecond(), zdtEnd.toEpochSecond());
     }
 }
