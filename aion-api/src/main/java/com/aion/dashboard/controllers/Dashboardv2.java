@@ -4,29 +4,12 @@ package com.aion.dashboard.controllers;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.aion.dashboard.configs.CacheConfig;
-import com.aion.dashboard.controllers.mapper.AccountMapper;
-import com.aion.dashboard.controllers.mapper.AccountsStatsMapper;
-import com.aion.dashboard.controllers.mapper.BlockMapper;
-import com.aion.dashboard.controllers.mapper.InternalTransactionMapper;
-import com.aion.dashboard.controllers.mapper.MetricsMapper;
-import com.aion.dashboard.controllers.mapper.TransactionMapper;
-import com.aion.dashboard.controllers.mapper.TransactionStatsMapper;
-import com.aion.dashboard.controllers.mapper.TxLogMapper;
-import com.aion.dashboard.controllers.mapper.ValidatorStatsMapper;
-import com.aion.dashboard.controllers.mapper.ViewDTOMapper;
-import com.aion.dashboard.datatransferobject.AccountStatsDTO;
-import com.aion.dashboard.datatransferobject.BlockDTO;
-import com.aion.dashboard.datatransferobject.HealthDTO;
-import com.aion.dashboard.datatransferobject.InternalTransactionDTO;
-import com.aion.dashboard.datatransferobject.MetricsDTO;
-import com.aion.dashboard.datatransferobject.TransactionDTO;
-import com.aion.dashboard.datatransferobject.TransactionStatsDTO;
-import com.aion.dashboard.datatransferobject.TxLogDTO;
-import com.aion.dashboard.datatransferobject.ValidatorStatsDTO;
-import com.aion.dashboard.datatransferobject.ViewDTO;
-import com.aion.dashboard.exception.EntityNotFoundException;
+import com.aion.dashboard.controllers.mapper.*;
+import com.aion.dashboard.datatransferobject.*;
+ import com.aion.dashboard.exception.EntityNotFoundException;
 import com.aion.dashboard.exception.IncorrectArgumentException;
 import com.aion.dashboard.exception.MissingArgumentException;
+import com.aion.dashboard.repositories.CirculatingSupplyJPARepository;
 import com.aion.dashboard.services.AccountService;
 import com.aion.dashboard.services.BlockService;
 import com.aion.dashboard.services.InternalTransactionService;
@@ -45,6 +28,7 @@ import io.swagger.annotations.ApiParam;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,25 +54,25 @@ public class Dashboardv2 {
 
     private SearchService searchService;
     private BlockService blockService;
-    private ThirdPartyService thirdPartyService;
-    private TransactionService transactionService;
+     private TransactionService transactionService;
     private StatisticsService statisticsService;
     private TxLogService txLogService;
     private InternalTransactionService internalTransactionService;
     private AccountService accountService;
     private Validators validators;
-
+    @Autowired
+    CirculatingSupplyJPARepository circulatingSupplyJPARepository;
 
 
     @Autowired
     Dashboardv2(InternalTransactionService internalTransactionService, TxLogService txLogService,
-        SearchService searchService, BlockService blockService, ThirdPartyService thirdPartyService,
+        SearchService searchService, BlockService blockService,
         TransactionService transactionService, StatisticsService statisticsService,
         AccountService accountService, Validators validators){
         this.internalTransactionService = internalTransactionService;
         this.txLogService = txLogService;
         this.blockService=blockService;
-        this.thirdPartyService=thirdPartyService;
+
         this.transactionService=transactionService;
         this.searchService=searchService;
         this.statisticsService = statisticsService;
@@ -666,5 +650,13 @@ public class Dashboardv2 {
         return packageResponse(TransactionStatsMapper.getMapper().makeResult(
             blockNumber.map(statisticsService::transactionStats).orElseGet(statisticsService::transactionStats)
         ));
+    }
+    @Cacheable(CacheConfig.CIRCULATING_SUPPLY)
+    @GetMapping(value = "/circulating-supply")
+    public ResponseEntity<Result<CirculatingSupplyDTO>> getCirculatingSupply(){
+        return packageResponse(CirculatingSupplyMapper
+                .getMapper()
+                .makeResult(circulatingSupplyJPARepository.findByOrderByTimestampDesc(PageRequest.of(0, 1)).getContent().get(0)));
+
     }
 }

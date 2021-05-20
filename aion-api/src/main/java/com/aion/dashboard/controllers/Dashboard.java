@@ -2,11 +2,11 @@ package com.aion.dashboard.controllers;
 
 import com.aion.dashboard.configs.CacheConfig;
 import com.aion.dashboard.entities.Statistics;
+import com.aion.dashboard.repositories.CirculatingSupplyJPARepository;
 import com.aion.dashboard.services.AccountService;
 import com.aion.dashboard.services.BlockService;
 import com.aion.dashboard.services.ContractService;
 import com.aion.dashboard.services.GraphingService;
-import com.aion.dashboard.services.ThirdPartyService;
 import com.aion.dashboard.services.TokenService;
 import com.aion.dashboard.services.TransactionService;
 import com.aion.dashboard.utility.BackwardsCompactibilityUtil;
@@ -16,12 +16,16 @@ import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.ApiOperation;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.Cacheable;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * This controller is used to maintain legacy support for dashboard v1.0
@@ -41,16 +45,16 @@ public class Dashboard {
     private AccountService accountService;
     private GraphingService graphingService;
     private ContractService contractService;
-    private ThirdPartyService thirdPartyService;
     private TransactionService transactionService;
     private SimpMessagingTemplate brokerMessagingTemplate;
+    @Autowired
+    CirculatingSupplyJPARepository circulatingSupplyJPARepository;
     @Autowired
     Dashboard(BlockService blockService,
               TokenService tokenService,
               AccountService accountService,
               GraphingService graphingService,
               ContractService contractService,
-              ThirdPartyService thirdPartyService,
               TransactionService transactionService,
               SimpMessagingTemplate brokerMessagingTemplate) {
         this.blockService = blockService;
@@ -58,8 +62,7 @@ public class Dashboard {
         this.accountService = accountService;
         this.graphingService = graphingService;
         this.contractService = contractService;
-        this.thirdPartyService = thirdPartyService;
-        this.transactionService = transactionService;
+         this.transactionService = transactionService;
         this.brokerMessagingTemplate = brokerMessagingTemplate;
     }
 
@@ -501,16 +504,16 @@ public class Dashboard {
 
         }
     }
-
-    // Third Party APIs
+    @Cacheable(CacheConfig.CIRCULATING_SUPPLY)
     @GetMapping(value = "/getCirculatingSupply")
     public String getCirculatingSupply() {
         try {
-            return thirdPartyService.getCirculatingSupply();
+             return circulatingSupplyJPARepository
+                     .findByOrderByTimestampDesc(PageRequest.of(0, 1)).getContent().get(0).
+                             getSupply().setScale(0, RoundingMode.HALF_EVEN).toString();
         } catch (Exception e) {
             Logging.traceException(e);
             return getJsonString(MESSAGE, INVALID_REQUEST);
-
         }
     }
 
