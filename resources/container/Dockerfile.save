@@ -1,0 +1,8 @@
+FROM openjdk:11-jdk
+
+WORKDIR /app
+ADD . .
+RUN cd ./aion-api && ./gradlew clean build -x test
+EXPOSE 8080
+#CMD source ./resources/volume/.env  &&  java -jar ./aion-api/build/libs/*.jar ["/bin/bash", "-c", "source ./resources/volume/.env  &&  java -jar ./aion-api/build/libs/*.jar"]
+

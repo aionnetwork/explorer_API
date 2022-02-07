@@ -10,6 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.ajoberstar:gradle-git:1.7.2'
+
     }
 }
 plugins {
@@ -19,6 +20,8 @@ plugins {
     id 'idea'
     id "com.peterabeles.gversion" version "1.5.0"
     id 'org.springframework.boot' version '2.1.6.RELEASE'
+    id 'org.ajoberstar.grgit' version '1.7.2'
+
 }
 
 apply plugin: 'org.ajoberstar.grgit'

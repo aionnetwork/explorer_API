@@ -7,10 +7,10 @@ package com.aion.dashboard.configs;
 public class BuildVersion {
 	public static final String MAVEN_GROUP = "com.aion.dashboard";
 	public static final String MAVEN_NAME = "aion-api";
-	public static final String VERSION = "2.4-90c4c4e-0822-08-06-2021";
-	public static final int GIT_REVISION = 93;
-	public static final String GIT_SHA = "90c4c4e7a61d3d3f43dabbad5f6c6f15c97bd10d";
-	public static final String GIT_DATE = "2021-06-08T20:16:14Z";
-	public static final String BUILD_DATE = "2021-06-08T20:22:45Z";
-	public static final long BUILD_UNIX_TIME = 1623183765717L;
+	public static final String VERSION = "2.4-e2ba312-0426-20-01-2022";
+	public static final int GIT_REVISION = 92;
+	public static final String GIT_SHA = "e2ba3128453c9de716d299348e97aae235b2053d";
+	public static final String GIT_DATE = "2021-06-14T13:29:47Z";
+	public static final String BUILD_DATE = "2022-01-20T16:26:53Z";
+	public static final long BUILD_UNIX_TIME = 1642696013096L;
 }

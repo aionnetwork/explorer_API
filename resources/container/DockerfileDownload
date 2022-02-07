@@ -1,0 +1,9 @@
+FROM gradle:6.3-jdk11
+
+WORKDIR /app
+ADD . .
+RUN cd ./dashboard-downloads && gradle clean build -x test
+EXPOSE 8080
+#CMD source ./resources/volume/.env  &&  java -jar ./aion-api/build/libs/*.jar
+CMD ["/bin/bash", "-c", "source ./resources/volume/Download/.env  &&  java -jar ./dashboard-downloads/build/libs/*.jar"]
+
